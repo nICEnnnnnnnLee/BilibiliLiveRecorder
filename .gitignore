@@ -2,13 +2,13 @@
 /.settings
 /.classpath
 */download
+.gitignore
 *.zip
 *.log
 *.config
 *.flv
 *.mp4
 *.exe
-*.jar
 *.part
 *.m4s
 *.txt

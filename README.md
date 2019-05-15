@@ -9,7 +9,8 @@
 Bilibili 直播录制  
 ===============================  
 ## :smile:使用方法
-+ `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar`
++ `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar`  
+
   获取 房间id  
 ![](https://raw.githubusercontent.com/nICEnnnnnnnLee/BilibiliLiveRecorder/master/release/preview/id.png)  
     
@@ -45,4 +46,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-</details>
