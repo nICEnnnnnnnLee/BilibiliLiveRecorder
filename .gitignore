@@ -1,0 +1,17 @@
+/.project
+/.settings
+/.classpath
+*/download
+*.zip
+*.log
+*.config
+*.flv
+*.mp4
+*.exe
+*.jar
+*.part
+*.m4s
+*.txt
+/bin
+/target
+
