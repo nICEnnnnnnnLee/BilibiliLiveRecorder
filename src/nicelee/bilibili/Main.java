@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import nicelee.bilibili.live.FlvChecker;
 import nicelee.bilibili.live.RoomDealer;
 import nicelee.bilibili.live.domain.RoomInfo;
 import nicelee.bilibili.util.Logger;
@@ -16,9 +17,11 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		if(args != null && args.length >= 1) {
 			Logger.debug = true;
+		}else {
+			Logger.debug = false;
 		}
 		// 等待输入房间号
-		System.out.println("bilibili 直播录制 version v1.0");
+		System.out.println("bilibili 直播录制 version v1.1");
 		System.out.println("请输入房间号(直播网址是https://live.bilibili.com/xxx，那么房间号就是xxx)");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		long shortId;
@@ -60,6 +63,14 @@ public class Main {
 				File flvFile = new File(file.getParent(), filename);
 				partFile.renameTo(flvFile);
 				System.out.println("下载完毕");
+				
+				try {
+					System.out.println("校对时间戳开始...");
+					FlvChecker.check(flvFile.getAbsolutePath());
+					System.out.println("校对时间戳完毕。");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 				System.exit(1);
 			}
 		}, "thread-record").start();

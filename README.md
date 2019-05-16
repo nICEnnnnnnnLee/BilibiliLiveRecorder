@@ -17,11 +17,6 @@ Bilibili 直播录制
   运行截图
 ![](https://raw.githubusercontent.com/nICEnnnnnnnLee/BilibiliLiveRecorder/master/release/preview/run.png)  
 
-## :smile:可能存在的问题
-* 停止录制后flv视频的长度可能不对劲，这个用工具转一下码就好了(提供了一个脚本`tomp4.bat`, 用于Windows ffmpeg环境下使用, 仅供参考)
-![](https://raw.githubusercontent.com/nICEnnnnnnnLee/BilibiliLiveRecorder/master/release/preview/trans2Mp4.gif)  
-
-
 ## :smile:其它  
 * **支持UI的简单易操作的B站视频下载器**：[https://github.com/nICEnnnnnnnLee/BilibiliDown](https://github.com/nICEnnnnnnnLee/BilibiliDown)
 * **下载地址**: [https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/releases](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/releases)

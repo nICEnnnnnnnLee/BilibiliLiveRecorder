@@ -3,7 +3,30 @@ package nicelee.bilibili.util;
 public class Logger {
 
 	
-	public static boolean debug = false;
+	public static boolean debug = true;
+	/**
+	 * 测试用
+	 * @param str
+	 */
+	public static void print(String str) {
+		if(!debug) {
+			return;
+		}
+		System.out.print(str);
+	}
+	public static void print(Object str) {
+		if(!debug) {
+			return;
+		}
+		System.out.print(str);
+	}
+	public static void println() {
+		if(!debug) {
+			return;
+		}
+		System.out.println();
+	}
+	
 	/**
 	 * 测试用
 	 * @param str
