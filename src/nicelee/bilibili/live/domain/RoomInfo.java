@@ -22,7 +22,7 @@ public class RoomInfo {
 					System.out.print("\t");
 					System.out.println(f.getName() + "\t- " + f.get(this).toString());
 				}
-			} catch (IllegalArgumentException | IllegalAccessException e) {
+			} catch (NullPointerException | IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
 		}

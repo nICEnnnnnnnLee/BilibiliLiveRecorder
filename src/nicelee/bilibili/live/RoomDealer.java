@@ -22,7 +22,7 @@ public class RoomDealer {
 	 * @param shortId
 	 * @return
 	 */
-	final static Pattern userNamePattern = Pattern.compile("- ([^-]+)- 哔哩哔哩直播，二次元弹幕直播平台</title>");
+	final static Pattern userNamePattern = Pattern.compile("<title id=\"link-app-title\">[^-]*- (.*)- 哔哩哔哩直播，二次元弹幕直播平台</title>");
 	public RoomInfo getRoomInfo(long shortId) {
 
 		RoomInfo roomInfo = new RoomInfo();
@@ -34,7 +34,7 @@ public class RoomDealer {
 			html = util.getContent(url, headers.getCommonHeaders("live.bilibili.com"), null);
 			Matcher matcher = userNamePattern.matcher(html);
 			if(matcher.find()) {
-				roomInfo.setUserName(matcher.group(1));
+				roomInfo.setUserName(matcher.group(1).trim());
 			}
 			int begin = html.indexOf("window.__NEPTUNE_IS_MY_WAIFU__={");
 			int end = html.indexOf("</script>", begin);
