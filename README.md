@@ -9,8 +9,17 @@
 Bilibili 直播录制  
 ===============================  
 ## :smile:使用方法
-+ `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar`  
++ 默认录制完后自动校正时间问题  
+    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar`  
 
++ 录制完后保留原始文件  
+    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar noCheck`  
++ 校正某FLV文件的时间戳  
+    `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "文件路径"`
++ debug模式  
+    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar "debug"`  
+    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar "noCheck&debug"`  
+    
   获取 房间id  
 ![](https://raw.githubusercontent.com/nICEnnnnnnnLee/BilibiliLiveRecorder/master/release/preview/id.png)  
     
@@ -21,6 +30,7 @@ Bilibili 直播录制
 * **支持UI的简单易操作的B站视频下载器**：[https://github.com/nICEnnnnnnnLee/BilibiliDown](https://github.com/nICEnnnnnnnLee/BilibiliDown)
 * **下载地址**: [https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/releases](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/releases)
 * **GitHub**: [https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder)  
+* **更新历史**: <https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/blob/master/UPDATE.md>
 
 ## :smile:第三方库使用声明  
 * 使用[JSON.org](https://github.com/stleary/JSON-java)库做简单的Json解析[![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/stleary/JSON-java/blob/master/LICENSE)

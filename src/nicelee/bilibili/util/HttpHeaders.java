@@ -8,7 +8,7 @@ public class HttpHeaders {
 	HashMap<String, String> headerMap = new HashMap<String, String>();
 
 	final private static Pattern host = Pattern.compile("^https?://([^/]+)/");
-	private String getHost(String url) {
+	public static String getHost(String url) {
 		Matcher matcher = host.matcher(url);
 		matcher.find();
 		return matcher.group(1);
@@ -59,7 +59,7 @@ public class HttpHeaders {
 		headerMap.put("Connection", "keep-alive");
 		headerMap.put("Host", "api.bilibili.com");
 		headerMap.put("Origin", "https://live.bilibili.com");
-		headerMap.put("Referer", "https://www.bilibili.com/video/" + shortId);// need addavId
+		headerMap.put("Referer", "https://live.bilibili.com/blanc/" + shortId);// need addavId
 		headerMap.put("User-Agent",
 				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0");
 		headerMap.put("X-Requested-With", "ShockwaveFlash/28.0.0.137");

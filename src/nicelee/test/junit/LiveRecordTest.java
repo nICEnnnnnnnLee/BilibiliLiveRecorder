@@ -26,7 +26,7 @@ public class LiveRecordTest {
 	
 	@Test
 	public void testCheck() {
-		String path = "D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\灵药LoveLing 的直播2019-05-16 22.35.flv";
+		String path = "D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\哔哩哔哩英雄联盟赛事-6 的直播 2019-05-18 17.43.flv";
 		try {
 			FlvChecker.check(path);
 			//FlvChecker.checkFromEnd(path);

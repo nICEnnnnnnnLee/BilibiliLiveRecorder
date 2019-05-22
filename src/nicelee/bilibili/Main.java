@@ -15,15 +15,21 @@ import nicelee.bilibili.util.Logger;
 
 public class Main {
 	
+	static boolean autoCheck = true;
 	public static void main(String[] args) throws IOException {
 		//args = new String[]{"debug"};
 		if(args != null && args.length >= 1) {
-			Logger.debug = true;
+			if(args[0].contains("debug")) {
+				Logger.debug = true;
+			}
+			if(args[0].contains("noCheck")) {
+				autoCheck = false;
+			}
 		}else {
 			Logger.debug = false;
 		}
 		// 等待输入房间号
-		System.out.println("bilibili 直播录制 version v1.2");
+		System.out.println("bilibili 直播录制 version v1.3");
 		System.out.println("请输入房间号(直播网址是https://live.bilibili.com/xxx，那么房间号就是xxx)");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		long shortId;
@@ -62,20 +68,27 @@ public class Main {
 						roomInfo.getShortId(),
 						sdf.format(new Date()));
 				roomDealer.startRecord(url, filename, roomInfo.getShortId());
-				// 将后缀.part去掉
+				// 此处一直堵塞， 直至停止
 				File file = roomDealer.util.getFileDownload();
 				File partFile = new File(file.getParent(), filename + ".part");
 				File flvFile = new File(file.getParent(), filename);
-				partFile.renameTo(flvFile);
 				System.out.println("下载完毕");
 				
-				try {
-					System.out.println("校对时间戳开始...");
-					FlvChecker.check(flvFile.getAbsolutePath());
-					System.out.println("校对时间戳完毕。");
-				} catch (IOException e) {
-					e.printStackTrace();
+				if(autoCheck) {
+					try {
+						System.out.println("校对时间戳开始...");
+						if(partFile.exists()) { // 人工停止
+							FlvChecker.check(partFile.getAbsolutePath());
+						}else {	// 主播下播，正常结束
+							FlvChecker.check(flvFile.getAbsolutePath());
+						}
+						System.out.println("校对时间戳完毕。");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
+				// 将后缀.part去掉
+				partFile.renameTo(flvFile);
 				System.exit(1);
 			}
 		}, "thread-record").start();

@@ -1,8 +1,5 @@
 package nicelee.bilibili.live;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -17,31 +14,20 @@ public class RoomDealer {
 	HttpHeaders headers = new HttpHeaders();
 
 	/**
-	 * 根据url的shortId获取房间信息 （从网页里面爬的）
-	 * 
+	  *  根据url的shortId获取房间信息(从api获取，查询了 3 次)
 	 * @param shortId
 	 * @return
 	 */
-	final static Pattern userNamePattern = Pattern.compile("<title id=\"link-app-title\">[^-]*- (.*)- 哔哩哔哩直播，二次元弹幕直播平台</title>");
 	public RoomInfo getRoomInfo(long shortId) {
-
 		RoomInfo roomInfo = new RoomInfo();
 		roomInfo.setShortId(shortId);
-
-		String url = String.format("https://live.bilibili.com/%d", shortId);
-		String html;
 		try {
-			html = util.getContent(url, headers.getCommonHeaders("live.bilibili.com"), null);
-			Matcher matcher = userNamePattern.matcher(html);
-			if(matcher.find()) {
-				roomInfo.setUserName(matcher.group(1).trim());
-			}
-			int begin = html.indexOf("window.__NEPTUNE_IS_MY_WAIFU__={");
-			int end = html.indexOf("</script>", begin);
-			String jsonStr = html.substring(begin + 31, end);
+			// 获取基础信息
+			String basicInfoUrl = String.format("https://api.live.bilibili.com/room/v1/Room/get_info?id=%d&from=room", shortId);
+			String jsonStr = util.getContent(basicInfoUrl, headers.getBiliLiveJsonAPIHeaders(shortId), null);
 			Logger.println(jsonStr);
 
-			JSONObject jObj = new JSONObject(jsonStr).getJSONObject("baseInfoRes").getJSONObject("data");
+			JSONObject jObj = new JSONObject(jsonStr).getJSONObject("data");
 			roomInfo.setRoomId(jObj.getLong("room_id"));
 			roomInfo.setUserId(jObj.getLong("uid"));
 			roomInfo.setTitle(jObj.getString("title"));
@@ -49,7 +35,15 @@ public class RoomDealer {
 			roomInfo.setLiveStatus(jObj.getInt("live_status"));
 
 			if (roomInfo.getLiveStatus() == 1) {
-				JSONObject jData = new JSONObject(jsonStr).getJSONObject("playUrlRes").getJSONObject("data");
+				// 获取该房间的主播信息 - 名称等
+				String liverInfoUrl = String.format("https://api.live.bilibili.com/live_user/v1/UserInfo/get_anchor_in_room?roomid=%d",
+						roomInfo.getRoomId());
+				String jsonLiverStr = util.getContent(liverInfoUrl, headers.getBiliLiveJsonAPIHeaders(shortId), null);
+				String uname = new JSONObject(jsonLiverStr).getJSONObject("data").getJSONObject("info").getString("uname");
+				roomInfo.setUserName(uname);
+				
+				// 获取直播可提供的清晰度
+				JSONObject jData = getLiveJson(roomInfo.getRoomId(), "4").getJSONObject("data");
 				JSONArray jArray = jData.getJSONArray("quality_description");
 				String[] qn = new String[jArray.length()];
 				String[] qnDesc = new String[jArray.length()];
@@ -69,6 +63,23 @@ public class RoomDealer {
 		return roomInfo;
 	}
 
+	
+	/**
+	 *  获取直播源的相关信息json
+	 * @param roomId
+	 * @param qn
+	 * @return
+	 */
+	private JSONObject getLiveJson(long roomId, String qn) {
+		String url = String.format("https://api.live.bilibili.com/room/v1/Room/playUrl?cid=%d&quality=%s&platform=web",
+				roomId, qn);
+		String jsonStr = util.getContent(url, headers.getBiliLiveJsonAPIHeaders(roomId), null);
+		Logger.println(url);
+		Logger.println(jsonStr);
+		JSONObject obj = new JSONObject(jsonStr);
+		return obj;
+	}
+	
 	/**
 	 * 获取直播地址的下载链接
 	 * 
@@ -77,13 +88,9 @@ public class RoomDealer {
 	 * @return
 	 */
 	public String getLiveUrl(long shortId, String qn) {
-		String url = String.format("https://api.live.bilibili.com/room/v1/Room/playUrl?cid=%d&quality=%s&platform=web",
-				shortId, qn);
-		//System.out.println(url);
-		String jsonStr = util.getContent(url, headers.getBiliLiveJsonAPIHeaders(shortId), null);
 		try {
-			Logger.println(jsonStr);
-			JSONArray jObj = new JSONObject(jsonStr).getJSONObject("data").getJSONArray("durl");
+			JSONObject json = getLiveJson(shortId, qn);
+			JSONArray jObj = json.getJSONObject("data").getJSONArray("durl");
 			return jObj.getJSONObject(0).getString("url");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -109,23 +116,6 @@ public class RoomDealer {
 	public void stopRecord() {
 		util.stopDownload();
 	}
-
-	// 获取房间主人信息
-	// https://api.live.bilibili.com/live_user/v1/UserInfo/get_anchor_in_room?roomid=11090072
-	/*
-	 * {"code":0,"msg":"success","message":"success","data":{"info":{"uid":325164925
-	 * ,"uname":"Fireloli","face":
-	 * "https://i0.hdslb.com/bfs/face/77ce6a1a491b68f14ab2e86aec46d027bd4afdf8.jpg",
-	 * "rank":"10000","identification":1,"mobile_verify":1,"platform_user_level":6,
-	 * "vip_type":1,"gender":0,"official_verify":{"type":0,"desc":"bilibili直播签约主播",
-	 * "role":2}},"level":{"uid":325164925,"cost":15070100,"rcost":1710549151,
-	 * "user_score":"0","vip":0,"vip_time":"0000-00-0000:00:00","svip":0,
-	 * "svip_time":"0000-00-00 00:00:00","update_time":"2019-05-15 14:39:32"
-	 * ,"master_level":{"level":31,"current":[3730000,15613810],"next":[5000000,
-	 * 20613810],"color":16746162,"anchor_score":17105491,"upgrade_score":3508319,
-	 * "master_level_color":16746162,"sort":371},"user_level":20,"color":6406234,
-	 * "anchor_score":17105491},"san":12}}
-	 */
 
 	// 根据主播id 查找房间
 	// https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld?mid=393403683
