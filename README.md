@@ -6,19 +6,25 @@
 ![当前版本](https://img.shields.io/github/release/nICEnnnnnnnLee/BilibiliLiveRecorder.svg?style=flat-square)
 ![Release 下载总量](https://img.shields.io/github/downloads/nICEnnnnnnnLee/BilibiliLiveRecorder/total.svg?style=flat-square)
 
-Bilibili 直播录制  
+Bilibili/Douyu 直播录制  
 ===============================  
 ## :smile:使用方法
-+ 默认录制完后自动校正时间问题  
-    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar`  
++ 程序调用时传入参数即可(顺序可变)  
+    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar "debug=false&check=false&liver=douyu&id=233233&qn=0"`  
++ 各参数意义  
 
-+ 录制完后保留原始文件  
-    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar noCheck`  
+| Key  | 必选 | 释义 | 
+| ------------- | ------------- | ------------- | 
+| debug  | 否 | debug模式,输出更多信息。默认false | 
+| check  | 否 | 下载完后是否校准时间戳，默认true | 
+| liver  | 是 | 将要录制的直播源。 bili: B站直播； douyu:斗鱼直播 | 
+| id  | 否 | 直播房间id，如未传入，后续将提示输入。 | 
+| qn  | 否 | 直播视频清晰度，如未传入，后续将提示输入。不同网站数值意义不同 |   
+   
 + 校正某FLV文件的时间戳  
     `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "文件路径"`
-+ debug模式  
-    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar "debug"`  
-    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar "noCheck&debug"`  
++ 加载cookies(适用于高清晰度录制)
+    将cookie保存到同级目录的`{liver}-cookie.txt`即可，e.g. `douyu-cookie.txt`
     
   获取 房间id  
 ![](https://raw.githubusercontent.com/nICEnnnnnnnLee/BilibiliLiveRecorder/master/release/preview/id.png)  

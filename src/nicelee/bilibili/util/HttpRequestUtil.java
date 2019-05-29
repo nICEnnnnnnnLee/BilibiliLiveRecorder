@@ -133,7 +133,7 @@ public class HttpRequestUtil {
 			fileDownload = getFile(fileName);
 			File fileDst = new File(fileDownload.getParent(),
 					fileDownload.getName().replaceAll("_(video|audio)", "").replaceAll("\\.m4s$", ".mp4"));
-			System.out.println(fileDst.getName());
+			//System.out.println(fileDst.getName());
 			// 如果av1234-64-p4.flv已下完， 那么av1234-64-p4-part1.flv这种也不是必须的
 			Matcher ma = filePartPattern.matcher(fileDst.getName());
 			if (ma.find()) {
@@ -177,11 +177,11 @@ public class HttpRequestUtil {
 			conn.connect();
 			// 获取所有响应头字段
 			Map<String, List<String>> map = conn.getHeaderFields();
-			// 遍历所有的响应头字段
+//			// 遍历所有的响应头字段
 //			for (String key : map.keySet()) {
 //				System.out.println(key + "--->" + map.get(key));
 //			}
-			//System.out.printf("文件大小: %s 字节.\r\n", map.get("Content-Length"));
+			System.out.printf("文件大小: %s 字节.\r\n", map.get("Content-Length"));
 
 			try {
 				totalFileSize = offset + Long.parseUnsignedLong(map.get("Content-Length").get(0));
@@ -229,7 +229,7 @@ public class HttpRequestUtil {
 		}
 		// 使用finally块来关闭输入流
 		finally {
-			System.out.println("下载Finally...");
+			//System.out.println("下载Finally...");
 			try {
 				if (inn != null) {
 					inn.close();
@@ -318,7 +318,7 @@ public class HttpRequestUtil {
 				e2.printStackTrace();
 			}
 		}
-		// printCookie(manager.getCookieStore());
+		//printCookie(manager.getCookieStore());
 		return result.toString();
 	}
 
@@ -388,13 +388,13 @@ public class HttpRequestUtil {
 			if (encoding != null && encoding.contains("gzip")) {
 				ism = new GZIPInputStream(conn.getInputStream());
 			}
-			in = new BufferedReader(new InputStreamReader(ism));
+			in = new BufferedReader(new InputStreamReader(ism, "UTF-8"));
 			String line;
 			while ((line = in.readLine()) != null) {
-				line = new String(line.getBytes(), "UTF-8");
+				//line = new String(line.getBytes(), "UTF-8");
 				result.append(line);
 			}
-			// printCookie(manager.getCookieStore());
+			//printCookie(manager.getCookieStore());
 		} catch (Exception e) {
 			System.out.println("发送GET请求出现异常！" + e);
 			// e.printStackTrace();
@@ -429,6 +429,7 @@ public class HttpRequestUtil {
 
 	// 打印cookie信息
 	public static String printCookie(CookieStore cookieStore) {
+		System.out.println("----------printCookie---------- ");
 		List<HttpCookie> listCookie = cookieStore.getCookies();
 		StringBuilder sb = new StringBuilder();
 		for (HttpCookie httpCookie : listCookie) {

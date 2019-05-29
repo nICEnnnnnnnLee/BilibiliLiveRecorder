@@ -65,8 +65,45 @@ public class HttpHeaders {
 		headerMap.put("X-Requested-With", "ShockwaveFlash/28.0.0.137");
 		return headerMap;
 	}
+	
 	/**
-	 * 该Header配置用于直播 api 信息查询
+	 * 该Header配置用于douyu直播 api 信息查询
+	 */
+	public HashMap<String, String> getDouyuJsonAPIHeaders(long shortId) {
+		headerMap = new HashMap<String, String>();
+		headerMap.put("Accept", "application/json, text/plain, */*");
+		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
+		headerMap.put("content-type", "application/x-www-form-urlencoded");
+		headerMap.put("x-requested-with", "XMLHttpRequest");
+		headerMap.put("Origin", "https://www.douyu.com");
+		headerMap.put("Referer", "https://www.douyu.com/topic/xyb01?rid=" + shortId);// need addavId
+		headerMap.put("User-Agent",
+				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0");
+		headerMap.put("X-Requested-With", "ShockwaveFlash/28.0.0.137");
+		return headerMap;
+	}
+	
+
+	/**
+	 * 该Header配置用于douyu直播flv下载
+	 */
+	public HashMap<String, String> getDouyuLiveRecordHeaders(String url, long shortId) {
+		headerMap = new HashMap<String, String>();
+		headerMap.put("Accept", "*/*");
+		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
+		headerMap.put("Host", getHost(url));
+		headerMap.put("Origin", "https://www.douyu.com");
+		headerMap.put("Referer", "https://www.douyu.com/topic/xyb01?rid=" + shortId);// need addavId
+		headerMap.put("User-Agent",
+				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0");
+		headerMap.put("X-Requested-With", "ShockwaveFlash/28.0.0.137");
+		return headerMap;
+	}
+	
+	/**
+	 * 该Header配置用于直播flv下载
 	 */
 	public HashMap<String, String> getBiliLiveRecordHeaders(String url, long shortId) {
 		headerMap = new HashMap<String, String>();
@@ -77,6 +114,23 @@ public class HttpHeaders {
 		headerMap.put("Origin", "https://live.bilibili.com");
 		headerMap.put("Host", getHost(url));
 		headerMap.put("Referer", "https://live.bilibili.com/" + shortId);
+		headerMap.put("User-Agent",
+				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0");
+		return headerMap;
+	}
+	
+	/**
+	 * 该Header配置用于爱奇艺ts下载
+	 */
+	public HashMap<String, String> getAiqiyiHeaders(String url, String sid) {
+		headerMap = new HashMap<String, String>();
+		headerMap.put("Accept", "*/*");
+		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
+		headerMap.put("Connection", "keep-alive");
+		headerMap.put("Origin", "https://www.iqiyi.com");
+		headerMap.put("Host", getHost(url));
+		headerMap.put("Referer", String.format("https://www.iqiyi.com/%s.html", sid));
 		headerMap.put("User-Agent",
 				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0");
 		return headerMap;

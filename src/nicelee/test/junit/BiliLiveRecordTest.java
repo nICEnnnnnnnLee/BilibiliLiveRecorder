@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import nicelee.bilibili.live.FlvChecker;
 
-public class LiveRecordTest {
+public class BiliLiveRecordTest {
 
 	@Before
 	public void setUp() throws Exception {
@@ -24,7 +24,7 @@ public class LiveRecordTest {
 		System.out.printf("\n当前的值为\n%.2f \n", FlvChecker.bytes2Double(arr));
 	}
 	
-	@Test
+	//@Test
 	public void testCheck() {
 		String path = "D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\哔哩哔哩英雄联盟赛事-6 的直播 2019-05-18 17.43.flv";
 		try {

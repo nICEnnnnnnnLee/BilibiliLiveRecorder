@@ -12,6 +12,7 @@
 *.part
 *.m4s
 *.txt
+*.ts
 /bin
 /target
 

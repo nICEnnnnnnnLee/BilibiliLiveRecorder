@@ -14,16 +14,27 @@ public class RoomInfo {
 	String[] acceptQuality;
 	String[] acceptQualityDesc;
 	
+	String remark; // youyu: 保存加密函数
+	
+	public String getQualityByName(String qnName) {
+		for(int i=0; i<acceptQualityDesc.length; i++ ) {
+			if(qnName.equals(acceptQualityDesc[i])) {
+				return acceptQuality[i];
+			}
+		}
+		return "0";
+	}
+	
 	public void print() {
 		System.out.println("当前Room信息:");
 		for(Field f :this.getClass().getDeclaredFields()) {
 			try {
-				if(f.getType() != String[].class) {
+				if(f.getType() != String[].class && !f.getName().equals("remark")) {
 					System.out.print("\t");
 					System.out.println(f.getName() + "\t- " + f.get(this).toString());
 				}
 			} catch (NullPointerException | IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 		if(acceptQuality != null) {
@@ -95,5 +106,13 @@ public class RoomInfo {
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 }
