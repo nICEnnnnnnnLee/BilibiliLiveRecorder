@@ -8,13 +8,15 @@ public abstract class RoomDealer {
 
 	public HttpRequestUtil util = new HttpRequestUtil();
 	protected HttpHeaders headers = new HttpHeaders();
-
+	public Integer currentIndex = 0; // 当前任务编号
+	
+	public abstract String getType();
 	/**
 	  *  根据url的shortId获取房间信息
 	 * @param shortId
 	 * @return
 	 */
-	public abstract RoomInfo getRoomInfo(long shortId);
+	public abstract RoomInfo getRoomInfo(String shortId);
 	
 	/**
 	 * 获取直播地址的下载链接
@@ -23,7 +25,7 @@ public abstract class RoomDealer {
 	 * @param qn
 	 * @return
 	 */
-	public abstract String getLiveUrl(long shortId, String qn, Object...obj);
+	public abstract String getLiveUrl(String shortId, String qn, Object...obj);
 
 	/**
 	 * 开始录制
@@ -33,7 +35,7 @@ public abstract class RoomDealer {
 	 * @param shortId
 	 * @return
 	 */
-	public abstract void startRecord(String url, String fileName, long shortId);
+	public abstract void startRecord(String url, String fileName, String shortId);
 
 	/**
 	 * 停止录制

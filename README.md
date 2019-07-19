@@ -6,7 +6,7 @@
 ![当前版本](https://img.shields.io/github/release/nICEnnnnnnnLee/BilibiliLiveRecorder.svg?style=flat-square)
 ![Release 下载总量](https://img.shields.io/github/downloads/nICEnnnnnnnLee/BilibiliLiveRecorder/total.svg?style=flat-square)
 
-Bilibili/Douyu 直播录制  
+Bilibili/Douyu/Huya/Kuaishou 直播录制  
 ===============================  
 ## :smile:使用方法
 + 程序调用时传入参数即可(顺序可变)  
@@ -17,10 +17,21 @@ Bilibili/Douyu 直播录制
 | ------------- | ------------- | ------------- | 
 | debug  | 否 | debug模式,输出更多信息。默认false | 
 | check  | 否 | 下载完后是否校准时间戳，默认true | 
-| liver  | 是 | 将要录制的直播源。 bili: B站直播； douyu:斗鱼直播 | 
+| liver  | 是 | 将要录制的直播源。 详见下表 | 
 | id  | 否 | 直播房间id，如未传入，后续将提示输入。 | 
 | qn  | 否 | 直播视频清晰度，如未传入，后续将提示输入。不同网站数值意义不同 |   
    
++ 各直播源解析情况  
+| liver  | 最后测试时间 | 备注 | 
+| ------------- | ------------- | ------------- | 
+| bili      | 2019/07/18 | `flv`清晰度可多选，可不需要cookie | 
+| zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
+| douyu     | 2019/07/18 | `flv`清晰度可多选，但部分高清需要cookie | 
+| kuaishou  | 2019/06/17 | `flv`清晰度可多选，可不需要cookie | 
+| huya      | 2019/07/04 | `flv`清晰度可多选，可不需要cookie | 
+| yy        | 2019/06/15 | `flv`只支持默认清晰度 | 
+| huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
+
 + 校正某FLV文件的时间戳  
     `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "文件路径"`
 + 加载cookies(适用于高清晰度录制)

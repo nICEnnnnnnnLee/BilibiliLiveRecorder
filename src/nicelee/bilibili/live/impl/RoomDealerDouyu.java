@@ -17,6 +17,11 @@ import nicelee.bilibili.util.Logger;
 public class RoomDealerDouyu extends RoomDealer{
 
 	final public static String liver = "douyu";
+
+	@Override
+	public String getType() {
+		return ".flv";
+	}
 	
 	private final static Pattern pDyID = Pattern.compile("dy_did ?= ?([^,; ]+)");
 	private final static String ttIdRandom = "2206c59057010dd04573c76400081501"; 
@@ -37,14 +42,14 @@ public class RoomDealerDouyu extends RoomDealer{
 	 * @return
 	 */
 	@Override
-	public RoomInfo getRoomInfo(long shortId) {
+	public RoomInfo getRoomInfo(String shortId) {
 		RoomInfo roomInfo = new RoomInfo();
 		roomInfo.setShortId(shortId);
 		try {
 			// 获取基础信息
-			String basicInfoUrl = String.format("https://www.douyu.com/%d",
+			String basicInfoUrl = String.format("https://www.douyu.com/%s",
 					shortId);
-			String html = util.getContent(basicInfoUrl, headers.getDouyuJsonAPIHeaders(shortId), null);
+			String html = util.getContent(basicInfoUrl, headers.getDouyuJsonAPIHeaders(Long.parseLong(shortId)), null);
 			//System.out.println(html);
 			// 直播状态
 			Matcher matcher = pLiveStatus.matcher(html);
@@ -53,7 +58,7 @@ public class RoomDealerDouyu extends RoomDealer{
 			// 真实房间id
 			matcher = pRoomId.matcher(html);
 			matcher.find();
-			roomInfo.setRoomId(Long.parseLong(matcher.group(1)));
+			roomInfo.setRoomId((matcher.group(1)));
 			matcher = pTitle.matcher(html);
 			matcher.find();
 			roomInfo.setTitle(matcher.group(1));
@@ -107,7 +112,7 @@ public class RoomDealerDouyu extends RoomDealer{
 	 * @return
 	 */
 	@Override
-	public String getLiveUrl(long roomId, String qn, Object...params) {
+	public String getLiveUrl(String roomId, String qn, Object...params) {
 		String scripts = (String) params[0];
 		List<HttpCookie> cookie = null;
 		String ttId = ttIdRandom; 
@@ -119,7 +124,7 @@ public class RoomDealerDouyu extends RoomDealer{
 		}
 		
 		try {
-			String url = String.format("https://www.douyu.com/lapi/live/getH5Play/%d", roomId);
+			String url = String.format("https://www.douyu.com/lapi/live/getH5Play/%s", roomId);
 			
 			// //ttId 可从cookie dy_did获取
 			// e.g. v=220120190527&did=2206c59057010dd04573c76400081501&tt=1558935405&sign=79ec53bd8d789fc544697c07095fe592&cdn=ws-h5&rate=2&ver=Douyu_219052705&iar=0&ive=1
@@ -137,7 +142,7 @@ public class RoomDealerDouyu extends RoomDealer{
 					version
 					);
 			Logger.println(param);
-			String json = util.postContent(url, headers.getDouyuJsonAPIHeaders(roomId), param, cookie);
+			String json = util.postContent(url, headers.getDouyuJsonAPIHeaders(Long.parseLong(roomId)), param, cookie);
 			//HttpCookies.convertCookies());
 			Logger.println(json);
 			
@@ -157,8 +162,8 @@ public class RoomDealerDouyu extends RoomDealer{
 	}
 
 	@Override
-	public void startRecord(String url, String fileName, long shortId) {
-		util.download(url, fileName, headers.getBiliLiveRecordHeaders(url, shortId));
+	public void startRecord(String url, String fileName, String shortId) {
+		util.download(url, fileName + ".flv", headers.getBiliLiveRecordHeaders(url, Long.parseLong(shortId)));
 	}
 
 }

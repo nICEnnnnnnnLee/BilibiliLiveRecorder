@@ -274,8 +274,6 @@ public class FlvChecker {
 		//08 64 75 72 61 74 69 6f 6e   duration
 		//00 bytes x8
 		File file = new File(path);
-		File fileNew = new File(path + ".flv");
-		fileNew.delete();
 		RandomAccessFile raf = new RandomAccessFile(file, "rw");
 		
 		int lenRead = raf.read(buffer);

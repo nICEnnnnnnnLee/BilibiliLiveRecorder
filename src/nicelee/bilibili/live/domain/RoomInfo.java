@@ -4,8 +4,8 @@ import java.lang.reflect.Field;
 
 public class RoomInfo {
 
-	long shortId; // 直播url 里面的id， 可能与roomId相同
-	long roomId;
+	String shortId; // 直播url 里面的id， 可能与roomId相同
+	String roomId;
 	long userId;  // 主播id
 	String userName; // 主播名称
 	int liveStatus; // 1 直播; 2 轮播视频; 0 啥也没有播
@@ -46,16 +46,16 @@ public class RoomInfo {
 		}
 	}
 	
-	public long getShortId() {
+	public String getShortId() {
 		return shortId;
 	}
-	public void setShortId(long shortId) {
+	public void setShortId(String shortId) {
 		this.shortId = shortId;
 	}
-	public long getRoomId() {
+	public String getRoomId() {
 		return roomId;
 	}
-	public void setRoomId(long roomId) {
+	public void setRoomId(String roomId) {
 		this.roomId = roomId;
 	}
 	public int getLiveStatus() {

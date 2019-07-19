@@ -143,7 +143,7 @@ public class M3u8Downloader{
 	 */
 	final static Pattern hostPattern = Pattern.compile("^https?\\://[^/]+");
 	final static Pattern rootPattern = Pattern.compile("^https?\\://.*/");
-	private String genABUrl(String url, String parentUrl) {
+	public static String genABUrl(String url, String parentUrl) {
 		if(url.startsWith("http")) {
 			// 如果是绝对路径，直接返回
 			return url;
@@ -181,8 +181,9 @@ public class M3u8Downloader{
 	 * 直接文件的堆积，好像不对劲，还是留着ffmpeg吧
 	 * @param file 最后一个下载完成的文件名
 	 * @param lastIndex 最大文件index
+	 * @param deleteFiles 是否删除源文件
 	 */
-private void merge(File file, int lastIndex, boolean deleteFiles) {
+public void merge(File file, int lastIndex, boolean deleteFiles) {
 		
 		Matcher matcher = tsPart.matcher(file.getName());
 		matcher.find();
@@ -208,7 +209,7 @@ private void merge(File file, int lastIndex, boolean deleteFiles) {
 			}
 			
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

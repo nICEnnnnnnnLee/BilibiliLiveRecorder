@@ -7,8 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import nicelee.bilibili.live.FlvChecker;
+import nicelee.bilibili.live.impl.RoomDealerKuaishou;
 
-public class BiliLiveRecordTest {
+public class KuaishouLiveRecordTest {
 
 	@Before
 	public void setUp() throws Exception {
@@ -20,9 +21,9 @@ public class BiliLiveRecordTest {
 
 	@Test
 	public void test() {
-		byte[] arr = { 0x40, 0x5b, 0x20, (byte) 0xf5, (byte) 0xc2, (byte) (0x8f), 0x5c, 0x29 };
-		System.out.printf("\n当前的值为\n%.2f \n", FlvChecker.bytes2Double(arr));
-		System.out.println(System.currentTimeMillis());
+		RoomDealerKuaishou rd = new RoomDealerKuaishou();
+		//rd.getRoomInfo("ZFYS8888");
+		rd.getRoomInfo("tianmei88888");
 	}
 	
 	//@Test

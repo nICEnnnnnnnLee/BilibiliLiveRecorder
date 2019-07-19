@@ -21,6 +21,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import nicelee.bilibili.enums.StatusEnum;
 
 public class HttpRequestUtil {
@@ -45,6 +47,11 @@ public class HttpRequestUtil {
 		this.manager = defaultManager;
 		manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
 		CookieHandler.setDefault(manager);
+		try {
+			HttpsURLConnection.setDefaultSSLSocketFactory(TrustAllCertSSLUtil.getFactory());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public HttpRequestUtil(CookieManager manager) {

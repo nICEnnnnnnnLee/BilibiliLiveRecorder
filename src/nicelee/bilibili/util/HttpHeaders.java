@@ -23,6 +23,7 @@ public class HttpHeaders {
 	}
 
 	public HashMap<String, String> getHeaders() {
+		headerMap.remove("Host");
 		return headerMap;
 	}
 
@@ -60,6 +61,23 @@ public class HttpHeaders {
 		headerMap.put("Host", "api.bilibili.com");
 		headerMap.put("Origin", "https://live.bilibili.com");
 		headerMap.put("Referer", "https://live.bilibili.com/blanc/" + shortId);// need addavId
+		headerMap.put("User-Agent",
+				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0");
+		headerMap.put("X-Requested-With", "ShockwaveFlash/28.0.0.137");
+		return headerMap;
+	}
+
+	/**
+	 * 该Header配置用于kuaishou直播flv下载
+	 */
+	public HashMap<String, String> getKuaishouLiveRecordHeaders(String url, String shortId) {
+		headerMap = new HashMap<String, String>();
+		headerMap.put("Accept", "*/*");
+		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
+		headerMap.put("Host", getHost(url));
+		headerMap.put("Origin", "https://live.kuaishou.com");
+		headerMap.put("Referer", "https://live.kuaishou.com/u/" + shortId);// need addavId
 		headerMap.put("User-Agent",
 				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0");
 		headerMap.put("X-Requested-With", "ShockwaveFlash/28.0.0.137");
@@ -103,7 +121,7 @@ public class HttpHeaders {
 	}
 	
 	/**
-	 * 该Header配置用于直播flv下载
+	 * 该Header配置用于bili直播flv下载
 	 */
 	public HashMap<String, String> getBiliLiveRecordHeaders(String url, long shortId) {
 		headerMap = new HashMap<String, String>();
@@ -135,6 +153,41 @@ public class HttpHeaders {
 				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0");
 		return headerMap;
 	}
+	
+	/**
+	 * 该Header配置用于Zhanqi直播下载
+	 */
+	public HashMap<String, String> getZhanqiHeaders() {
+		headerMap = new HashMap<String, String>();
+		headerMap.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
+		headerMap.put("Connection", "keep-alive");
+		headerMap.put("Host", "www.zhanqi.tv");
+		headerMap.put("Referer", "https://www.zhanqi.tv/");
+		headerMap.put("User-Agent",
+				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0");
+		return headerMap;
+	}
+	
+	/**
+	 * 该Header配置用于Zhanqi token获取
+	 */
+	public HashMap<String, String> getZhanqiTokenHeaders(String shortId, String boundary, String gid) {
+		headerMap = new HashMap<String, String>();
+		headerMap.put("Accept", "*/*");
+		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
+		headerMap.put("Connection", "keep-alive");
+		headerMap.put("Host", "www.zhanqi.tv");
+		headerMap.put("Origin", "https://www.zhanqi.tv");
+		headerMap.put("Cookie", "gid=" + gid);
+		headerMap.put("content-type", "multipart/form-data; boundary=" + boundary);
+		headerMap.put("Referer", "https://www.zhanqi.tv/" + shortId);
+		headerMap.put("User-Agent",
+				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0");
+		return headerMap;
+	}
 
 	/**
 	 * 该Header配置用于通用PC端页面访问
@@ -152,4 +205,30 @@ public class HttpHeaders {
 		return headerMap;
 	}
 
+	
+	/**
+	 * 该Header配置用于花椒查询
+	 */
+	public HashMap<String, String> getHuajiaoHeaders(String shortId) {
+		headerMap = new HashMap<String, String>();
+		headerMap.put("Accept", "*/*");
+		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
+		headerMap.put("Connection", "keep-alive");
+		headerMap.put("Host", "live.huajiao.com");
+		headerMap.put("Referer", "http://www.huajiao.com/l/" + shortId);
+		headerMap.put("User-Agent",
+				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0");
+		return headerMap;
+	}
+	
+	/**
+	 * 该Header配置用于FLV视频下载
+	 */
+	public HashMap<String, String> getFLVHeaders() {
+		headerMap.put("X-Requested-With", "ShockwaveFlash/28.0.0.137");
+		headerMap.put("User-Agent",
+				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0");
+		return headerMap;
+	}
 }

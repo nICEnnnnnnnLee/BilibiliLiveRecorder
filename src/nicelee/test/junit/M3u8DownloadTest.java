@@ -70,7 +70,6 @@ public class M3u8DownloadTest {
 	
 	@Test
 	public void testDownloadM3u8() {
-//		String urlM3u8 = "http://yingshi.yazyzw.com/ppvod/B04E639E1D64058D14C7D8646B976FC4.m3u8";
 		String urlM3u8 = "http://bili.meijuzuida.com/20190525/15295_9c6bc6d5/index.m3u8";
 		M3u8Downloader m3u8 = new M3u8Downloader();
 		try {
