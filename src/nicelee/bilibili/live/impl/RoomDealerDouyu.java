@@ -30,6 +30,7 @@ public class RoomDealerDouyu extends RoomDealer{
 	private final static Pattern pLiveStatus = Pattern.compile("\\$ROOM.show_status ?= ?([0-9]+);");
 	private final static Pattern pRoomId = Pattern.compile("\\$ROOM.room_id ?= ?([0-9]+);");
 	private final static Pattern pTitle = Pattern.compile("<h[0-9] class=\"Title-headlineH2\">([^/]*)</h[0-9]>");
+	private final static Pattern pTitle2 = Pattern.compile("<title>([^/]*)</title>");
 	private final static Pattern pDescript = Pattern.compile("<div class=\"AnchorAnnounce\"><h3><span>([^/]*)</span></h3></div>");
 	private final static Pattern pUserId = Pattern.compile("\\$ROOM.owner_uid ?= ?([0-9]+);");
 	private final static Pattern pUserName = Pattern.compile("<a class=\"Title-anchorName\" title=\"([^\"]+)\"");
@@ -50,7 +51,7 @@ public class RoomDealerDouyu extends RoomDealer{
 			String basicInfoUrl = String.format("https://www.douyu.com/%s",
 					shortId);
 			String html = util.getContent(basicInfoUrl, headers.getDouyuJsonAPIHeaders(Long.parseLong(shortId)), null);
-			//System.out.println(html);
+			System.out.println(html);
 			// 直播状态
 			Matcher matcher = pLiveStatus.matcher(html);
 			matcher.find();
@@ -60,12 +61,20 @@ public class RoomDealerDouyu extends RoomDealer{
 			matcher.find();
 			roomInfo.setRoomId((matcher.group(1)));
 			matcher = pTitle.matcher(html);
-			matcher.find();
-			roomInfo.setTitle(matcher.group(1));
+			if(matcher.find()) {
+				roomInfo.setTitle(matcher.group(1));
+			}else {
+				matcher = pTitle2.matcher(html);
+				matcher.find();
+				roomInfo.setTitle(matcher.group(1));
+			}
 			
 			matcher = pDescript.matcher(html);
-			matcher.find();
-			roomInfo.setDescription(matcher.group(1));
+			if(matcher.find()) {
+				roomInfo.setDescription(matcher.group(1));
+			}else {
+				roomInfo.setDescription("无");
+			}
 
 			// 房间主id
 			matcher = pUserId.matcher(html);
@@ -73,8 +82,11 @@ public class RoomDealerDouyu extends RoomDealer{
 			roomInfo.setUserId(Long.parseLong(matcher.group(1)));
 			// 房间主名称
 			matcher = pUserName.matcher(html);
-			matcher.find();
-			roomInfo.setUserName(matcher.group(1));
+			if(matcher.find()) {
+				roomInfo.setUserName(matcher.group(1));
+			}else{
+				roomInfo.setUserName(roomInfo.getTitle());
+			}
 			
 			// 清晰度
 			//$ROOM.multirates =[{"name":"\u84dd\u51494M","type":0},{"name":"\u9ad8\u6e05","type":2},{"name":"\u6d41\u7545","type":1}]; $ROOM.

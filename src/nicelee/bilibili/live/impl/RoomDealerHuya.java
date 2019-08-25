@@ -3,6 +3,7 @@ package nicelee.bilibili.live.impl;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -128,7 +129,7 @@ public class RoomDealerHuya extends RoomDealer {
 			HashMap<String, String> map = headers.getCommonHeaders("www.huya.com");
 			String html = util.getContent(basicInfoUrl, map, null);
 
-			Pattern pJson = Pattern.compile("var hyPlayerConfig = (.*?);");
+			Pattern pJson = Pattern.compile("var hyPlayerConfig *= *(.*?});");
 			Matcher matcher = pJson.matcher(html);
 			matcher.find();
 			JSONObject obj = new JSONObject(matcher.group(1));// vMultiStreamInfo 
@@ -140,7 +141,7 @@ public class RoomDealerHuya extends RoomDealer {
 			String url = String.format("%s/%s.%s?%s", streamDetail.getString("sFlvUrl"),
 					streamDetail.getString("sStreamName"), 
 					streamDetail.getString("sFlvUrlSuffix"), 
-					streamDetail.getString("sFlvAntiCode"));
+					streamDetail.getString("sFlvAntiCode").replace("&amp;", "&"));
 			if(!"".equals(qn) && !"0".equals(qn)) {
 				url = url + "&ratio=" + qn;
 			}
