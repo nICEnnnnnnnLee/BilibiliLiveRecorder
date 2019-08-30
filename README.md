@@ -10,26 +10,28 @@ Bilibili/Douyu/Huya/Kuaishou 直播录制
 ===============================  
 ## :smile:使用方法
 + 程序调用时传入参数即可(顺序可变)  
-    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar "debug=false&check=false&liver=douyu&id=233233&qn=0"`  
+    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar "debug=false&check=false&liver=douyu&id=233233&qn=0&retry=5"`  
 + 各参数意义  
 
 | Key  | 必选 | 释义 | 
 | ------------- | ------------- | ------------- |  
 | debug  | 否 | debug模式,输出更多信息。默认false |  
 | check  | 否 | 下载完后是否校准时间戳，默认true |  
+| delete  | 否 | 校准后是否删除源文件，默认true |  
 | liver  | 是 | 将要录制的直播源。 详见下表 | 
 | id  | 否 | 直播房间id，如未传入，后续将提示输入。 | 
 | qn  | 否 | 直播视频清晰度，如未传入，后续将提示输入。不同网站数值意义不同 |   
+| retry  | 否 | 异常导致录制停止后重试次数。默认5次 |   
    
 + 各直播源解析情况  
 
 | liver  | 最后测试时间 | 备注 | 
 | ------------- | ------------- | ------------- | 
-| bili      | 2019/07/18 | `flv`清晰度可多选，可不需要cookie | 
+| bili      | 2019/08/30 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
-| douyu     | 2019/08/25 | `flv`清晰度可多选，但部分高清需要cookie | 
+| douyu     | 2019/08/30 | `flv`清晰度可多选，但部分高清需要cookie | 
 | kuaishou  | 2019/06/17 | `flv`清晰度可多选，可不需要cookie | 
-| huya      | 2019/08/25 | `flv`清晰度可多选，可不需要cookie | 
+| huya      | 2019/08/30 | `flv`清晰度可多选，可不需要cookie | 
 | yy        | 2019/06/15 | `flv`只支持默认清晰度 | 
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
 
