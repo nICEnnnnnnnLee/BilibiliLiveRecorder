@@ -130,6 +130,7 @@ public class HttpRequestUtil {
 	public boolean download(String url, String fileName, HashMap<String, String> headers) {
 		// 如果已经人工停止，那么直接返回
 		if (status == StatusEnum.STOP) {
+			System.out.println("人工停止");
 			return false;
 		}
 		status = StatusEnum.DOWNLOADING;
@@ -176,7 +177,7 @@ public class HttpRequestUtil {
 			URL realUrl = new URL(urlNameString);
 			HttpURLConnection conn = (HttpURLConnection) realUrl.openConnection();
 			conn.setConnectTimeout(10000);
-			conn.setReadTimeout(12000);
+			conn.setReadTimeout(120000);
 			for (Map.Entry<String, String> entry : headers.entrySet()) {
 				conn.setRequestProperty(entry.getKey(), entry.getValue());
 				//System.out.println(entry.getKey() + ":" + entry.getValue());
