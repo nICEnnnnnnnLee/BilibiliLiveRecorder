@@ -40,6 +40,10 @@ public class FlvChecker {
 	// 用于缓冲
 	private static byte[] buffer = new byte[1024 * 1024 * 16];
 
+	public void check(String path) throws IOException {
+		check(path, false);
+	}
+	
 	public void check(String path, boolean deleteOnchecked) throws IOException {
 		Logger.println("校对时间戳开始...");
 		File file = new File(path);

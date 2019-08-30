@@ -10,7 +10,7 @@ Bilibili/Douyu/Huya/Kuaishou 直播录制
 ===============================  
 ## :smile:使用方法
 + 程序调用时传入参数即可(顺序可变)  
-    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar "debug=false&check=false&liver=douyu&id=233233&qn=0&retry=5"`  
+    `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar "debug=false&check=false&delete=false&liver=douyu&id=233233&qn=0&retry=5"`  
 + 各参数意义  
 
 | Key  | 必选 | 释义 | 
