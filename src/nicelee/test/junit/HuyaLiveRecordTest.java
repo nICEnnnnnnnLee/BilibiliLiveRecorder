@@ -26,7 +26,7 @@ public class HuyaLiveRecordTest {
 	public void testCheck() {
 		String path = "D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\test1.flv.flv";
 		try {
-			FlvChecker.check(path);
+			new FlvChecker().check(path, false);
 //			 FlvChecker.checkFromEnd(path);
 			// FlvChecker.changeDuration(path, 0);
 		} catch (IOException e) {

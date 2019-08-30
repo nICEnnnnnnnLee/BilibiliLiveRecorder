@@ -30,7 +30,7 @@ public class KuaishouLiveRecordTest {
 	public void testCheck() {
 		String path = "D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\哔哩哔哩英雄联盟赛事-6 的直播 2019-05-18 17.43.flv";
 		try {
-			FlvChecker.check(path);
+			new FlvChecker().check(path, false);
 			//FlvChecker.checkFromEnd(path);
 			//FlvChecker.changeDuration(path, 0);
 		} catch (IOException e) {

@@ -21,7 +21,7 @@ public class BiliLiveRecordTest {
 	@Test
 	public void test() {
 		byte[] arr = { 0x40, 0x5b, 0x20, (byte) 0xf5, (byte) 0xc2, (byte) (0x8f), 0x5c, 0x29 };
-		System.out.printf("\n当前的值为\n%.2f \n", FlvChecker.bytes2Double(arr));
+		System.out.printf("\n当前的值为\n%.2f \n", new FlvChecker().bytes2Double(arr));
 		System.out.println(System.currentTimeMillis());
 	}
 	
@@ -29,7 +29,7 @@ public class BiliLiveRecordTest {
 	public void testCheck() {
 		String path = "D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\哔哩哔哩英雄联盟赛事-6 的直播 2019-05-18 17.43.flv";
 		try {
-			FlvChecker.check(path);
+			new FlvChecker().check(path, false);
 			//FlvChecker.checkFromEnd(path);
 			//FlvChecker.changeDuration(path, 0);
 		} catch (IOException e) {

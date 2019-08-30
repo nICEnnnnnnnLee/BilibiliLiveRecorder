@@ -3,22 +3,28 @@ package nicelee.bilibili.live;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import nicelee.bilibili.util.Logger;
 
 /**
- * 原理
- * https://www.cnblogs.com/lidabo/p/9018548.html
+ * 原理 https://www.cnblogs.com/lidabo/p/9018548.html
  */
 public class FlvChecker {
 
-	
 	public static void main(String[] args) throws IOException {
-		if(args != null && args.length>=1) {
+//		args = new String[] {"D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\LPL副舞台-660137 的huya直播 2019-08-30 01.02-0.flv"};
+//		args = new String[] { "D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\release\\download\\虎牙中韩明星对抗赛-lolnewyear 的huya直播 2019-08-29 20.22-0..flv" };
+//		args = new String[] { "D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\release\\download\\bili-11247219-原始.flv" };
+
+		FlvChecker fChecker = new FlvChecker();
+		if (args != null && args.length >= 1) {
 			System.out.println("校对时间戳开始...");
-			check(args[0]);
+			fChecker.check(args[0], false);
+//			fChecker.checkFromEnd(args[0]);
 			System.out.println("校对时间戳完毕。");
-		}else {
+		} else {
 			System.out.println("请输入正确的文件路径");
 		}
 	}
@@ -29,128 +35,208 @@ public class FlvChecker {
 	 * @param path
 	 * @throws IOException
 	 */
-	private static int duration;
 	// 用于统计时间戳
-	private static int firstTimeStamp[] = {-1, -1, -1}, lastTimestamp[] = {-1, -1, -1}, cnt[] = {0, 0, 0};
-	public static void check(String path) throws IOException {
+	private int lastTimestampRead = 0, lastTimestampWrite = 0;
+	// 用于缓冲
+	private static byte[] buffer = new byte[1024 * 1024 * 16];
+
+	public void check(String path, boolean deleteOnchecked) throws IOException {
+		Logger.println("校对时间戳开始...");
 		File file = new File(path);
-		RandomAccessFile raf = new RandomAccessFile(file, "rw");
-		// 跳过头部
-		raf.skipBytes(9);
+		RandomAccessFile raf = new RandomAccessFile(file, "r");
+
+		File fileNew = null;
+		Pattern pattern = Pattern.compile("-checked([0-9]+).flv$");
+		Matcher matcher = pattern.matcher(file.getName());
+		if (matcher.find()) {
+			int index = Integer.parseInt(matcher.group(1));
+			index++;
+			fileNew = new File(file.getParentFile(), file.getName().replaceFirst("[0-9]+.flv$", index + ".flv"));
+		} else {
+			fileNew = new File(file.getParentFile(), file.getName().replaceFirst(".flv$", "-checked0.flv"));
+		}
+		RandomAccessFile rafNew = new RandomAccessFile(fileNew, "rw");
+		// 复制头部
+		raf.read(buffer, 0, 9);
+		rafNew.write(buffer, 0, 9);
+		// 处理Tag内容
+		checkTag(raf, rafNew, fileNew);
+
+		raf.close();
+		rafNew.close();
+		changeDuration(fileNew.getAbsolutePath(), this.getDuration() / 1000);
+		if (deleteOnchecked) {
+			file.delete();
+		}
+	}
+
+	/**
+	 * @param raf
+	 * @param rafNew
+	 */
+	private void checkTag(RandomAccessFile raf, RandomAccessFile rafNew, File fileNew) {
 		// 用于排除无效尾巴帧
 		long currentLength = 9L, latsValidLength = currentLength;
 		try {
-			//int remain = 20;
-			while (true) {//&& remain>=0
-				//remain--;
+			int remain = 40;
+			boolean isFirstScriptTag = true;
+			int timestamp = 0;
+			while (true) {// && remain>=0
+				remain--;
 				// 读取前一个tag size
 				int predataSize = readBytesToInt(raf, 4);
-				latsValidLength = currentLength; currentLength = raf.getFilePointer();
-				Logger.print("前一个长度为：" + predataSize);
+				rafNew.write(buffer, 0, 4);
+				// 记录当前新文件位置，若下一tag无效，则需要回退
+				latsValidLength = currentLength;
+				currentLength = rafNew.getFilePointer();
+				// Logger.print("前一个长度为：" + predataSize);
+
 				// 读取tag
 				// tag 类型
 				int tagType = raf.read();
-				Logger.print("当前tag 类型为：");
-				if (tagType == 8) {
-					Logger.print("audio");
-				} else if (tagType == 9) {
-					Logger.print("video");
-				} else if (tagType == 18) {
+				// Logger.print("当前tag 类型为：" + tagType);
+				if (tagType == 8 || tagType == 9) {// 8/9 audio/video
+					rafNew.write(tagType);
+					// tag data size 3个字节。表示tag data的长度。从streamd id 后算起。
+					int dataSize = readBytesToInt(raf, 3);
+					rafNew.write(buffer, 0, 3);
+					// Logger.print(" ,当前tag data 长度为：" + dataSize);
+					// 时间戳 3
+					timestamp = readBytesToInt(raf, 3);
+					int timestampEx = raf.read() << 24;
+					timestamp += timestampEx;
+					boolean isNotSkip = dealTimestamp(rafNew, timestamp);
+					if (isNotSkip) {
+						raf.read(buffer, 0, 3 + dataSize);
+						rafNew.write(buffer, 0, 3 + dataSize);
+					} else {
+						raf.skipBytes(3 + dataSize);
+						rafNew.seek(currentLength);
+					}
+
+				} else if (tagType == 18) { // 18 scripts
 					Logger.print("scripts");
+					if (isFirstScriptTag) {
+						rafNew.write(tagType);
+						isFirstScriptTag = false;
+
+						int dataSize = readBytesToInt(raf, 3);
+						rafNew.write(buffer, 0, 3);
+						// Logger.print(" ,当前tag data 长度为：" + dataSize);
+
+						raf.skipBytes(4);
+						byte[] zeros = new byte[] { 0, 0, 0 };
+						rafNew.write(zeros); // 时间戳 0
+						rafNew.write(0); // 时间戳扩展 0
+						raf.read(buffer, 0, 3 + dataSize);
+						rafNew.write(buffer, 0, 3 + dataSize);
+					}
+//					else { // 跳过该tag
+//						// tag data size 3个字节。表示tag data的长度。从streamd id 后算起。
+//						int dataSize = readBytesToInt(raf, 3);
+//						raf.skipBytes(7 + dataSize);
+//					}
+					else {
+						Logger.print("第二个scripts脚本");
+						// 当有第二个scripts脚本时
+						// 1. 从第二个script tag起始新创建一份文件
+						File fileNew2 = null;
+						Pattern pattern = Pattern.compile("-checked([0-9]+).flv$");
+						Matcher matcher = pattern.matcher(fileNew.getName());
+						if (matcher.find()) {
+							int index = Integer.parseInt(matcher.group(1));
+							index++;
+							fileNew2 = new File(fileNew.getParentFile(),
+									fileNew.getName().replaceFirst("[0-9]+.flv$", index + ".flv"));
+						} else {
+							fileNew2 = new File(fileNew.getParentFile(),
+									fileNew.getName().replaceFirst(".flv$", "-checked0.flv"));
+						}
+						RandomAccessFile rafNew2 = new RandomAccessFile(fileNew2, "rw");
+						// 记录当前位置
+						long pos = raf.getFilePointer();
+						// 复制 header
+						byte[] header = new byte[9];
+						raf.seek(0);
+						raf.read(header);
+						rafNew2.write(header);
+						// 恢复位置
+						raf.seek(pos - 5);
+						// 2. 处理新文件
+						FlvChecker fc = new FlvChecker();
+						fc.checkTag(raf, rafNew2, fileNew2);
+						// 3. 收尾并处理时长
+						rafNew2.close();
+						changeDuration(fileNew2.getAbsolutePath(), fc.getDuration() / 1000);
+					}
 				} else {
 					Logger.print(tagType);
-					raf.setLength(latsValidLength);
+					rafNew.setLength(latsValidLength);
 					break;
 				}
-				// tag data size 3个字节。表示tag data的长度。从streamd id 后算起。
-				int dataSize = readBytesToInt(raf, 3);
-				Logger.print(" ,当前tag data 长度为：" + dataSize);
-				// 时间戳 3
-				int timestamp = readBytesToInt(raf, 3);
-				// 回滚时间戳
-				raf.seek(raf.getFilePointer() - 3);
-				// 分情况讨论时间戳
-				switch(tagType) {
-					case 8 :// audio
-						dealTimestamp(raf, timestamp, 0);
-						break;
-					case 9 :// video
-						dealTimestamp(raf, timestamp, 1);
-						break;
-					case 18: //scripts
-						dealTimestamp(raf, timestamp, 2);
-						break;
-				}
-				// timestampEx 扩展保留 1个字节 + stream id 3个字节。总是0
-				// 跳过数据
-				raf.skipBytes(4 + dataSize);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		Logger.println();
-		duration = lastTimestamp[1] - firstTimeStamp[1];
-		Logger.println("firstTimeStamp 为：" +  firstTimeStamp[1]);
-		Logger.println("lastTimestamp 为：" + lastTimestamp[1]);
-		Logger.println("duration 为：" + duration);
+		Logger.println("lastTimestamp 为：" + lastTimestampWrite);
 		Logger.println("currentLength 为：" + currentLength);
-		raf.close();
-		double dura = duration;
-		dura = dura / 1000;
-		changeDuration(path, dura);
 	}
 
 	/**
-	 * 处理音频时间戳
+	 * 处理音/视频时间戳
+	 * 
 	 * @param raf
 	 * @param timestamp
 	 * @throws IOException
+	 * @return 是否忽略该tag
 	 */
-	private static void dealTimestamp(RandomAccessFile raf, int timestamp, int type) throws IOException {
-		// 尚未找到非0 起始时间戳， 此时，一直递增
-		if (firstTimeStamp[type] < 0) { 
-			firstTimeStamp[type] = timestamp;
-			lastTimestamp[type] = timestamp;
-			byte[] counts = { 0, 0, (byte) cnt[type] };
-			raf.write(counts, 0, 3);
-			cnt[type]++;
-			Logger.print(" ,修改前timestamps 为：" + timestamp);
-			Logger.print(" ,当前timestamps 为：" + cnt[type]);
-			Logger.println();
-		}else if(timestamp - lastTimestamp[type] > 666) { 
-			// 登记有效时间戳
-			lastTimestamp[type] = timestamp;
-			// 如果中间间隔太大，那么认为起始值不对，仍然需要调整
-			cnt[type]++;
-			byte[] counts = { 0, 0, (byte) cnt[type] };
-			raf.write(counts, 0, 3);
-			firstTimeStamp[type] = lastTimestamp[type] - cnt[type];
-			Logger.print(" ,修改前timestamps 为：" + timestamp);
-			Logger.print(" ,当前timestamps 为：" + cnt[type]);
-			Logger.println();
-		}else {
-			// 登记有效时间戳
-			if (timestamp > lastTimestamp[type] ) {
-				lastTimestamp[type] = timestamp;
-			}else { // 必须确保递增
-				lastTimestamp[type]++;
+	private boolean dealTimestamp(RandomAccessFile raf, int timestamp) throws IOException {
+		Logger.print("上一帧读取timestamps 为：" + lastTimestampRead);
+		Logger.print("上一帧写入timestamps 为：" + lastTimestampWrite);
+		// 如果时序正常
+		if (timestamp >= lastTimestampRead) {
+			// 间隔十分巨大，那么重新开始即可
+			if (timestamp > lastTimestampRead + 30 * 1000) {
+				lastTimestampWrite++;
+				Logger.print("---");
+
+			} else {
+				lastTimestampWrite = timestamp - lastTimestampRead + lastTimestampWrite;
 			}
-			// 修改当前时间戳
-			int currentTime = lastTimestamp[type] - firstTimeStamp[type]  + cnt[type];
-			raf.write(int2Bytes(currentTime), 1, 3);
-			Logger.print(" ,修改前timestamps 为：" + timestamp);
-			Logger.print(" ,当前timestamps 为：" + currentTime);
-			Logger.println();
+		} else {// 如果出现倒序时间戳
+				// 如果间隔不大，那么忽略该tag
+			if (lastTimestampRead - timestamp < 30 * 1000) {
+				Logger.print(" ,修改前timestamps 为：" + timestamp);
+				Logger.print("忽略该tag");
+				Logger.println();
+				return false;
+			} else {// 间隔十分巨大，那么重新开始即可
+				lastTimestampWrite++;
+				Logger.println("rewind");
+			}
 		}
+		lastTimestampRead = timestamp;
+
+		// 低于0xffffff部分
+		int lowCurrenttime = lastTimestampWrite & 0xffffff;
+		raf.write(int2Bytes(lowCurrenttime), 1, 3);
+		// 高于0xffffff部分
+		int highCurrenttime = lastTimestampWrite >> 24;
+		raf.write(highCurrenttime);
+		Logger.print(" ,读取timestamps 为：" + timestamp);
+		Logger.print(" ,写入timestamps 为：" + lastTimestampWrite);
+		Logger.println();
+		return true;
 	}
-	
+
 	/**
 	 * 从尾部开始Check, 单纯检查，没有对文件进行操作
 	 * 
 	 * @param path
 	 * @throws IOException
 	 */
-	public static void checkFromEnd(String path) throws IOException {
+	public void checkFromEnd(String path) throws IOException {
 		File file = new File(path);
 		RandomAccessFile raf = new RandomAccessFile(file, "r");
 
@@ -158,13 +244,13 @@ public class FlvChecker {
 		int dataSize = 0;
 		try {
 			long position = raf.length();
-			//int remain = 20;
-			while (true) {//&& remain>=0
-				//remain--;
+			// int remain = 20;
+			while (true) {// && remain>=0
+				// remain--;
 				raf.seek(position - 4);
 				// 读取前一个tag size
 				int predataSize = readBytesToInt(raf, 4);
-				Logger.print("前一个长度为：" + predataSize);
+				// Logger.print("前一个长度为：" + predataSize);
 				position -= (predataSize + 4);
 				raf.seek(position);
 
@@ -184,7 +270,7 @@ public class FlvChecker {
 				}
 				// tag data size 3个字节。表示tag data的长度。从streamd id 后算起。
 				dataSize = readBytesToInt(raf, 3);
-				Logger.print(" ,当前tag data 长度为：" + dataSize);
+				// Logger.print(" ,当前tag data 长度为：" + dataSize);
 				// 时间戳 3+1
 				int timestamp = readBytesToInt(raf, 3);
 				if (firstTimeStamp == 0) {
@@ -215,13 +301,12 @@ public class FlvChecker {
 	 * @return
 	 * @throws IOException
 	 */
-	private static int readBytesToInt(RandomAccessFile raf, int byteLength) throws IOException {
-		byte data[] = new byte[byteLength];
-		raf.read(data);
-		return bytes2Int(data);
+	private int readBytesToInt(RandomAccessFile raf, int byteLength) throws IOException {
+		raf.read(buffer, 0, byteLength);
+		return bytes2Int(buffer, byteLength);
 	}
 
-	private static byte[] int2Bytes(int value) {
+	private byte[] int2Bytes(int value) {
 		byte[] byteRet = new byte[4];
 		for (int i = 0; i < 4; i++) {
 			byteRet[3 - i] = (byte) ((value >> 8 * i) & 0xff);
@@ -230,16 +315,16 @@ public class FlvChecker {
 		return byteRet;
 	}
 
-	private static int bytes2Int(byte[] bytes) {
+	private int bytes2Int(byte[] bytes, int byteLength) {
 		int result = 0;
-		for (int i = 0; i < bytes.length; i++) {
-			result |= ((bytes[bytes.length - 1 - i] & 0xff) << (i * 8));
-			//System.out.printf("%x ",(bytes[i] & 0xff));
+		for (int i = 0; i < byteLength; i++) {
+			result |= ((bytes[byteLength - 1 - i] & 0xff) << (i * 8));
+			// System.out.printf("%x ",(bytes[i] & 0xff));
 		}
 		return result;
 	}
 
-	private static byte[] double2Bytes(double d) {
+	private byte[] double2Bytes(double d) {
 		long value = Double.doubleToRawLongBits(d);
 		byte[] byteRet = new byte[8];
 		for (int i = 0; i < 8; i++) {
@@ -248,13 +333,13 @@ public class FlvChecker {
 		byte[] byteReverse = new byte[8];
 		for (int i = 0; i < 8; i++) {
 			byteReverse[i] = byteRet[7 - i];
-			// Logger.printf("%x ",byteReverse[i]);
+			// System.out.printf("%x ",byteReverse[i]);
 		}
-		// Logger.println();
+		Logger.println();
 		return byteReverse;
 	}
 
-	public static double bytes2Double(byte[] arr) {
+	public double bytes2Double(byte[] arr) {
 		byte[] byteReverse = new byte[8];
 		for (int i = 0; i < 8; i++) {
 			byteReverse[i] = arr[7 - i];
@@ -266,22 +351,22 @@ public class FlvChecker {
 		}
 		return Double.longBitsToDouble(value);
 	}
-	
-	static byte[] buffer = new byte[1024 * 1024];
-	static byte[] durationHeader = {0x08, 0x64 , 0x75 , 0x72 , 0x61 , 0x74 , 0x69 , 0x6f , 0x6e};
-	static int pDurationHeader = 0;
-	public static void changeDuration(String path, double duration) throws IOException{
-		//08 64 75 72 61 74 69 6f 6e   duration
-		//00 bytes x8
+
+	byte[] durationHeader = { 0x08, 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e };
+	int pDurationHeader = 0;
+
+	public void changeDuration(String path, double duration) throws IOException {
+		// 08 64 75 72 61 74 69 6f 6e duration
+		// 00 bytes x8
 		File file = new File(path);
 		RandomAccessFile raf = new RandomAccessFile(file, "rw");
-		
+
 		int lenRead = raf.read(buffer);
 		int pDuration = checkBufferForDuration();
 		boolean findDuration = false;
 		while (lenRead > -1) {
 			long offset = 0;
-			if(pDuration != -1) {
+			if (pDuration != -1) {
 				findDuration = true;
 				raf.seek(offset + pDuration + 1);
 				raf.write(0x00);
@@ -290,29 +375,34 @@ public class FlvChecker {
 			}
 			// Logger.println("当前完成度: " + cnt*100/total + "%");
 			lenRead = raf.read(buffer);
-			if(!findDuration) {
+			if (!findDuration) {
 				pDuration = checkBufferForDuration();
 			}
 			offset += lenRead;
 		}
 		raf.close();
-		
+
 	}
-	
+
 	/**
 	 * 检查buffer 是否包含duration头部
+	 * 
 	 * @return duration末尾在 buffer中的位置
 	 */
-	static int checkBufferForDuration() {
-		for(int i=0; i<buffer.length; i++) {
-			if(buffer[i] == durationHeader[pDurationHeader]) {
-				pDurationHeader ++;
-				if(pDurationHeader == durationHeader.length) {
+	int checkBufferForDuration() {
+		for (int i = 0; i < buffer.length; i++) {
+			if (buffer[i] == durationHeader[pDurationHeader]) {
+				pDurationHeader++;
+				if (pDurationHeader == durationHeader.length) {
 					pDurationHeader = 0;
 					return i;
 				}
 			}
 		}
 		return -1;
+	}
+
+	public double getDuration() {
+		return (double) lastTimestampWrite;
 	}
 }
