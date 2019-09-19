@@ -21,7 +21,7 @@ import nicelee.bilibili.util.Logger;
 
 public class Main {
 
-	final static String version = "v1.7";
+	final static String version = "v1.8";
 	static boolean autoCheck;
 	static boolean deleteOnchecked;
 	static String liver;
@@ -36,9 +36,9 @@ public class Main {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-//		 args = new String[]{"debug=false&liver=bili&id=868405&qn=10000"};  			// 清晰度全部可选，可不需要cookie
-//		 args = new String[]{"debug=false&check=true&liver=douyu&id=288016&qn=0"};  	// 清晰度全部可选，但部分高清需要cookie 
-//		args = new String[]{"debug=false&check=true&liver=kuaishou"};  					// 清晰度全部可选，可不需要cookie asd199895
+//		 args = new String[]{"debug=false&liver=bili&id=221602&qn=10000&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie
+//		 args = new String[]{"debug=true&check=true&liver=douyu&id=6566716"};  	// 清晰度全部可选，但部分高清需要cookie 
+//		args = new String[]{"debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false"};  					// 清晰度全部可选，可不需要cookie asd199895
 //		args = new String[]{"debug=true&check=false&liver=huya&id=660137"}; 				// 清晰度全部可选，可不需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146&qn=1"}; 		// 只支持默认清晰度 54880976
 //		args = new String[] { "debug=true&check=true&liver=zhanqi&id=90god" }; 			// 清晰度全部可选，可不需要cookie 90god huashan ydjs
@@ -108,6 +108,9 @@ public class Main {
 		final String fcookie = cookie;
 
 		RoomDealer roomDealer = getRoomDealer(liver);
+		if(cookie != null) {
+			roomDealer.setCookie(cookie);
+		}
 		// 获取房间信息
 		RoomInfo roomInfo = roomDealer.getRoomInfo(shortId);
 

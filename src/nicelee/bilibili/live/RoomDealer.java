@@ -9,6 +9,7 @@ public abstract class RoomDealer {
 	public HttpRequestUtil util = new HttpRequestUtil();
 	protected HttpHeaders headers = new HttpHeaders();
 	public Integer currentIndex = 0; // 当前任务编号
+	protected String cookie;
 	
 	public abstract String getType();
 	/**
@@ -37,6 +38,12 @@ public abstract class RoomDealer {
 	 */
 	public abstract void startRecord(String url, String fileName, String shortId);
 
+	/**
+	 * 停止录制
+	 */
+	public void setCookie(String cookie) {
+		this.cookie = cookie;
+	}
 	/**
 	 * 停止录制
 	 */
