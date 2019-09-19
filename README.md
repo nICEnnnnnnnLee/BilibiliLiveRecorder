@@ -27,10 +27,10 @@ Bilibili/Douyu/Huya/Kuaishou 直播录制
 
 | liver  | 最后测试时间 | 备注 | 
 | ------------- | ------------- | ------------- | 
-| bili      | 2019/08/30 | `flv`清晰度可多选，可不需要cookie | 
+| bili      | 2019/09/19 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
-| douyu     | 2019/08/30 | `flv`清晰度可多选，但部分高清需要cookie | 
-| kuaishou  | 2019/06/17 | `flv`清晰度可多选，可不需要cookie | 
+| douyu     | 2019/09/19 | `flv`清晰度可多选，但部分高清需要cookie | 
+| kuaishou  | 2019/09/19 | `flv`清晰度可多选，可能需要cookie(与登录无关，首次进入直播页面有反爬措施，会需要拖拽验证) | 
 | huya      | 2019/08/30 | `flv`清晰度可多选，可不需要cookie | 
 | yy        | 2019/06/15 | `flv`只支持默认清晰度 | 
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
@@ -54,6 +54,8 @@ Bilibili/Douyu/Huya/Kuaishou 直播录制
 
 ## :smile:第三方库使用声明  
 * 使用[JSON.org](https://github.com/stleary/JSON-java)库做简单的Json解析[![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/stleary/JSON-java/blob/master/LICENSE)
++ 使用[Crypto-js](https://github.com/brix/crypto-js)仿浏览器生成斗鱼直播录制token[![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/brix/crypto-js/blob/develop/LICENSE) 
+
 
 ## :smile:LICENSE 
 ```
