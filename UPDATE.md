@@ -1,7 +1,11 @@
 ## 更新
++ V1.9
+    * fix [issue #8](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/8)
+	* 将script Tag前一个tag size置为零
+    * 提供选项，在碰到第二个script脚本时，可以选择是否分割文件
 + V1.8 
     * 修复快手更新导致的解析问题  
-    * 修正斗鱼清晰度获取不全的问题(旧版本的提示可能会有误导)  
+    * 修正斗鱼清晰度获取不全的问题(旧版本的清晰度提示有缺失，可能会有误导)  
     * `FLV`时间戳处理进一步优化  
         * 优化个别倒序时间戳的处理  
         * 音视频时间戳分开处理  

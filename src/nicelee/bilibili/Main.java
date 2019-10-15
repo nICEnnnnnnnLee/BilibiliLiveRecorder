@@ -21,7 +21,7 @@ import nicelee.bilibili.util.Logger;
 
 public class Main {
 
-	final static String version = "v1.8";
+	final static String version = "v1.9";
 	static boolean autoCheck;
 	static boolean deleteOnchecked;
 	static String liver;
@@ -37,7 +37,7 @@ public class Main {
 	 */
 	public static void main(String[] args) throws IOException {
 //		 args = new String[]{"debug=false&liver=bili&id=221602&qn=10000&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie
-//		 args = new String[]{"debug=true&check=true&liver=douyu&id=6566716"};  	// 清晰度全部可选，但部分高清需要cookie 
+//		 args = new String[]{"debug=true&check=true&liver=douyu&id=233233"};  	// 清晰度全部可选，但部分高清需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false"};  					// 清晰度全部可选，可不需要cookie asd199895
 //		args = new String[]{"debug=true&check=false&liver=huya&id=660137"}; 				// 清晰度全部可选，可不需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146&qn=1"}; 		// 只支持默认清晰度 54880976
@@ -101,7 +101,7 @@ public class Main {
 			BufferedReader buReader = new BufferedReader(new FileReader(liver + "-cookie.txt"));
 			cookie = buReader.readLine();
 			buReader.close();
-			Logger.println(cookie);
+			//Logger.println(cookie);
 		} catch (Exception e) {
 			// e.printStackTrace();
 		}
@@ -114,8 +114,11 @@ public class Main {
 		// 获取房间信息
 		RoomInfo roomInfo = roomDealer.getRoomInfo(shortId);
 
+		if(roomInfo == null) {
+			System.err.println("解析失败！！");
+		}
 		// 查看是否在线
-		if (roomInfo != null && roomInfo.getLiveStatus() != 1) {
+		if (roomInfo.getLiveStatus() != 1) {
 			System.out.println("当前没有在直播");
 			return;
 		}

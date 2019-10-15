@@ -143,7 +143,7 @@ public class RoomDealerKuaishou extends RoomDealer {
 				"\"},\"query\":\"query LiveDetail($principalId: String) {\\n  liveDetail(principalId: $principalId) {\\n    liveStream\\n    feedInfo {\\n      pullCycleMillis\\n      __typename\\n    }\\n    watchingInfo {\\n      likeCount\\n      watchingCount\\n      __typename\\n    }\\n    noticeList {\\n      feed\\n      options\\n      __typename\\n    }\\n    fastComments\\n    commentColors\\n    moreRecommendList {\\n      user {\\n        id\\n        profile\\n        name\\n        __typename\\n      }\\n      watchingCount\\n      src\\n      title\\n      gameId\\n      gameName\\n      categoryId\\n      liveStreamId\\n      playUrls {\\n        quality\\n        url\\n        __typename\\n      }\\n      quality\\n      gameInfo {\\n        category\\n        name\\n        pubgSurvival\\n        type\\n        kingHero\\n        __typename\\n      }\\n      redPack\\n      liveGuess\\n      expTag\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}\r\n");
 
 		String json = util.postContent(graphSqlUrl, headers.getKuaishouHeaders(roomId), param.toString(),
-				HttpCookies.convertCookies(cookie));
+				null);
 		Logger.println(json);
 		JSONObject obj = new JSONObject(json).getJSONObject("data").getJSONObject("liveDetail")
 				.getJSONObject("liveStream");

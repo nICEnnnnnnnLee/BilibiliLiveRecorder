@@ -49,16 +49,15 @@ public class RoomDealerDouyu extends RoomDealer {
 		roomInfo.setShortId(shortId);
 		try {
 			// 获取基础信息
-			String basicInfoUrl = String.format("https://www.douyu.com/%s",
-					shortId);
+			String basicInfoUrl = String.format("https://www.douyu.com/%s", shortId);
 			List<HttpCookie> listCookie = null;
-			if(cookie != null) {
+			if (cookie != null) {
 				listCookie = HttpCookies.convertCookies(cookie);
 				System.out.println("发现cookie配置");
-				System.out.println(listCookie);
 			}
-			String html = util.getContent(basicInfoUrl, headers.getDouyuJsonAPIHeaders(Long.parseLong(shortId)), listCookie);
-			//System.out.println(html);
+			String html = util.getContent(basicInfoUrl, headers.getDouyuJsonAPIHeaders(Long.parseLong(shortId)),
+					listCookie);
+			// System.out.println(html);
 			// 直播状态
 			Matcher matcher = pLiveStatus.matcher(html);
 			matcher.find();
@@ -68,18 +67,18 @@ public class RoomDealerDouyu extends RoomDealer {
 			matcher.find();
 			roomInfo.setRoomId((matcher.group(1)));
 			matcher = pTitle.matcher(html);
-			if(matcher.find()) {
+			if (matcher.find()) {
 				roomInfo.setTitle(matcher.group(1));
-			}else {
+			} else {
 				matcher = pTitle2.matcher(html);
 				matcher.find();
 				roomInfo.setTitle(matcher.group(1));
 			}
-			
+
 			matcher = pDescript.matcher(html);
-			if(matcher.find()) {
+			if (matcher.find()) {
 				roomInfo.setDescription(matcher.group(1));
-			}else {
+			} else {
 				roomInfo.setDescription("无");
 			}
 
@@ -89,33 +88,36 @@ public class RoomDealerDouyu extends RoomDealer {
 			roomInfo.setUserId(Long.parseLong(matcher.group(1)));
 			// 房间主名称
 			matcher = pUserName.matcher(html);
-			if(matcher.find()) {
+			if (matcher.find()) {
 				roomInfo.setUserName(matcher.group(1));
-			}else{
+			} else {
 				roomInfo.setUserName(roomInfo.getTitle());
 			}
-			
-			// 加密脚本
-						int begin = html.indexOf("var vdwdae325w_64we");
-						int end = html.indexOf("</script>", begin);
-						roomInfo.setRemark(html.substring(begin, end));
-			// 清晰度
-			//$ROOM.multirates =[{"name":"\u84dd\u51494M","type":0},{"name":"\u9ad8\u6e05","type":2},{"name":"\u6d41\u7545","type":1}]; $ROOM.
-			matcher = pQuality.matcher(html);
-			matcher.find();
-			// 网页里面的清晰度不全，改为先申请一次FLV, 在列表里找到正确的
-			JSONObject liveObj = getLiveObj(shortId, "0", roomInfo.getRemark(), cookie);
-			JSONArray jArray = liveObj.getJSONObject("data").getJSONArray("multirates");
-			String[] qn = new String[jArray.length()];
-			String[] qnDesc = new String[jArray.length()];
-			for (int i = 0; i < jArray.length(); i++) {
-				JSONObject obj = jArray.getJSONObject(i);
-				qn[i] = "" + obj.getInt("rate");
-				qnDesc[i] = obj.getString("name");
+			// 以下为直播时才去获取的配置
+			if (roomInfo.getLiveStatus() == 1) {
+				// 加密脚本
+				int begin = html.indexOf("var vdwdae325w_64we");
+				int end = html.indexOf("</script>", begin);
+				roomInfo.setRemark(html.substring(begin, end));
+				// 清晰度
+				// $ROOM.multirates
+				// =[{"name":"\u84dd\u51494M","type":0},{"name":"\u9ad8\u6e05","type":2},{"name":"\u6d41\u7545","type":1}];
+				// $ROOM.
+				matcher = pQuality.matcher(html);
+				matcher.find();
+				// 网页里面的清晰度不全，改为先申请一次FLV, 在列表里找到正确的
+				JSONObject liveObj = getLiveObj(shortId, "0", roomInfo.getRemark(), cookie);
+				JSONArray jArray = liveObj.getJSONObject("data").getJSONArray("multirates");
+				String[] qn = new String[jArray.length()];
+				String[] qnDesc = new String[jArray.length()];
+				for (int i = 0; i < jArray.length(); i++) {
+					JSONObject obj = jArray.getJSONObject(i);
+					qn[i] = "" + obj.getInt("rate");
+					qnDesc[i] = obj.getString("name");
+				}
+				roomInfo.setAcceptQuality(qn);
+				roomInfo.setAcceptQualityDesc(qnDesc);
 			}
-			roomInfo.setAcceptQuality(qn);
-			roomInfo.setAcceptQualityDesc(qnDesc);
-			
 			roomInfo.print();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -133,8 +135,9 @@ public class RoomDealerDouyu extends RoomDealer {
 		List<HttpCookie> cookie = null;
 		if (cookieStr != null) {
 			Matcher matcher = pDyID.matcher(cookieStr);
-			matcher.find();
-			ttId = matcher.group(1);
+			if (matcher.find()) {
+				ttId = matcher.group(1);
+			}
 			cookie = HttpCookies.convertCookies(cookieStr);
 		}
 		try {
