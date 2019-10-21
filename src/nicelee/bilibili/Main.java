@@ -21,13 +21,18 @@ import nicelee.bilibili.util.Logger;
 
 public class Main {
 
-	final static String version = "v1.9";
+	final static String version = "v2.0";
 	static boolean autoCheck;
 	static boolean deleteOnchecked;
 	static String liver;
 	static String shortId;
 	static String qn;
 	static int maxFailCnt;
+	static int failCnt;
+	
+	static long splitFileSize;
+	static long splitRecordPeriod;
+	volatile static boolean flagSplit;
 
 	/**
 	 * 程序入口
@@ -49,7 +54,10 @@ public class Main {
 		Logger.debug = false;
 		liver = "bili";
 		maxFailCnt = 5;
-		
+		failCnt = 0;
+		splitFileSize = 0;
+		splitRecordPeriod = 0;
+		flagSplit = false;
 		// 根据参数初始化值
 		if (args != null && args.length >= 1) {
 			String value = getValue(args[0], "check");
@@ -79,6 +87,14 @@ public class Main {
 			value = getValue(args[0], "retry");
 			if (value != null && !value.isEmpty()) {
 				maxFailCnt = Integer.parseInt(value);
+			}
+			value = getValue(args[0], "fileSize"); // 单位： MB
+			if (value != null && !value.isEmpty()) {
+				splitFileSize = Long.parseLong(value) * 1024 * 1024;
+			}
+			value = getValue(args[0], "filePeriod"); // 单位：min
+			if (value != null && !value.isEmpty()) {
+				splitRecordPeriod = Long.parseLong(value) * 60 * 1000;
 			}
 		}
 
@@ -141,12 +157,27 @@ public class Main {
 				List<String> fileList = new ArrayList<String>(); //用于存放
 				record(roomDealer, roomInfo, url, fileList);
 				
-				// 判断当前状态 如果异常连接导致失败，那么重命名后重新录制
-				while(roomDealer.util.getStatus() == StatusEnum.FAIL && maxFailCnt >= fileList.size()) {
-					System.out.println("连接异常，重新尝试录制");
-					String url = roomDealer.getLiveUrl((roomInfo.getRoomId()), "" + qn, roomInfo.getRemark(), fcookie);
-					Logger.println(url);
-					record(roomDealer, roomInfo, url, fileList);
+				while(true) {
+					if(roomDealer.util.getStatus() == StatusEnum.STOP && flagSplit) {
+						// 判断当前状态 如果文件超过配置大小，那么重命名后重新录制
+						// 重置状态
+						roomDealer.util.init();
+						flagSplit = false;
+						failCnt = 0;
+						System.out.println("文件大小或录制时长超过阈值，重新尝试录制");
+						String url = roomDealer.getLiveUrl((roomInfo.getRoomId()), "" + qn, roomInfo.getRemark(), fcookie);
+						Logger.println(url);
+						record(roomDealer, roomInfo, url, fileList);
+					}else if(roomDealer.util.getStatus() == StatusEnum.FAIL && maxFailCnt >= failCnt) {
+						// 判断当前状态 如果异常连接导致失败，那么重命名后重新录制
+						failCnt ++;
+						System.out.println("连接异常，重新尝试录制");
+						String url = roomDealer.getLiveUrl((roomInfo.getRoomId()), "" + qn, roomInfo.getRemark(), fcookie);
+						Logger.println(url);
+						record(roomDealer, roomInfo, url, fileList);
+					}else {
+						break;
+					}
 				}
 				
 				System.out.println("下载停止");
@@ -180,9 +211,10 @@ public class Main {
 			}
 		}, "thread-record").start();
 
-		// 输出进度
+		// 输出进度，超过指定大小后重新开始一次
 		new Thread(new Runnable() {
 			long beginTime = System.currentTimeMillis();
+			long fileBeginTime = beginTime;
 
 			@Override
 			public void run() {
@@ -190,6 +222,18 @@ public class Main {
 					try {
 						Thread.sleep(10000); // 每10s汇报一次情况
 					} catch (InterruptedException e) {
+					}
+					// 查看当前文件大小, 如果超过阈值，那么重新开始新的录制
+					if(splitFileSize != 0 && roomDealer.util.getDownloadedFileSize() >= splitFileSize) {
+						fileBeginTime = System.currentTimeMillis();
+						flagSplit = true;
+						roomDealer.stopRecord();
+					}
+					// 查看当前录制时长, 如果超过阈值，那么重新开始新的录制
+					if(splitRecordPeriod != 0 && System.currentTimeMillis() - fileBeginTime >= splitRecordPeriod) {
+						fileBeginTime = System.currentTimeMillis();
+						flagSplit = true;
+						roomDealer.stopRecord();
 					}
 					if (".flv".equals(roomDealer.getType())) {
 						if (roomDealer.util.getStatus() == StatusEnum.DOWNLOADING) {
@@ -205,7 +249,7 @@ public class Main {
 							System.out.println(
 									"当前进度： " + RoomDealer.transToSizeStr(roomDealer.util.getDownloadedFileSize()));
 						} else {
-							System.out.println("正在处理时间戳，请稍等 ");
+							System.out.println("正在处理，请稍等 ");
 						}
 					} else {
 						int period = (int) ((System.currentTimeMillis() - beginTime) / 1000);

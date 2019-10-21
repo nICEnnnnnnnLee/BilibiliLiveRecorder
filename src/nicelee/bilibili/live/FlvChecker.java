@@ -22,7 +22,7 @@ public class FlvChecker {
 
 		FlvChecker fChecker = new FlvChecker();
 		boolean splitScripts = false;
-		if(args.length >= 2) {
+		if(args != null && args.length >= 2) {
 			splitScripts = "true".equals(args[1]);
 		}
 		if (args != null && args.length >= 1) {
@@ -48,6 +48,9 @@ public class FlvChecker {
 
 	public void check(String path) throws IOException {
 		check(path, false, false);
+	}
+	public void check(String path, boolean deleteOnchecked) throws IOException {
+		check(path, deleteOnchecked, false);
 	}
 
 	public void check(String path, boolean deleteOnchecked, boolean splitScripts) throws IOException {
@@ -168,7 +171,7 @@ public class FlvChecker {
 						raf.seek(pos - 5);
 						// 2. 处理新文件
 						FlvChecker fc = new FlvChecker();
-						fc.checkTag(raf, rafNew2, fileNew2);
+						fc.checkTag(raf, rafNew2, fileNew2, splitScripts);
 						// 3. 收尾并处理时长
 						rafNew2.close();
 						changeDuration(fileNew2.getAbsolutePath(), fc.getDuration() / 1000);

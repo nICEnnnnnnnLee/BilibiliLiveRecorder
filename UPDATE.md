@@ -1,4 +1,6 @@
 ## 更新
++ V2.0
+    * 新增特性 [issue #9](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/9) 可按照文件大小或录制时间分段
 + V1.9
     * fix [issue #8](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/8)
 	* 将script Tag前一个tag size置为零
