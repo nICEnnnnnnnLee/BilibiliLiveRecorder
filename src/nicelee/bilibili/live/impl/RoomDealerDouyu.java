@@ -106,7 +106,7 @@ public class RoomDealerDouyu extends RoomDealer {
 				matcher = pQuality.matcher(html);
 				matcher.find();
 				// 网页里面的清晰度不全，改为先申请一次FLV, 在列表里找到正确的
-				JSONObject liveObj = getLiveObj(shortId, "0", roomInfo.getRemark(), cookie);
+				JSONObject liveObj = getLiveObj(roomInfo.getRoomId(), "0", roomInfo.getRemark(), cookie);
 				JSONArray jArray = liveObj.getJSONObject("data").getJSONArray("multirates");
 				String[] qn = new String[jArray.length()];
 				String[] qnDesc = new String[jArray.length()];

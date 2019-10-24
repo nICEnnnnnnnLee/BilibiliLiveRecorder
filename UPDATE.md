@@ -1,4 +1,6 @@
 ## 更新
++ V2.1
+	* fix [issue #10](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/10)修复一个斗鱼录制bug，该bug导致网址id与房间实际id不同时录制失败
 + V2.0
     * 新增特性 [issue #9](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/9) 可按照文件大小或录制时间分段
 + V1.9

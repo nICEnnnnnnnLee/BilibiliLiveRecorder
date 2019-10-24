@@ -21,7 +21,7 @@ import nicelee.bilibili.util.Logger;
 
 public class Main {
 
-	final static String version = "v2.0";
+	final static String version = "v2.1";
 	static boolean autoCheck;
 	static boolean deleteOnchecked;
 	static String liver;
@@ -42,7 +42,7 @@ public class Main {
 	 */
 	public static void main(String[] args) throws IOException {
 //		 args = new String[]{"debug=false&liver=bili&id=221602&qn=10000&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie
-//		 args = new String[]{"debug=true&check=true&liver=douyu&id=233233"};  	// 清晰度全部可选，但部分高清需要cookie 
+//		 args = new String[]{"debug=true&check=true&liver=douyu&id=70002"};  	// 清晰度全部可选，但部分高清需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false"};  					// 清晰度全部可选，可不需要cookie asd199895
 //		args = new String[]{"debug=true&check=false&liver=huya&id=660137"}; 				// 清晰度全部可选，可不需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146&qn=1"}; 		// 只支持默认清晰度 54880976
