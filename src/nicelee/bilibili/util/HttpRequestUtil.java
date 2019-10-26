@@ -47,11 +47,6 @@ public class HttpRequestUtil {
 		this.manager = defaultManager;
 		manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
 		CookieHandler.setDefault(manager);
-		try {
-			HttpsURLConnection.setDefaultSSLSocketFactory(TrustAllCertSSLUtil.getFactory());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	public HttpRequestUtil(CookieManager manager) {

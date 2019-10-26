@@ -24,6 +24,9 @@ Bilibili/Douyu/Huya/Kuaishou 直播录制
 | retry  | 否 | 异常导致录制停止后的重试次数。默认5次 |   
 | fileSize  | 否 | 分段录制的参考文件大小，0为不按文件大小分段，单位`MB`。默认0 |   
 | filePeriod  | 否 | 分段录制的参考时长，0为不按时长分段，单位`min`。默认0 |   
+| proxy  | 否 | 按需配置。http(s)代理 e.g. `127.0.0.1:8888` |   
+| socksProxy  | 否 | 按需配置。socks代理 e.g. `127.0.0.1:1080` |   
+| trustAllCert  | 否 | 是否无条件信任所有SSL证书。默认false |   
 
    
 + 各直播源解析情况  

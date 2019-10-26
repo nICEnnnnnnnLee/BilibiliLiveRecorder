@@ -1,4 +1,6 @@
 ## 更新
++ V2.2
+	* 新增特性 [issue #11](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/11) 可配置代理
 + V2.1
 	* fix [issue #10](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/10)修复一个斗鱼录制bug，该bug导致网址id与房间实际id不同时录制失败
 + V2.0
