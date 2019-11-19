@@ -26,6 +26,7 @@ public class Main {
 
 	final static String version = "v2.2";
 	static boolean autoCheck;
+	static boolean splitScriptTagsIfCheck;
 	static boolean deleteOnchecked;
 	static String liver;
 	static String shortId;
@@ -53,6 +54,7 @@ public class Main {
 //		args = new String[] { "debug=true&check=true&liver=huajiao&id=278581432&qn=1" }; // 只支持默认清晰度(似乎只有一种清晰度)
 		// 初始化默认值
 		autoCheck = true;
+		splitScriptTagsIfCheck = false;
 		deleteOnchecked = true;
 		Logger.debug = false;
 		liver = "bili";
@@ -66,6 +68,10 @@ public class Main {
 			String value = getValue(args[0], "check");
 			if ("false".equals(value)) {
 				autoCheck = false;
+			}
+			value = getValue(args[0], "splitScriptTags");
+			if ("true".equals(value)) {
+				splitScriptTagsIfCheck = true;
 			}
 			value = getValue(args[0], "delete");
 			if ("false".equals(value)) {
@@ -211,7 +217,7 @@ public class Main {
 						try {
 							for(String path: fileList) {
 								System.out.println("校对时间戳开始...");
-								new FlvChecker().check(path, deleteOnchecked);
+								new FlvChecker().check(path, deleteOnchecked, splitScriptTagsIfCheck);
 								System.out.println("校对时间戳完毕。");
 							}
 						} catch (IOException e) {
