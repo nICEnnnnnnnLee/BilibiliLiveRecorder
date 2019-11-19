@@ -24,7 +24,7 @@ import nicelee.bilibili.util.TrustAllCertSSLUtil;
 
 public class Main {
 
-	final static String version = "v2.2";
+	final static String version = "v2.3";
 	static boolean autoCheck;
 	static boolean splitScriptTagsIfCheck;
 	static boolean deleteOnchecked;
@@ -33,10 +33,13 @@ public class Main {
 	static String qn;
 	static int maxFailCnt;
 	static int failCnt;
-	
+
 	static long splitFileSize;
 	static long splitRecordPeriod;
 	volatile static boolean flagSplit;
+
+	static String fileName = "{name}-{shortId} 的{liver}直播{startTime}-{seq}";
+	static String saveFolder;
 
 	/**
 	 * 程序入口
@@ -46,7 +49,7 @@ public class Main {
 	 */
 	public static void main(String[] args) throws IOException {
 //		 args = new String[]{"debug=false&liver=bili&id=221602&qn=10000&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie
-//		 args = new String[]{"debug=true&check=true&liver=douyu&id=198859&proxy=127.0.0.1:8888"};  	// 清晰度全部可选，但部分高清需要cookie 
+//		 args = new String[]{"debug=true&check=true&liver=douyu&id=233233&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{seq}"};  	// 清晰度全部可选，但部分高清需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false"};  					// 清晰度全部可选，可不需要cookie asd199895
 //		args = new String[]{"debug=true&check=false&liver=huya&id=660137"}; 				// 清晰度全部可选，可不需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146&qn=1"}; 		// 只支持默认清晰度 54880976
@@ -90,7 +93,7 @@ public class Main {
 				shortId = value;
 			}
 			value = getValue(args[0], "qn");
-			if (value != null ) {//&& !value.isEmpty()
+			if (value != null) {// && !value.isEmpty()
 				qn = value;
 			}
 			value = getValue(args[0], "retry");
@@ -107,25 +110,33 @@ public class Main {
 			}
 			value = getValue(args[0], "proxy"); // http(s)代理 e.g. 127.0.0.1:8888
 			if (value != null && !value.isEmpty()) {
-				String argus[] =  value.split(":");
+				String argus[] = value.split(":");
 				System.setProperty("proxyHost", argus[0]);
 				System.setProperty("proxyPort", argus[1]);
 			}
-			value = getValue(args[0], "socksProxy"); //socks代理 e.g. 127.0.0.1:1080
+			value = getValue(args[0], "socksProxy"); // socks代理 e.g. 127.0.0.1:1080
 			if (value != null && !value.isEmpty()) {
-				String argus[] =  value.split(":");
+				String argus[] = value.split(":");
 				System.setProperty("socksProxyHost", argus[0]);
 				System.setProperty("socksProxyPort", argus[1]);
 			}
-			value = getValue(args[0], "trustAllCert"); //信任所有SSL证书
+			value = getValue(args[0], "trustAllCert"); // 信任所有SSL证书
 			if (value != null && !value.isEmpty()) {
-				if("true".equals(value)) {
+				if ("true".equals(value)) {
 					try {
 						HttpsURLConnection.setDefaultSSLSocketFactory(TrustAllCertSSLUtil.getFactory());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
+			}
+			value = getValue(args[0], "saveFolder");
+			if (value != null && !value.isEmpty()) {
+				saveFolder = value;
+			}
+			value = getValue(args[0], "fileName");
+			if (value != null && !value.isEmpty()) {
+				fileName = value;
 			}
 		}
 
@@ -148,20 +159,20 @@ public class Main {
 			BufferedReader buReader = new BufferedReader(new FileReader(liver + "-cookie.txt"));
 			cookie = buReader.readLine();
 			buReader.close();
-			//Logger.println(cookie);
+			// Logger.println(cookie);
 		} catch (Exception e) {
 			// e.printStackTrace();
 		}
 		final String fcookie = cookie;
 
 		RoomDealer roomDealer = getRoomDealer(liver);
-		if(cookie != null) {
+		if (cookie != null) {
 			roomDealer.setCookie(cookie);
 		}
 		// 获取房间信息
 		RoomInfo roomInfo = roomDealer.getRoomInfo(shortId);
 
-		if(roomInfo == null) {
+		if (roomInfo == null) {
 			System.err.println("解析失败！！");
 		}
 		// 查看是否在线
@@ -185,37 +196,39 @@ public class Main {
 			@Override
 			public void run() {
 				System.out.println("开始录制，输入stop停止录制");
-				List<String> fileList = new ArrayList<String>(); //用于存放
+				List<String> fileList = new ArrayList<String>(); // 用于存放
 				record(roomDealer, roomInfo, url, fileList);
-				
-				while(true) {
-					if(roomDealer.util.getStatus() == StatusEnum.STOP && flagSplit) {
+
+				while (true) {
+					if (roomDealer.util.getStatus() == StatusEnum.STOP && flagSplit) {
 						// 判断当前状态 如果文件超过配置大小，那么重命名后重新录制
 						// 重置状态
 						roomDealer.util.init();
 						flagSplit = false;
 						failCnt = 0;
 						System.out.println("文件大小或录制时长超过阈值，重新尝试录制");
-						String url = roomDealer.getLiveUrl((roomInfo.getRoomId()), "" + qn, roomInfo.getRemark(), fcookie);
+						String url = roomDealer.getLiveUrl((roomInfo.getRoomId()), "" + qn, roomInfo.getRemark(),
+								fcookie);
 						Logger.println(url);
 						record(roomDealer, roomInfo, url, fileList);
-					}else if(roomDealer.util.getStatus() == StatusEnum.FAIL && maxFailCnt >= failCnt) {
+					} else if (roomDealer.util.getStatus() == StatusEnum.FAIL && maxFailCnt >= failCnt) {
 						// 判断当前状态 如果异常连接导致失败，那么重命名后重新录制
-						failCnt ++;
+						failCnt++;
 						System.out.println("连接异常，重新尝试录制");
-						String url = roomDealer.getLiveUrl((roomInfo.getRoomId()), "" + qn, roomInfo.getRemark(), fcookie);
+						String url = roomDealer.getLiveUrl((roomInfo.getRoomId()), "" + qn, roomInfo.getRemark(),
+								fcookie);
 						Logger.println(url);
 						record(roomDealer, roomInfo, url, fileList);
-					}else {
+					} else {
 						break;
 					}
 				}
-				
+
 				System.out.println("下载停止");
 				if (".flv".equals(roomDealer.getType())) {
 					if (autoCheck) {
 						try {
-							for(String path: fileList) {
+							for (String path : fileList) {
 								System.out.println("校对时间戳开始...");
 								new FlvChecker().check(path, deleteOnchecked, splitScriptTagsIfCheck);
 								System.out.println("校对时间戳完毕。");
@@ -255,13 +268,13 @@ public class Main {
 					} catch (InterruptedException e) {
 					}
 					// 查看当前文件大小, 如果超过阈值，那么重新开始新的录制
-					if(splitFileSize != 0 && roomDealer.util.getDownloadedFileSize() >= splitFileSize) {
+					if (splitFileSize != 0 && roomDealer.util.getDownloadedFileSize() >= splitFileSize) {
 						fileBeginTime = System.currentTimeMillis();
 						flagSplit = true;
 						roomDealer.stopRecord();
 					}
 					// 查看当前录制时长, 如果超过阈值，那么重新开始新的录制
-					if(splitRecordPeriod != 0 && System.currentTimeMillis() - fileBeginTime >= splitRecordPeriod) {
+					if (splitRecordPeriod != 0 && System.currentTimeMillis() - fileBeginTime >= splitRecordPeriod) {
 						fileBeginTime = System.currentTimeMillis();
 						flagSplit = true;
 						roomDealer.stopRecord();
@@ -270,11 +283,11 @@ public class Main {
 						if (roomDealer.util.getStatus() == StatusEnum.DOWNLOADING) {
 							int period = (int) ((System.currentTimeMillis() - beginTime) / 1000);
 							int hour = period / 3600;
-							int minute = period / 60 - hour*60;
-							int second = period - minute*60 - hour*3600;
-							if(hour==0) {
+							int minute = period / 60 - hour * 60;
+							int second = period - minute * 60 - hour * 3600;
+							if (hour == 0) {
 								System.out.printf("已经录制了%dm%ds, ", minute, second);
-							}else {
+							} else {
 								System.out.printf("已经录制了%dh%dm%ds, ", hour, minute, second);
 							}
 							System.out.println(
@@ -285,11 +298,11 @@ public class Main {
 					} else {
 						int period = (int) ((System.currentTimeMillis() - beginTime) / 1000);
 						int hour = period / 3600;
-						int minute = period / 60 - hour*60;
-						int second = period - minute*60 - hour*3600;
-						if(hour==0) {
+						int minute = period / 60 - hour * 60;
+						int second = period - minute * 60 - hour * 3600;
+						if (hour == 0) {
 							System.out.printf("已经录制了%dm%ds, ", minute, second);
-						}else {
+						} else {
 							System.out.printf("已经录制了%dh%dm%ds, ", hour, minute, second);
 						}
 						System.out.println("当前进度： " + RoomDealer
@@ -313,19 +326,28 @@ public class Main {
 
 	private static void record(RoomDealer roomDealer, RoomInfo roomInfo, String url, List<String> fileList) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm");
-		String filename = String.format("%s-%s 的%s直播 %s-%d",
-				roomInfo.getUserName().replaceAll("[\\\\|\\/|:\\*\\?|<|>|\\||\\\"$]", "."),
-				roomInfo.getShortId(), liver, sdf.format(new Date()), fileList.size());
-		roomDealer.startRecord(url, filename, roomInfo.getShortId());// 此处一直堵塞， 直至停止
+		// "{name}-{shortId} 的{liver}直播{startTime}-{seq}";
+		String realName = fileName.replace("{name}", roomInfo.getUserName())
+				.replace("{shortId}", roomInfo.getShortId())
+				.replace("{roomId}", roomInfo.getRoomId())
+				.replace("{liver}", liver)
+				.replace("{startTime}", sdf.format(new Date()))
+				.replace("{seq}", "" + fileList.size())
+				.replaceAll("[\\\\|\\/|:\\*\\?|<|>|\\||\\\"$]", ".");
+		// 如果saveFolder不为空
+		if (saveFolder != null) {
+			roomDealer.util.setSavePath(saveFolder);
+		}
+		roomDealer.startRecord(url, realName, roomInfo.getShortId());// 此处一直堵塞， 直至停止
 		File file = roomDealer.util.getFileDownload();
-		File partFile = new File(file.getParent(), filename + roomDealer.getType() + ".part");
-		File dstFile = new File(file.getParent(), filename + roomDealer.getType());
+		File partFile = new File(file.getParent(), realName + roomDealer.getType() + ".part");
+		File dstFile = new File(file.getParent(), realName + roomDealer.getType());
 		// 将可能的.flv.part文件重命名为.flv
 		partFile.renameTo(dstFile);
 		// 加入已下载列表
 		fileList.add(dstFile.getAbsolutePath());
 	}
-	
+
 	/**
 	 * 从参数字符串中取出值 "key1=value1&key2=value2 ..."
 	 * 

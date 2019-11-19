@@ -1,4 +1,7 @@
 ## 更新
++ V2.3
+	* 新增特性 [issue #12](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/12) 可在调用时传入参数，使得校准时间戳时分割scripts tag
+	* 新增特性 [issue #13](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/13) 支持自定义输出路径或文件名
 + V2.2
 	* 新增特性 [issue #11](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/11) 可配置代理
 + V2.1

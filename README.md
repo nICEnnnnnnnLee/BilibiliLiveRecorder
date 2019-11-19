@@ -27,7 +27,9 @@ Bilibili/Douyu/Huya/Kuaishou 直播录制
 | proxy  | 否 | 按需配置。http(s)代理 e.g. `127.0.0.1:8888` |   
 | socksProxy  | 否 | 按需配置。socks代理 e.g. `127.0.0.1:1080` |   
 | trustAllCert  | 否 | 是否无条件信任所有SSL证书。默认false |   
-
+| splitScriptTags  | 否 | 校准文件时是否分割时间戳。默认false | 
+| fileName  | 否 | 文件命名规则，默认`{name}-{shortId} 的{liver}直播{startTime}-{seq}` | 
+| saveFolder  | 否 | 文件保存路径 | 
    
 + 各直播源解析情况  
 
@@ -47,13 +49,43 @@ Bilibili/Douyu/Huya/Kuaishou 直播录制
 		+ 第二个布尔参数的意义是**当遇到某种特定情况时，是否分割文件**  
 		+ 注意：这些操作**没法还原**，所以理论上原始文件最保真。  `不校验时间戳` ≈ `校验文件不分割` > `校验文件分割scripts tag`  
 		+ 如果仍旧没办法满足需求的话，建议拿着各种版本都去ffmpeg处理一下  
+		
 + 加载cookies(适用于高清晰度录制)
-    将cookie保存到同级目录的`{liver}-cookie.txt`即可，e.g. `douyu-cookie.txt`
-    
-  获取 房间id  
+    将cookie保存到同级目录的`{liver}-cookie.txt`即可，e.g. `douyu-cookie.txt`   
+
+
++ 关于文件命名规则
+    + 请勿传入非法字符，如`&`  
+	+ 建议保留`{startTime}`和`{seq}`，以确保文件名唯一，否则很可能出现未知错误  
+	+ 校准时间戳这一动作将会产生若干个文件，这些文件将在原来的基础上增加-checked[0-9]+后缀  
+	+ 举例：
+	```
+	fileName={name}-{shortId} 的{liver}直播{startTime}-{seq}&filePeriod=20&check=false
+	那么，一个可能的结果是：
+	英雄联盟赛事-288016 的douyu直播 2019-09-19 17.40-0.flv
+	英雄联盟赛事-288016 的douyu直播 2019-09-19 18.00-1.flv
+
+	fileName={name}-{shortId} 的{liver}直播{startTime}-{seq}&filePeriod=20&check=true
+	增加时间戳校准动作。那么，一个可能的结果是：
+	英雄联盟赛事-288016 的douyu直播 2019-09-19 17.40-0-checked0.flv
+	英雄联盟赛事-288016 的douyu直播 2019-09-19 18.00-1-checked0.flv
+	```	
+
+	| Key  | 释义 |  
+	| ------------- | ------------- | 
+	| name      | 主播名称 | 
+	| shortId    | 直播网址id | 
+	| roomId     | 实际房间id，可能与shortId不同 |   
+	| liver     | 直播源，同传入参数 |   
+	| startTime     | 录制开始时间，精确到分，例如2019-11-19 20.18 |  
+	| seq     | 录制产生的文件序号。从0开始；分段录制或异常重试均会使序号增大 | 
+
+	
+	
++ 获取 房间id  
 ![](https://raw.githubusercontent.com/nICEnnnnnnnLee/BilibiliLiveRecorder/master/release/preview/id.png)  
     
-  运行截图
++ 运行截图
 ![](https://raw.githubusercontent.com/nICEnnnnnnnLee/BilibiliLiveRecorder/master/release/preview/run.png)  
 
 ## :smile:其它  
