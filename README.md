@@ -18,6 +18,7 @@ Bilibili/Douyu/Huya/Kuaishou 直播录制
 | debug  | 否 | debug模式,输出更多信息。默认false |  
 | check  | 否 | 下载完后是否校准时间戳，默认true |  
 | delete  | 否 | 校准后是否删除源文件，默认true |  
+| zip  | 否 | 是否压缩成zip文件，默认false |  
 | liver  | 是 | 将要录制的直播源。 详见下表 | 
 | id  | 否 | 直播房间id，如未传入，后续将提示输入。 | 
 | qn  | 否 | 直播视频清晰度，如未传入，后续将提示输入。不同网站数值意义不同 |   
@@ -27,7 +28,7 @@ Bilibili/Douyu/Huya/Kuaishou 直播录制
 | proxy  | 否 | 按需配置。http(s)代理 e.g. `127.0.0.1:8888` |   
 | socksProxy  | 否 | 按需配置。socks代理 e.g. `127.0.0.1:1080` |   
 | trustAllCert  | 否 | 是否无条件信任所有SSL证书。默认false |   
-| splitScriptTags  | 否 | 校准文件时是否分割时间戳。默认false | 
+| splitScriptTags  | 否 | 校准文件时是否分割ScriptTag。默认false | 
 | fileName  | 否 | 文件命名规则，默认`{name}-{shortId} 的{liver}直播{startTime}-{seq}` | 
 | saveFolder  | 否 | 文件保存路径 | 
    
@@ -37,7 +38,7 @@ Bilibili/Douyu/Huya/Kuaishou 直播录制
 | ------------- | ------------- | ------------- | 
 | bili      | 2019/09/19 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
-| douyu     | 2019/10/15 | `flv`清晰度可多选，但部分高清需要cookie | 
+| douyu     | 2019/12/02 | `flv`清晰度可多选，但部分高清需要cookie | 
 | kuaishou  | 2019/09/19 | `flv`清晰度可多选，可能需要cookie(与登录无关，首次进入直播页面有反爬措施，会需要拖拽验证) | 
 | huya      | 2019/08/30 | `flv`清晰度可多选，可不需要cookie | 
 | yy        | 2019/06/15 | `flv`只支持默认清晰度 | 

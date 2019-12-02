@@ -21,13 +21,15 @@ import nicelee.bilibili.live.domain.RoomInfo;
 import nicelee.bilibili.live.impl.RoomDealerBilibili;
 import nicelee.bilibili.util.Logger;
 import nicelee.bilibili.util.TrustAllCertSSLUtil;
+import nicelee.bilibili.util.ZipUtil;
 
 public class Main {
 
-	final static String version = "v2.3";
+	final static String version = "v2.4";
 	static boolean autoCheck;
 	static boolean splitScriptTagsIfCheck;
 	static boolean deleteOnchecked;
+	static boolean flagZip;
 	static String liver;
 	static String shortId;
 	static String qn;
@@ -49,7 +51,7 @@ public class Main {
 	 */
 	public static void main(String[] args) throws IOException {
 //		 args = new String[]{"debug=false&liver=bili&id=221602&qn=10000&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie
-//		 args = new String[]{"debug=true&check=true&liver=douyu&id=233233&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{seq}"};  	// 清晰度全部可选，但部分高清需要cookie 
+//		 args = new String[]{"debug=true&check=true&liver=douyu&id=198859&zip=true&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{seq}"};  	// 清晰度全部可选，但部分高清需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false"};  					// 清晰度全部可选，可不需要cookie asd199895
 //		args = new String[]{"debug=true&check=false&liver=huya&id=660137"}; 				// 清晰度全部可选，可不需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146&qn=1"}; 		// 只支持默认清晰度 54880976
@@ -66,6 +68,7 @@ public class Main {
 		splitFileSize = 0;
 		splitRecordPeriod = 0;
 		flagSplit = false;
+		flagZip = false;
 		// 根据参数初始化值
 		if (args != null && args.length >= 1) {
 			String value = getValue(args[0], "check");
@@ -83,6 +86,10 @@ public class Main {
 			value = getValue(args[0], "debug");
 			if ("true".equals(value)) {
 				Logger.debug = true;
+			}
+			value = getValue(args[0], "zip");
+			if ("true".equals(value)) {
+				flagZip = true;
 			}
 			value = getValue(args[0], "liver");
 			if (value != null && !value.isEmpty()) {
@@ -236,6 +243,28 @@ public class Main {
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
+					}
+					if(flagZip) {
+						// 获取所有要压缩的文件
+						List<File> files2Zip = new ArrayList<File>(); // 用于存放
+						for (String path : fileList) {
+							// 如果不校正时间戳, 直接加入列表即可
+							if(!autoCheck) {
+								files2Zip.add(new File(path));
+							}else {
+							// 如果校正时间戳，一个个文件名进行尝试，直至不存在
+								for(int count = 0; ; count++) {
+									String path_i = path.replaceFirst(".flv$", "-checked" + count +".flv");
+									File f = new File(path_i);
+									if(f.exists())
+										files2Zip.add(f);
+									else
+										break;
+								}
+							}
+						}
+						// 压缩文件
+						ZipUtil.zipFiles(files2Zip, fileList.get(0) + ".zip");
 					}
 				} else if (".ts".equals(roomDealer.getType())) {
 //					System.out.println("正在合并...");
