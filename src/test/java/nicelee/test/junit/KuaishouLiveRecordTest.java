@@ -22,7 +22,7 @@ public class KuaishouLiveRecordTest {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
+	//@Test
 	public void testCopyFiles() {
 		RoomDealerKuaishou rd = new RoomDealerKuaishou();
 		HttpRequestUtil util = new HttpRequestUtil();
@@ -40,11 +40,11 @@ public class KuaishouLiveRecordTest {
 		rd.getRoomInfo("fengyeYS");
 	}
 	
-//	@Test
+	@Test
 	public void testGetFLVUrl() {
 		RoomDealerKuaishou rd = new RoomDealerKuaishou();
 		//rd.getRoomInfo("ZFYS8888");
-		System.out.println(rd.getLiveUrl("fengyeYS", "0"));
+		System.out.println(rd.getLiveUrl("ashuoxiaowanzi", "0"));
 	}
 	
 	//@Test

@@ -27,7 +27,8 @@ public class Mp4Checker {
 
 	
 	public static void main(String[] args) throws IOException {
-		Mp4Checker.check("D:\\Workspace\\javaweb-springboot\\BilibiliDown\\download\\test_only_video.m4s");
+		//Mp4Checker.check("D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\样本\\test_video.m4s");
+		Mp4Checker.check("D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\样本\\test.mp4");
 	}
 
 	/**
@@ -52,7 +53,7 @@ public class Mp4Checker {
 			int cnt = 10;
 			long currentPosition = raf.getFilePointer(); // 记住当前位置
 			long offset = 0; // 计数，用于统计
-			while (offset < dataSize) {//&& cnt >=0
+			while (offset < dataSize && cnt >=0) {//&& cnt >=0
 				//Logger.printf(boxNo,"offset: %d, dataSize: %d", offset, dataSize);
 				// Header - size - 4
 				int size = readBytesToInt(raf, 4) & 0xffffffff;

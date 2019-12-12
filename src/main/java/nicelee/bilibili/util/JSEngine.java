@@ -22,7 +22,7 @@ public class JSEngine {
 		if(cryptoJS == null) {
 			StringBuilder sb = new StringBuilder();
 			try {
-				BufferedReader buReader = new BufferedReader(new InputStreamReader(JSEngine.class.getResource("/resources/crypto-js.min.js").openStream()));
+				BufferedReader buReader = new BufferedReader(new InputStreamReader(JSEngine.class.getClassLoader().getResource("crypto-js.min.js").openStream()));
 				String line = null;
 				while( (line = buReader.readLine()) != null) {
 					sb.append(line);

@@ -1,10 +1,6 @@
 ## 更新
 + V2.4
-<<<<<<< HEAD
 	* 新增特性 [issue #15](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/15) 支持zip压缩录制的flv文件
-=======
-	* 新增特性 [issue #14](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/14) 支持zip压缩录制的flv文件
->>>>>>> 69c57f3264feb7e62294387401636d2fee0edcf7
 + V2.3
 	* 新增特性 [issue #12](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/12) 可在调用时传入参数，使得校准时间戳时分割scripts tag
 	* 新增特性 [issue #13](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/13) 支持自定义输出路径或文件名
