@@ -7,6 +7,7 @@
 ![Release 下载总量](https://img.shields.io/github/downloads/nICEnnnnnnnLee/BilibiliLiveRecorder/total.svg?style=flat-square)
 
 Bilibili/Douyu/Huya/Kuaishou 直播录制  
+晚几天再补个API说明文档，咕咕咕~
 ===============================  
 ## :smile:使用方法
 + 程序调用时传入参数即可(顺序可变)  
