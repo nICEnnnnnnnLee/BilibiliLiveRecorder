@@ -1,3 +1,10 @@
+<p align = "center">
+<img alt="你指尖跃动的电光,是我此生不变的信仰" src="/release/preview/bilibili.jpg">
+<br><br>
+Go go go, Bilibili Pikachu!
+<br><br>
+</p>
+
 # BilibiliLiveRecorder
 ![语言java](https://img.shields.io/badge/Require-java-green.svg)
 ![支持系统 Win/Linux/Mac](https://img.shields.io/badge/Platform-%20win%20|%20linux%20|%20mac-lightgrey.svg)
@@ -6,9 +13,10 @@
 ![当前版本](https://img.shields.io/github/release/nICEnnnnnnnLee/BilibiliLiveRecorder.svg?style=flat-square)
 ![Release 下载总量](https://img.shields.io/github/downloads/nICEnnnnnnnLee/BilibiliLiveRecorder/total.svg?style=flat-square)
 
-Bilibili/Douyu/Huya/Kuaishou 直播录制  
-晚几天再补个API说明文档，咕咕咕~
-===============================  
+#### 支持Bilibili/Douyu/Huya/Kuaishou/Huajiao/Zhanqi/YY 直播录制  
+[<h4>Instruction For Developers</h4>](/DOC.md)
+
+
 ## :smile:使用方法
 + 程序调用时传入参数即可(顺序可变)  
     `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar "debug=false&check=false&delete=false&liver=douyu&id=233233&qn=0&retry=5"`  
