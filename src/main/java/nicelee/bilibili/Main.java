@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,14 +19,13 @@ import nicelee.bilibili.enums.StatusEnum;
 import nicelee.bilibili.live.FlvChecker;
 import nicelee.bilibili.live.RoomDealer;
 import nicelee.bilibili.live.domain.RoomInfo;
-import nicelee.bilibili.live.impl.RoomDealerBilibili;
 import nicelee.bilibili.util.Logger;
 import nicelee.bilibili.util.TrustAllCertSSLUtil;
 import nicelee.bilibili.util.ZipUtil;
 
 public class Main {
 
-	final static String version = "v2.4";
+	final static String version = "v2.5.0";
 	static boolean autoCheck;
 	static boolean splitScriptTagsIfCheck;
 	static boolean deleteOnchecked;
@@ -33,6 +33,7 @@ public class Main {
 	static String liver;
 	static String shortId;
 	static String qn;
+	static String[] qnPriority;
 	static int maxFailCnt;
 	static int failCnt;
 
@@ -51,7 +52,8 @@ public class Main {
 	 */
 	public static void main(String[] args) throws IOException {
 //		 args = new String[]{"debug=false&liver=bili&id=221602&qn=10000&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie
-//		 args = new String[]{"debug=true&check=true&liver=douyu&id=35954&zip=true&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{seq}"};  	// 清晰度全部可选，但部分高清需要cookie 
+//		args = new String[] {
+//				"debug=false&check=false&liver=douyu&qnPri=高清>蓝光4M>超清>蓝光>流畅&qn=-1&id=288016&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{seq}" }; // 清晰度全部可选，但部分高清需要cookie
 //		args = new String[]{"debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false"};  					// 清晰度全部可选，可不需要cookie asd199895
 //		args = new String[]{"debug=true&check=false&liver=huya&id=660137"}; 				// 清晰度全部可选，可不需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146&qn=1"}; 		// 只支持默认清晰度 54880976
@@ -102,6 +104,13 @@ public class Main {
 			value = getValue(args[0], "qn");
 			if (value != null) {// && !value.isEmpty()
 				qn = value;
+			}
+			value = getValue(args[0], "qnPri");
+			if (value != null) {// && !value.isEmpty()
+				value = URLDecoder.decode(value, "UTF-8");
+				qnPriority = value.split(">");
+				for(String str: qnPriority)
+					System.out.println(str);
 			}
 			value = getValue(args[0], "retry");
 			if (value != null && !value.isEmpty()) {
@@ -188,10 +197,46 @@ public class Main {
 			return;
 		}
 
-		// 输入清晰度后，获得直播视频地址
+		// 清晰度获取
+		// 先使用预设的优先级获取
+		if (qnPriority != null) {
+			String qnDescs[] = roomInfo.getAcceptQualityDesc();
+			boolean findQn = false;
+			for (int i = 0; i < qnPriority.length; i++) {
+				// 遍历qnDescs, 如果符合要求，则设置清晰度
+				for (int j = 0; j < qnDescs.length; j++) {
+					if (qnDescs[j].equals(qnPriority[i])) {
+						qn = roomInfo.getAcceptQuality()[j];
+						findQn = true;
+						break;
+					}
+				}
+				if (findQn)
+					break;
+			}
+		}
+		// qn = -1, 使用最高画质
+		if("-1".equals(qn)) {
+			qn = roomInfo.getAcceptQuality()[0];
+		}
+		// 没有获取到清晰度，则提示输入
 		if (qn == null) {
+			// 输入清晰度后，获得直播视频地址
 			System.out.println("请输入清晰度代号(:之前的内容，不含空格)");
 			qn = reader.readLine();
+		}
+		// 检查清晰度的合法性
+		boolean qnIsValid = false;
+		String validQN[] = roomInfo.getAcceptQuality();
+		for(int i = 0; i< validQN.length; i++) {
+			if(validQN[i].equals(qn)) {
+				qnIsValid = true;
+				break;
+			}
+		}
+		if(!qnIsValid) {
+			System.err.println("输入的qn值不在当前可获取清晰度列表中");
+			System.exit(-1);
 		}
 		// String url = roomDealer.getLiveUrl(roomInfo.getRoomId(),
 		// roomInfo.getAcceptQuality()[0]);
@@ -244,19 +289,19 @@ public class Main {
 							e.printStackTrace();
 						}
 					}
-					if(flagZip) {
+					if (flagZip) {
 						// 获取所有要压缩的文件
 						List<File> files2Zip = new ArrayList<File>(); // 用于存放
 						for (String path : fileList) {
 							// 如果不校正时间戳, 直接加入列表即可
-							if(!autoCheck) {
+							if (!autoCheck) {
 								files2Zip.add(new File(path));
-							}else {
-							// 如果校正时间戳，一个个文件名进行尝试，直至不存在
-								for(int count = 0; ; count++) {
-									String path_i = path.replaceFirst(".flv$", "-checked" + count +".flv");
+							} else {
+								// 如果校正时间戳，一个个文件名进行尝试，直至不存在
+								for (int count = 0;; count++) {
+									String path_i = path.replaceFirst(".flv$", "-checked" + count + ".flv");
 									File f = new File(path_i);
-									if(f.exists())
+									if (f.exists())
 										files2Zip.add(f);
 									else
 										break;
@@ -356,12 +401,9 @@ public class Main {
 	private static void record(RoomDealer roomDealer, RoomInfo roomInfo, String url, List<String> fileList) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm");
 		// "{name}-{shortId} 的{liver}直播{startTime}-{seq}";
-		String realName = fileName.replace("{name}", roomInfo.getUserName())
-				.replace("{shortId}", roomInfo.getShortId())
-				.replace("{roomId}", roomInfo.getRoomId())
-				.replace("{liver}", liver)
-				.replace("{startTime}", sdf.format(new Date()))
-				.replace("{seq}", "" + fileList.size())
+		String realName = fileName.replace("{name}", roomInfo.getUserName()).replace("{shortId}", roomInfo.getShortId())
+				.replace("{roomId}", roomInfo.getRoomId()).replace("{liver}", liver)
+				.replace("{startTime}", sdf.format(new Date())).replace("{seq}", "" + fileList.size())
 				.replaceAll("[\\\\|\\/|:\\*\\?|<|>|\\||\\\"$]", ".");
 		// 如果saveFolder不为空
 		if (saveFolder != null) {
@@ -400,15 +442,7 @@ public class Main {
 	 * @return
 	 */
 	private static RoomDealer getRoomDealer(String liver) {
-		Class<?> clazz = PackageScanLoader.dealerClazz.get(liver);
-		try {
-			return (RoomDealer) clazz.newInstance();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("当前没有发现合适的视频录制器： " + liver);
-			RoomDealer dealer = new RoomDealerBilibili();
-			return dealer;
-		}
+		return RoomDealer.createRoomDealer(liver);
 	}
 
 }
