@@ -35,6 +35,12 @@ Package has no external dependencies, except for `org.json`(for simple json stri
 
 For non-Maven use cases, you download jars from [Github Packages](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/packages).
 
+
+## About Versions
+
+It will contains 3 number since version `2.5.0`. 
+The first two number will **NEVER** change if nothing changes with the core codes.  
+Thus with app version 2.5.1 or 2.5.123 released, the relevant package will **NOT** be deployed.  
 -----
 # Use it!
 
@@ -71,14 +77,7 @@ public class Example0 {
 		
 		
 		// 获取工具类
-		// will be optimized in next version
-		Class<?> clazz = PackageScanLoader.dealerClazz.get(liver);
-		RoomDealer dealer = null;
-		try {
-			dealer = (RoomDealer) clazz.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
-			dealer = new RoomDealerBilibili();
-		}
+		RoomDealer dealer = RoomDealer.createRoomDealer(liver);
 		//RoomDealer dealer = new RoomDealerBilibili(); // Is OK but NOT recommended
 		// 获取房间信息
 		dealer.setCookie(cookie); // 在某些情况下，游客和登录用户获取到的清晰度不一致
@@ -149,8 +148,7 @@ public class Example0 {
 ### get Core Util
 ```java
 // Get the right type of RoomDealer
-Class<?> clazz = PackageScanLoader.dealerClazz.get("bili"); // liver should be support. See ReadMe for details
-RoomDealer dealer = (RoomDealer) clazz.newInstance();
+RoomDealer dealer = RoomDealer.createRoomDealer("bili");// liver should be support. See ReadMe for details
 
 // The following is OK but NOT recommended
 // RoomDealer dealer = new RoomDealerBilibili(); 
@@ -162,7 +160,7 @@ RoomDealer dealer = (RoomDealer) clazz.newInstance();
 
 ```java
 // Get the right type of RoomDealer
-RoomDealer dealer = new RoomDealerBilibili();
+RoomDealer dealer = RoomDealer.createRoomDealer("bili");
 // Cookie set could be skipped. But things may go different for guests/logged-in-users for Douyu
 dealer.setCookie(cookie); 
 RoomInfo roomInfo = dealer.getRoomInfo(roomIdFromURL);
@@ -187,7 +185,7 @@ String remark; // 用于后续拓展。 douyu: 保存加密函数
 
 ```java
 // Get the right type of RoomDealer
-RoomDealer dealer = new RoomDealerBilibili();
+RoomDealer dealer = RoomDealer.createRoomDealer("bili");
 // Get quality you want
 // String qn = roomInfo.getAcceptQuality()[0];
 // Get Cookie(null is accepted)
@@ -201,7 +199,7 @@ String url = dealer.getLiveUrl(roomInfo.getRoomId(), qn, roomInfo.getRemark(), c
 **PS:** You can download it using other tools.
 ```java
 // Get the right type of RoomDealer
-RoomDealer dealer = new RoomDealerBilibili();
+RoomDealer dealer = RoomDealer.createRoomDealer("bili");
 // default SavePath = "./download/", you could change it before downloading
 //dealer.util.setSavePath(new File("D:\Workspace\"));
 
@@ -230,10 +228,10 @@ try {
     boolean splitScriptTags = false; // Normally, there should be only 1 ScriptTag in FLV. Two methods provided to solve the problem of ScriptTag**s**.
     
     // The method will block the thread util the work is done. Noway to stop it manually.
-    new FlvChecker().check("D:\Workspace\123.flv", deleteOnchecked, splitScriptTags);
-    // D:\Workspace\123.flv-checked0.flv will appear
-    // D:\Workspace\123.flv-checked1.flv may appear if splitScriptTags = true, it depends on number of ScriptTag**s**
-    // D:\Workspace\123.flv-checked2.flv may appear if splitScriptTags = true, it depends on number of ScriptTag**s**
+    new FlvChecker().check("D:\Workspace\123.flv", deleteOriginFilesOnchecked, splitScriptTags);
+    // D:\Workspace\123-checked0.flv will appear
+    // D:\Workspace\123-checked1.flv may appear if splitScriptTags = true, it depends on number of ScriptTag**s**
+    // D:\Workspace\123-checked2.flv may appear if splitScriptTags = true, it depends on number of ScriptTag**s**
     // ...
 } catch (IOException e) {
     e.printStackTrace();

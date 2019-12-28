@@ -1,4 +1,8 @@
 ## 更新
++ V2.5.0
+    * 优化[issue #17](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/17) 获取的清晰度列表不存在指定清晰度值时，程序将退出
+    * 优化[issue #18](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/17) 当设置qn=-1时，使用最高的清晰度进行录制
+    * 新增`qnPri`字段，e.g. `蓝光4M>蓝光>超清` 根据清晰度优先级描述获取清晰度设置
 + V2.4
 	* 新增特性 [issue #15](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/15) 支持zip压缩录制的flv文件
 + V2.3
