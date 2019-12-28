@@ -21,15 +21,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import javax.net.ssl.HttpsURLConnection;
-
 import nicelee.bilibili.enums.StatusEnum;
 
 public class HttpRequestUtil {
 
 	private static CookieManager defaultManager = new CookieManager();
 	// 下载缓存区
-	private byte[] buffer = new byte[1024 * 1024];
+	private byte[] buffer;
 	// 下载文件大小状态
 	private long downloadedFileSize;
 	private long totalFileSize;
@@ -127,6 +125,9 @@ public class HttpRequestUtil {
 		if (status == StatusEnum.STOP) {
 			System.out.println("人工停止");
 			return false;
+		}
+		if(buffer == null) {
+			buffer = new byte[1024 * 1024];
 		}
 		status = StatusEnum.DOWNLOADING;
 		InputStream inn = null;
