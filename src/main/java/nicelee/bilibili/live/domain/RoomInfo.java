@@ -14,7 +14,7 @@ public class RoomInfo {
 	String[] acceptQuality;
 	String[] acceptQualityDesc;
 	
-	String remark; // youyu: 保存加密函数
+	String remark; // douyu: 保存加密函数
 	
 	public String getQualityByName(String qnName) {
 		for(int i=0; i<acceptQualityDesc.length; i++ ) {

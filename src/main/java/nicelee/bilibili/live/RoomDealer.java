@@ -1,5 +1,6 @@
 package nicelee.bilibili.live;
 
+import nicelee.bilibili.PackageScanLoader;
 import nicelee.bilibili.live.domain.RoomInfo;
 import nicelee.bilibili.util.HttpHeaders;
 import nicelee.bilibili.util.HttpRequestUtil;
@@ -10,6 +11,17 @@ public abstract class RoomDealer {
 	protected HttpHeaders headers = new HttpHeaders();
 	public Integer currentIndex = 0; // 当前任务编号
 	protected String cookie;
+	
+	public static RoomDealer createRoomDealer(String liver) {
+		Class<?> clazz = PackageScanLoader.dealerClazz.get(liver);
+		try {
+			return (RoomDealer) clazz.newInstance();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("当前没有发现合适的视频录制器： " + liver);
+			return null;
+		}
+	}
 	
 	public abstract String getType();
 	/**
@@ -38,9 +50,6 @@ public abstract class RoomDealer {
 	 */
 	public abstract void startRecord(String url, String fileName, String shortId);
 
-	/**
-	 * 停止录制
-	 */
 	public void setCookie(String cookie) {
 		this.cookie = cookie;
 	}
