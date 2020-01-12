@@ -51,12 +51,12 @@ public class RoomDealerKuaishou extends RoomDealer {
 			// 真实房间id
 			roomInfo.setRoomId(shortId);
 			// 房间主id
-			roomInfo.setUserId(user.getLong("userId"));
+			roomInfo.setUserId(user.optLong("userId",0));
 			// 房间主名称
-			roomInfo.setUserName(user.getString("name"));
+			roomInfo.setUserName(user.optString("name","空"));
 
 			// 直播描述
-			roomInfo.setDescription(user.getString("description"));
+			roomInfo.setDescription(user.optString("description","无"));
 
 			if (roomInfo.getLiveStatus() == 1) {
 				roomInfo.setTitle(live.optString("caption", roomInfo.getDescription()));
@@ -114,7 +114,7 @@ public class RoomDealerKuaishou extends RoomDealer {
 	 * @return
 	 */
 	private JSONObject getUserInfoObj(String roomId) {
-
+		
 		StringBuffer param = new StringBuffer();
 		param.append("{\"operationName\":\"userInfoQuery\",\"variables\":{\"principalId\":\"");
 		param.append(roomId);
@@ -125,8 +125,8 @@ public class RoomDealerKuaishou extends RoomDealer {
 		String json = util.postContent("https://live.kuaishou.com/graphql",
 				new HttpHeaders().getKuaishouHeaders(roomId), param.toString(), HttpCookies.convertCookies(cookie));
 		Logger.println(json);
-		JSONObject obj = new JSONObject(json).getJSONObject("data").getJSONObject("userInfo");
-		return obj;
+		JSONObject obj = new JSONObject(json).getJSONObject("data").optJSONObject("userInfo");
+		return obj == null ? new JSONObject(): obj;
 	}
 
 	/**
