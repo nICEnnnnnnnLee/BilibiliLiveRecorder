@@ -25,7 +25,7 @@ import nicelee.bilibili.util.ZipUtil;
 
 public class Main {
 
-	final static String version = "v2.5.0";
+	final static String version = "v2.6.0";
 	static boolean autoCheck;
 	static boolean splitScriptTagsIfCheck;
 	static boolean deleteOnchecked;
@@ -42,6 +42,7 @@ public class Main {
 	volatile static boolean flagSplit;
 
 	static String fileName = "{name}-{shortId} 的{liver}直播{startTime}-{seq}";
+	static String timeFormat = "yyyy-MM-dd HH.mm";
 	static String saveFolder;
 
 	/**
@@ -54,7 +55,8 @@ public class Main {
 //		 args = new String[]{"debug=false&liver=bili&id=221602&qn=10000&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie
 //		args = new String[] {
 //				"debug=false&check=false&liver=douyu&qnPri=高清>蓝光4M>超清>蓝光>流畅&qn=-1&id=288016&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{seq}" }; // 清晰度全部可选，但部分高清需要cookie
-//		args = new String[]{"debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false"};  					// 清晰度全部可选，可不需要cookie asd199895
+//		args = new String[] { "debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&timeFormat=yyyyMMddHHmm" }; // 清晰度全部可选，可不需要cookie
+																										// asd199895
 //		args = new String[]{"debug=true&check=false&liver=huya&id=660137"}; 				// 清晰度全部可选，可不需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146&qn=1"}; 		// 只支持默认清晰度 54880976
 //		args = new String[] { "debug=true&check=true&liver=zhanqi&id=90god" }; 			// 清晰度全部可选，可不需要cookie 90god huashan ydjs
@@ -109,7 +111,7 @@ public class Main {
 			if (value != null) {// && !value.isEmpty()
 				value = URLDecoder.decode(value, "UTF-8");
 				qnPriority = value.split(">");
-				for(String str: qnPriority)
+				for (String str : qnPriority)
 					System.out.println(str);
 			}
 			value = getValue(args[0], "retry");
@@ -153,6 +155,10 @@ public class Main {
 			value = getValue(args[0], "fileName");
 			if (value != null && !value.isEmpty()) {
 				fileName = value;
+			}
+			value = getValue(args[0], "timeFormat");
+			if (value != null && !value.isEmpty()) {
+				timeFormat = value;
 			}
 		}
 
@@ -216,7 +222,7 @@ public class Main {
 			}
 		}
 		// qn = -1, 使用最高画质
-		if("-1".equals(qn)) {
+		if ("-1".equals(qn)) {
 			qn = roomInfo.getAcceptQuality()[0];
 		}
 		// 没有获取到清晰度，则提示输入
@@ -228,13 +234,13 @@ public class Main {
 		// 检查清晰度的合法性
 		boolean qnIsValid = false;
 		String validQN[] = roomInfo.getAcceptQuality();
-		for(int i = 0; i< validQN.length; i++) {
-			if(validQN[i].equals(qn)) {
+		for (int i = 0; i < validQN.length; i++) {
+			if (validQN[i].equals(qn)) {
 				qnIsValid = true;
 				break;
 			}
 		}
-		if(!qnIsValid) {
+		if (!qnIsValid) {
 			System.err.println("输入的qn值不在当前可获取清晰度列表中");
 			System.exit(-1);
 		}
@@ -399,7 +405,7 @@ public class Main {
 	}
 
 	private static void record(RoomDealer roomDealer, RoomInfo roomInfo, String url, List<String> fileList) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm");
+		SimpleDateFormat sdf = new SimpleDateFormat(timeFormat);
 		// "{name}-{shortId} 的{liver}直播{startTime}-{seq}";
 		String realName = fileName.replace("{name}", roomInfo.getUserName()).replace("{shortId}", roomInfo.getShortId())
 				.replace("{roomId}", roomInfo.getRoomId()).replace("{liver}", liver)
@@ -411,10 +417,17 @@ public class Main {
 		}
 		roomDealer.startRecord(url, realName, roomInfo.getShortId());// 此处一直堵塞， 直至停止
 		File file = roomDealer.util.getFileDownload();
+		
 		File partFile = new File(file.getParent(), realName + roomDealer.getType() + ".part");
+		File completeFile = new File(file.getParent(), realName + roomDealer.getType());
+		realName = realName.replace("{endTime}", sdf.format(new Date()));
 		File dstFile = new File(file.getParent(), realName + roomDealer.getType());
-		// 将可能的.flv.part文件重命名为.flv
-		partFile.renameTo(dstFile);
+
+		if (partFile.exists())
+			partFile.renameTo(dstFile);
+		else if (realName.contains("{endTime}"))
+			completeFile.renameTo(dstFile);
+
 		// 加入已下载列表
 		fileList.add(dstFile.getAbsolutePath());
 	}
