@@ -40,23 +40,25 @@ Go go go, Bilibili Pikachu!
 | trustAllCert  | 否 | 是否无条件信任所有SSL证书。默认false |   
 | splitScriptTags  | 否 | 校准文件时是否分割ScriptTag。默认false | 
 | fileName  | 否 | 文件命名规则，默认`{name}-{shortId} 的{liver}直播{startTime}-{seq}` | 
+| timeFormat  | 否 | 文件命名中{startTime}和{endTime}的格式，默认`yyyy-MM-dd HH.mm` | 
 | saveFolder  | 否 | 文件保存路径 | 
-   
+
 + 各直播源解析情况  
 
 | liver  | 最后测试时间 | 备注 | 
 | ------------- | ------------- | ------------- | 
 | bili      | 2019/09/19 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
-| douyu     | 2019/12/28 | `flv`清晰度可多选，但部分高清需要cookie | 
-| kuaishou  | 2019/09/19 | `flv`清晰度可多选，可能需要cookie(与登录无关，首次进入直播页面有反爬措施，会需要拖拽验证) | 
+| douyu     | 2020/01/12 | `flv`清晰度可多选，但部分高清需要cookie | 
+| kuaishou  | 2020/01/12 | `flv`清晰度可多选，可能需要cookie(与登录无关，首次进入直播页面有反爬措施，会需要拖拽验证) | 
 | huya      | 2019/08/30 | `flv`清晰度可多选，可不需要cookie | 
 | yy        | 2019/06/15 | `flv`只支持默认清晰度 | 
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
 
 + 校正某FLV文件的时间戳  
-	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "文件路径"`  
-	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "文件路径" true`  
+	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径"`  
+	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true`  
+	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true "保存的文件夹路径" ` 
 		+ 第二个布尔参数的意义是**当遇到某种特定情况时，是否分割文件**  
 		+ 注意：这些操作**没法还原**，所以理论上原始文件最保真。  `不校验时间戳` ≈ `校验文件不分割` > `校验文件分割scripts tag`  
 		+ 如果仍旧没办法满足需求的话，建议拿着各种版本都去ffmpeg处理一下  
@@ -89,6 +91,7 @@ Go go go, Bilibili Pikachu!
 	| roomId     | 实际房间id，可能与shortId不同 |   
 	| liver     | 直播源，同传入参数 |   
 	| startTime     | 录制开始时间，精确到分，例如2019-11-19 20.18 |  
+	| endTime     | 录制开始时间，精确到分，例如2019-11-19 20.18 |  
 	| seq     | 录制产生的文件序号。从0开始；分段录制或异常重试均会使序号增大 | 
 
 	

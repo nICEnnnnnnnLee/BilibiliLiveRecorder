@@ -41,6 +41,8 @@ For non-Maven use cases, you download jars from [Github Packages](https://github
 It will contains 3 number since version `2.5.0`. 
 The first two number will **NEVER** change if nothing changes with the core codes.  
 Thus with app version 2.5.1 or 2.5.123 released, the relevant package will **NOT** be deployed.  
+
+
 -----
 # Use it!
 

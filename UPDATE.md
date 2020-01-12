@@ -1,7 +1,12 @@
 ## 更新
++ V2.6.0
+    * 优化[issue #19](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/19) 当快手cookie失效无法获取用户信息时，以默认值代替。此时，直播录制仍可进行
+    * 优化[issue #20](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/20) 文件名支持结束时间{endTime}，且支持自定义日期格式，参见参数`timeFormat`
+	* 优化[issue #22](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/22) FlvChecker支持自定义输出目录
 + V2.5.0
+    * RoomDealer封装了创建方法，可以根据liver直接创建对象
     * 优化[issue #17](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/17) 获取的清晰度列表不存在指定清晰度值时，程序将退出
-    * 优化[issue #18](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/17) 当设置qn=-1时，使用最高的清晰度进行录制
+    * 优化[issue #18](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/18) 当设置qn=-1时，使用最高的清晰度进行录制
     * 新增`qnPri`字段，e.g. `蓝光4M>蓝光>超清` 根据清晰度优先级描述获取清晰度设置
 + V2.4
 	* 新增特性 [issue #15](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/15) 支持zip压缩录制的flv文件
