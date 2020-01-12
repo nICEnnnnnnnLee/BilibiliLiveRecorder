@@ -54,19 +54,29 @@ public class FlvChecker {
 	}
 
 	public void check(String path, boolean deleteOnchecked, boolean splitScripts) throws IOException {
+		check(path, deleteOnchecked, splitScripts, null);
+	}
+	
+	public void check(String path, boolean deleteOnchecked, boolean splitScripts, String saveFolder) throws IOException {
 		Logger.println("校对时间戳开始...");
 		File file = new File(path);
 		RandomAccessFile raf = new RandomAccessFile(file, "r");
 
+		File destFolder = null;
+		if(saveFolder != null) {
+			destFolder = new File(saveFolder);
+		}else {
+			destFolder = file.getParentFile();
+		}
 		File fileNew = null;
 		Pattern pattern = Pattern.compile("-checked([0-9]+).flv$");
 		Matcher matcher = pattern.matcher(file.getName());
 		if (matcher.find()) {
 			int index = Integer.parseInt(matcher.group(1));
 			index++;
-			fileNew = new File(file.getParentFile(), file.getName().replaceFirst("[0-9]+.flv$", index + ".flv"));
+			fileNew = new File(destFolder, file.getName().replaceFirst("[0-9]+.flv$", index + ".flv"));
 		} else {
-			fileNew = new File(file.getParentFile(), file.getName().replaceFirst(".flv$", "-checked0.flv"));
+			fileNew = new File(destFolder, file.getName().replaceFirst(".flv$", "-checked0.flv"));
 		}
 		RandomAccessFile rafNew = new RandomAccessFile(fileNew, "rw");
 		// 复制头部
