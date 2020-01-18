@@ -17,6 +17,10 @@ Go go go, Bilibili Pikachu!
 [<h4>Instruction For Developers</h4>](/DOC.md)
 
 
+## :smile:作者的话
+做了个Python版本的，支持`B站/斗鱼/快手`，欢迎大家添砖加瓦 --> [you-live](https://github.com/nICEnnnnnnnLee/LiveRecorder)  
+
+
 ## :smile:使用方法
 + 程序调用时传入参数即可(顺序可变)  
     `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar "debug=false&check=false&delete=false&liver=douyu&id=233233&qn=0&retry=5"`  
