@@ -25,7 +25,7 @@ import nicelee.bilibili.util.ZipUtil;
 
 public class Main {
 
-	final static String version = "v2.6.0";
+	final static String version = "v2.6.1";
 	static boolean autoCheck;
 	static boolean splitScriptTagsIfCheck;
 	static boolean deleteOnchecked;
@@ -44,6 +44,7 @@ public class Main {
 	static String fileName = "{name}-{shortId} 的{liver}直播{startTime}-{seq}";
 	static String timeFormat = "yyyy-MM-dd HH.mm";
 	static String saveFolder;
+	static String saveFolderAfterCheck = null;
 
 	/**
 	 * 程序入口
@@ -54,7 +55,7 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 //		 args = new String[]{"debug=false&liver=bili&id=221602&qn=10000&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie
 //		args = new String[] {
-//				"debug=false&check=false&liver=douyu&qnPri=高清>蓝光4M>超清>蓝光>流畅&qn=-1&id=288016&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{seq}" }; // 清晰度全部可选，但部分高清需要cookie
+//				"debug=false&check=true&liver=douyu&qnPri=高清>蓝光4M>超清>蓝光>流畅&qn=-1&id=35954&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&saveFolderAfterCheck=D:\\Workspace\\live-test" }; // 清晰度全部可选，但部分高清需要cookie
 //		args = new String[] { "debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&timeFormat=yyyyMMddHHmm" }; // 清晰度全部可选，可不需要cookie
 																										// asd199895
 //		args = new String[]{"debug=true&check=false&liver=huya&id=660137"}; 				// 清晰度全部可选，可不需要cookie 
@@ -111,8 +112,6 @@ public class Main {
 			if (value != null) {// && !value.isEmpty()
 				value = URLDecoder.decode(value, "UTF-8");
 				qnPriority = value.split(">");
-				for (String str : qnPriority)
-					System.out.println(str);
 			}
 			value = getValue(args[0], "retry");
 			if (value != null && !value.isEmpty()) {
@@ -151,6 +150,13 @@ public class Main {
 			value = getValue(args[0], "saveFolder");
 			if (value != null && !value.isEmpty()) {
 				saveFolder = value;
+			}
+			value = getValue(args[0], "saveFolderAfterCheck");
+			if (value != null && !value.isEmpty()) {
+				saveFolderAfterCheck = value;
+				File f = new File(saveFolderAfterCheck);
+				if(!f.exists())
+					f.mkdirs();
 			}
 			value = getValue(args[0], "fileName");
 			if (value != null && !value.isEmpty()) {
@@ -200,7 +206,7 @@ public class Main {
 		// 查看是否在线
 		if (roomInfo.getLiveStatus() != 1) {
 			System.out.println("当前没有在直播");
-			return;
+			System.exit(3);
 		}
 
 		// 清晰度获取
@@ -288,7 +294,7 @@ public class Main {
 						try {
 							for (String path : fileList) {
 								System.out.println("校对时间戳开始...");
-								new FlvChecker().check(path, deleteOnchecked, splitScriptTagsIfCheck);
+								new FlvChecker().check(path, deleteOnchecked, splitScriptTagsIfCheck, saveFolderAfterCheck);
 								System.out.println("校对时间戳完毕。");
 							}
 						} catch (IOException e) {
@@ -425,7 +431,7 @@ public class Main {
 
 		if (partFile.exists())
 			partFile.renameTo(dstFile);
-		else if (realName.contains("{endTime}"))
+		else
 			completeFile.renameTo(dstFile);
 
 		// 加入已下载列表
