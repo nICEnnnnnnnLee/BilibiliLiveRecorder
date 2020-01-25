@@ -36,6 +36,10 @@ public class Main {
 	static String[] qnPriority;
 	static int maxFailCnt;
 	static int failCnt;
+	
+	static boolean retryIfLiveOff;
+	static int maxRetryIfLiveOff;
+	static double retryAfterMinutes;
 
 	static long splitFileSize;
 	static long splitRecordPeriod;
@@ -55,7 +59,7 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 //		 args = new String[]{"debug=false&liver=bili&id=221602&qn=10000&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie
 //		args = new String[] {
-//				"debug=false&check=true&liver=douyu&qnPri=高清>蓝光4M>超清>蓝光>流畅&qn=-1&id=35954&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&saveFolderAfterCheck=D:\\Workspace\\live-test" }; // 清晰度全部可选，但部分高清需要cookie
+//				"debug=false&check=true&retryAfterMinutes=0.5&retryIfLiveOff=true&liver=douyu&qnPri=高清>蓝光4M>超清>蓝光>流畅&qn=-1&id=233233&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&saveFolderAfterCheck=D:\\Workspace\\live-test" }; // 清晰度全部可选，但部分高清需要cookie
 //		args = new String[] { "debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&timeFormat=yyyyMMddHHmm" }; // 清晰度全部可选，可不需要cookie
 																										// asd199895
 //		args = new String[]{"debug=true&check=false&liver=huya&id=660137"}; 				// 清晰度全部可选，可不需要cookie 
@@ -74,6 +78,9 @@ public class Main {
 		splitRecordPeriod = 0;
 		flagSplit = false;
 		flagZip = false;
+		retryIfLiveOff = false;
+		maxRetryIfLiveOff = 0;
+		retryAfterMinutes = 5;
 		// 根据参数初始化值
 		if (args != null && args.length >= 1) {
 			String value = getValue(args[0], "check");
@@ -95,6 +102,18 @@ public class Main {
 			value = getValue(args[0], "zip");
 			if ("true".equals(value)) {
 				flagZip = true;
+			}
+			value = getValue(args[0], "retryIfLiveOff");
+			if ("true".equals(value)) {
+				retryIfLiveOff = true;
+			}
+			value = getValue(args[0], "maxRetryIfLiveOff");
+			if (value != null && !value.isEmpty()) {
+				maxRetryIfLiveOff = Integer.parseInt(value);
+			}
+			value = getValue(args[0], "retryAfterMinutes");
+			if (value != null && !value.isEmpty()) {
+				retryAfterMinutes = Double.parseDouble(value);
 			}
 			value = getValue(args[0], "liver");
 			if (value != null && !value.isEmpty()) {
@@ -198,17 +217,35 @@ public class Main {
 			roomDealer.setCookie(cookie);
 		}
 		// 获取房间信息
-		RoomInfo roomInfo = roomDealer.getRoomInfo(shortId);
+		RoomInfo rroomInfo = roomDealer.getRoomInfo(shortId);
 
-		if (roomInfo == null) {
+		if (rroomInfo == null) {
 			System.err.println("解析失败！！");
+			System.exit(-2);
 		}
 		// 查看是否在线
-		if (roomInfo.getLiveStatus() != 1) {
+		if (rroomInfo.getLiveStatus() != 1) {
 			System.out.println("当前没有在直播");
-			System.exit(3);
+			int retryCntLiveOff = 0;
+			if(retryIfLiveOff) {
+				while(rroomInfo.getLiveStatus() != 1 && (maxRetryIfLiveOff == 0 || maxRetryIfLiveOff > retryCntLiveOff)) {
+					retryCntLiveOff++;
+					try {
+						System.out.println(retryAfterMinutes + "分钟左右后重试");
+						Thread.sleep((long) (retryAfterMinutes*60000));
+					} catch (InterruptedException e) {
+					}
+					rroomInfo = roomDealer.getRoomInfo(shortId);
+					if (rroomInfo == null) {
+						System.err.println("解析失败！！");
+						System.exit(-2);
+					}
+				}
+			}else {
+				System.exit(3);
+			}
 		}
-
+		RoomInfo roomInfo = rroomInfo;
 		// 清晰度获取
 		// 先使用预设的优先级获取
 		if (qnPriority != null) {

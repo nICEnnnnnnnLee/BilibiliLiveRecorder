@@ -1,4 +1,8 @@
 ## 更新
++ V2.6.1
+    * 修复一个bug #20 ，该bug导致主播正常下播时无法自动重命名{endTime}参数；
+    * 优化 #22 ，如果FLV自动校准，且传入了自定义参数saveFolderAfterCheck，校准后的文件将保存在参数对应目录中
+    * 优化 #23 ，如果未开播就等待几分钟后重试
 + V2.6.0
     * 优化[issue #19](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/19) 当快手cookie失效无法获取用户信息时，以默认值代替。此时，直播录制仍可进行
     * 优化[issue #20](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/20) 文件名支持结束时间{endTime}，且支持自定义日期格式，参见参数`timeFormat`

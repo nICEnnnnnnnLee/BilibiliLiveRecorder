@@ -45,7 +45,12 @@ Go go go, Bilibili Pikachu!
 | splitScriptTags  | 否 | 校准文件时是否分割ScriptTag。默认false | 
 | fileName  | 否 | 文件命名规则，默认`{name}-{shortId} 的{liver}直播{startTime}-{seq}` | 
 | timeFormat  | 否 | 文件命名中{startTime}和{endTime}的格式，默认`yyyy-MM-dd HH.mm` | 
-| saveFolder  | 否 | 文件保存路径 | 
+| saveFolder  | 否 | 源文件保存路径 | 
+| saveFolderAfterCheck  | 否 | FLV文件校准后的保存路径，check为true时有效。默认为空，此时与`saveFolder`等同 | 
+| retryIfLiveOff  | 否 | 当目标不在直播时，是否继续重试。默认false | 
+| maxRetryIfLiveOff  | 否 | 当目标不在直播时，继续重试的次数。默认0，此时会一直进行尝试，直到主播上线 | 
+| retryAfterMinutes  | 否 | 当目标不在直播时，每次获取直播间信息的时间间隔，单位分钟。默认`5.0` | 
+
 
 + 各直播源解析情况  
 
