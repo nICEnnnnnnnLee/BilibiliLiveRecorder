@@ -1,4 +1,7 @@
 ## 更新
++ V2.6.2
+    * 优化 #25 ，以FlvChecker的Main方法运行时，接受debug布尔开关
+    * 修复一个bug #22 ，以FlvChecker的Main方法运行时，解析传入的文件保存路径；
 + V2.6.1
     * 修复一个bug #20 ，该bug导致主播正常下播时无法自动重命名{endTime}参数；
     * 优化 #22 ，如果FLV自动校准，且传入了自定义参数saveFolderAfterCheck，校准后的文件将保存在参数对应目录中

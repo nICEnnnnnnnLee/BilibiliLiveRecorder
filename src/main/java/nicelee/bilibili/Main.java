@@ -25,7 +25,7 @@ import nicelee.bilibili.util.ZipUtil;
 
 public class Main {
 
-	final static String version = "v2.6.1";
+	final static String version = "v2.6.2";
 	static boolean autoCheck;
 	static boolean splitScriptTagsIfCheck;
 	static boolean deleteOnchecked;

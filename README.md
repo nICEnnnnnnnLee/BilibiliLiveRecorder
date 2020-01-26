@@ -58,7 +58,7 @@ Go go go, Bilibili Pikachu!
 | ------------- | ------------- | ------------- | 
 | bili      | 2019/09/19 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
-| douyu     | 2020/01/12 | `flv`清晰度可多选，但部分高清需要cookie | 
+| douyu     | 2020/01/26 | `flv`清晰度可多选，但部分高清需要cookie | 
 | kuaishou  | 2020/01/12 | `flv`清晰度可多选，可能需要cookie(与登录无关，首次进入直播页面有反爬措施，会需要拖拽验证) | 
 | huya      | 2019/08/30 | `flv`清晰度可多选，可不需要cookie | 
 | yy        | 2019/06/15 | `flv`只支持默认清晰度 | 
@@ -67,8 +67,9 @@ Go go go, Bilibili Pikachu!
 + 校正某FLV文件的时间戳  
 	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径"`  
 	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true`  
-	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true "保存的文件夹路径" ` 
-		+ 第二个布尔参数的意义是**当遇到某种特定情况时，是否分割文件**  
+	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true false "保存的文件夹路径"` 
+		+ 第二个参数-布尔参数的意义是**当遇到某种特定情况时，是否分割文件**  
+        + 第三个参数-布尔参数的意义是**是否输出debug信息**  
 		+ 注意：这些操作**没法还原**，所以理论上原始文件最保真。  `不校验时间戳` ≈ `校验文件不分割` > `校验文件分割scripts tag`  
 		+ 如果仍旧没办法满足需求的话，建议拿着各种版本都去ffmpeg处理一下  
 		
