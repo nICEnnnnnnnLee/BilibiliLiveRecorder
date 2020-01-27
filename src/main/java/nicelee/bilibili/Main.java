@@ -18,6 +18,7 @@ import javax.net.ssl.HttpsURLConnection;
 import nicelee.bilibili.enums.StatusEnum;
 import nicelee.bilibili.live.FlvChecker;
 import nicelee.bilibili.live.RoomDealer;
+import nicelee.bilibili.live.check.FlvCheckerWithBuffer;
 import nicelee.bilibili.live.domain.RoomInfo;
 import nicelee.bilibili.util.Logger;
 import nicelee.bilibili.util.TrustAllCertSSLUtil;
@@ -25,10 +26,11 @@ import nicelee.bilibili.util.ZipUtil;
 
 public class Main {
 
-	final static String version = "v2.6.2";
+	final static String version = "v2.6.3";
 	static boolean autoCheck;
 	static boolean splitScriptTagsIfCheck;
 	static boolean deleteOnchecked;
+	static boolean flvCheckWithBuffer;
 	static boolean flagZip;
 	static String liver;
 	static String shortId;
@@ -81,11 +83,16 @@ public class Main {
 		retryIfLiveOff = false;
 		maxRetryIfLiveOff = 0;
 		retryAfterMinutes = 5;
+		flvCheckWithBuffer = true;
 		// 根据参数初始化值
 		if (args != null && args.length >= 1) {
 			String value = getValue(args[0], "check");
 			if ("false".equals(value)) {
 				autoCheck = false;
+			}
+			value = getValue(args[0], "checkWithBuffer");
+			if ("false".equals(value)) {
+				flvCheckWithBuffer = false;
 			}
 			value = getValue(args[0], "splitScriptTags");
 			if ("true".equals(value)) {
@@ -331,7 +338,10 @@ public class Main {
 						try {
 							for (String path : fileList) {
 								System.out.println("校对时间戳开始...");
-								new FlvChecker().check(path, deleteOnchecked, splitScriptTagsIfCheck, saveFolderAfterCheck);
+								if(flvCheckWithBuffer)
+									new FlvCheckerWithBuffer().check(path, deleteOnchecked, splitScriptTagsIfCheck, saveFolderAfterCheck);
+								else
+									new FlvChecker().check(path, deleteOnchecked, splitScriptTagsIfCheck, saveFolderAfterCheck);
 								System.out.println("校对时间戳完毕。");
 							}
 						} catch (IOException e) {

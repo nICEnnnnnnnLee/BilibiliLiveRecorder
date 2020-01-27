@@ -50,7 +50,7 @@ Go go go, Bilibili Pikachu!
 | retryIfLiveOff  | 否 | 当目标不在直播时，是否继续重试。默认false | 
 | maxRetryIfLiveOff  | 否 | 当目标不在直播时，继续重试的次数。默认0，此时会一直进行尝试，直到主播上线 | 
 | retryAfterMinutes  | 否 | 当目标不在直播时，每次获取直播间信息的时间间隔，单位分钟。默认`5.0` | 
-
+| checkWithBuffer  | 否 | 校准时间戳时是否使用缓存，默认true。测试功能，使用后性能有所提升 |  
 
 + 各直播源解析情况  
 
@@ -65,10 +65,12 @@ Go go go, Bilibili Pikachu!
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
 
 + 校正某FLV文件的时间戳  
+    + `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.check.FlvCheckerWithBuffer "源文件路径"`
 	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径"`  
 	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true`  
 	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true false "保存的文件夹路径"` 
-		+ 第二个参数-布尔参数的意义是**当遇到某种特定情况时，是否分割文件**  
+		+ 两个校验工具使用方法类似，仅入口类不一致。功能稳定后将一直使用缓存减少IO
+        + 第二个参数-布尔参数的意义是**当遇到某种特定情况时，是否分割文件**  
         + 第三个参数-布尔参数的意义是**是否输出debug信息**  
 		+ 注意：这些操作**没法还原**，所以理论上原始文件最保真。  `不校验时间戳` ≈ `校验文件不分割` > `校验文件分割scripts tag`  
 		+ 如果仍旧没办法满足需求的话，建议拿着各种版本都去ffmpeg处理一下  
