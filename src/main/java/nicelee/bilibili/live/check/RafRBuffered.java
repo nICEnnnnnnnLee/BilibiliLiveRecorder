@@ -126,6 +126,8 @@ public class RafRBuffered {
 			pointer = (int) (pos - min);
 		} else {
 			raf.seek(pos);
+			pointer = 0;
+			validBound = 0;
 		}
 	}
 
