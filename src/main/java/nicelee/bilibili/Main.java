@@ -10,6 +10,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,6 +20,7 @@ import javax.net.ssl.HttpsURLConnection;
 import nicelee.bilibili.enums.StatusEnum;
 import nicelee.bilibili.live.FlvChecker;
 import nicelee.bilibili.live.RoomDealer;
+import nicelee.bilibili.live.check.FlvCheckerWithBufferEx;
 import nicelee.bilibili.live.check.FlvCheckerWithBuffer;
 import nicelee.bilibili.live.domain.RoomInfo;
 import nicelee.bilibili.util.Logger;
@@ -26,7 +29,7 @@ import nicelee.bilibili.util.ZipUtil;
 
 public class Main {
 
-	final static String version = "v2.6.3";
+	final static String version = "v2.6.4";
 	static boolean autoCheck;
 	static boolean splitScriptTagsIfCheck;
 	static boolean deleteOnchecked;
@@ -38,7 +41,7 @@ public class Main {
 	static String[] qnPriority;
 	static int maxFailCnt;
 	static int failCnt;
-	
+
 	static boolean retryIfLiveOff;
 	static int maxRetryIfLiveOff;
 	static double retryAfterMinutes;
@@ -63,7 +66,6 @@ public class Main {
 //		args = new String[] {
 //				"debug=false&check=true&retryAfterMinutes=0.5&retryIfLiveOff=true&liver=douyu&qnPri=高清>蓝光4M>超清>蓝光>流畅&qn=-1&id=233233&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&saveFolderAfterCheck=D:\\Workspace\\live-test" }; // 清晰度全部可选，但部分高清需要cookie
 //		args = new String[] { "debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&timeFormat=yyyyMMddHHmm" }; // 清晰度全部可选，可不需要cookie
-																										// asd199895
 //		args = new String[]{"debug=true&check=false&liver=huya&id=660137"}; 				// 清晰度全部可选，可不需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146&qn=1"}; 		// 只支持默认清晰度 54880976
 //		args = new String[] { "debug=true&check=true&liver=zhanqi&id=90god" }; 			// 清晰度全部可选，可不需要cookie 90god huashan ydjs
@@ -181,7 +183,7 @@ public class Main {
 			if (value != null && !value.isEmpty()) {
 				saveFolderAfterCheck = value;
 				File f = new File(saveFolderAfterCheck);
-				if(!f.exists())
+				if (!f.exists())
 					f.mkdirs();
 			}
 			value = getValue(args[0], "fileName");
@@ -234,12 +236,13 @@ public class Main {
 		if (rroomInfo.getLiveStatus() != 1) {
 			System.out.println("当前没有在直播");
 			int retryCntLiveOff = 0;
-			if(retryIfLiveOff) {
-				while(rroomInfo.getLiveStatus() != 1 && (maxRetryIfLiveOff == 0 || maxRetryIfLiveOff > retryCntLiveOff)) {
+			if (retryIfLiveOff) {
+				while (rroomInfo.getLiveStatus() != 1
+						&& (maxRetryIfLiveOff == 0 || maxRetryIfLiveOff > retryCntLiveOff)) {
 					retryCntLiveOff++;
 					try {
 						System.out.println(retryAfterMinutes + "分钟左右后重试");
-						Thread.sleep((long) (retryAfterMinutes*60000));
+						Thread.sleep((long) (retryAfterMinutes * 60000));
 					} catch (InterruptedException e) {
 					}
 					rroomInfo = roomDealer.getRoomInfo(shortId);
@@ -248,7 +251,7 @@ public class Main {
 						System.exit(-2);
 					}
 				}
-			}else {
+			} else {
 				System.exit(3);
 			}
 		}
@@ -305,6 +308,10 @@ public class Main {
 			public void run() {
 				System.out.println("开始录制，输入stop停止录制");
 				List<String> fileList = new ArrayList<String>(); // 用于存放
+				// 在开启录制之前，添加对退出信号的捕捉处理
+				final Lock lock = new ReentrantLock();
+				lock.lock();
+				Runtime.getRuntime().addShutdownHook(new SignalHandler(lock, roomDealer));
 				record(roomDealer, roomInfo, url, fileList);
 
 				while (true) {
@@ -338,10 +345,12 @@ public class Main {
 						try {
 							for (String path : fileList) {
 								System.out.println("校对时间戳开始...");
-								if(flvCheckWithBuffer)
-									new FlvCheckerWithBuffer().check(path, deleteOnchecked, splitScriptTagsIfCheck, saveFolderAfterCheck);
+								if (flvCheckWithBuffer)
+									new FlvCheckerWithBufferEx().check(path, deleteOnchecked, splitScriptTagsIfCheck,
+											saveFolderAfterCheck);
 								else
-									new FlvChecker().check(path, deleteOnchecked, splitScriptTagsIfCheck, saveFolderAfterCheck);
+									new FlvChecker().check(path, deleteOnchecked, splitScriptTagsIfCheck,
+											saveFolderAfterCheck);
 								System.out.println("校对时间戳完毕。");
 							}
 						} catch (IOException e) {
@@ -384,6 +393,7 @@ public class Main {
 //					System.out.println("合并结束...");
 				}
 
+				lock.unlock();
 				System.exit(1);
 			}
 		}, "thread-record").start();
@@ -470,7 +480,7 @@ public class Main {
 		}
 		roomDealer.startRecord(url, realName, roomInfo.getShortId());// 此处一直堵塞， 直至停止
 		File file = roomDealer.util.getFileDownload();
-		
+
 		File partFile = new File(file.getParent(), realName + roomDealer.getType() + ".part");
 		File completeFile = new File(file.getParent(), realName + roomDealer.getType());
 		realName = realName.replace("{endTime}", sdf.format(new Date()));
