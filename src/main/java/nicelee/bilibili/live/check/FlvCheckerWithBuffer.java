@@ -51,7 +51,7 @@ public class FlvCheckerWithBuffer {
 	 * @throws IOException
 	 */
 	// 用于统计时间戳
-	private int lastTimestampRead[] = { -1, -1 }, lastTimestampWrite[] = { -1, -1 };
+	protected int lastTimestampRead[] = { -1, -1 }, lastTimestampWrite[] = { -1, -1 };
 	// 用于缓冲
 	private static byte[] buffer = new byte[1024 * 1024 * 8];
 
@@ -189,7 +189,7 @@ public class FlvCheckerWithBuffer {
 						// 恢复位置
 						raf.seek(pos - 5);
 						// 2. 处理新文件
-						FlvCheckerWithBuffer fc = new FlvCheckerWithBuffer();
+						FlvCheckerWithBuffer fc = this.getClass().newInstance();
 						fc.checkTag(raf, rafNew2, fileNew2, splitScripts);
 						// 3. 收尾并处理时长
 						rafNew2.close();
@@ -218,7 +218,7 @@ public class FlvCheckerWithBuffer {
 	 * @throws IOException
 	 * @return 是否忽略该tag
 	 */
-	private boolean dealTimestamp(RafWBuffered raf, int timestamp, int tagType) throws IOException {
+	protected boolean dealTimestamp(RafWBuffered raf, int timestamp, int tagType) throws IOException {
 		Logger.print("上一帧读取timestamps 为：" + lastTimestampRead[tagType]);
 		Logger.print("上一帧写入timestamps 为：" + lastTimestampWrite[tagType]);
 
@@ -265,12 +265,12 @@ public class FlvCheckerWithBuffer {
 	 * @return
 	 * @throws IOException
 	 */
-	private int readBytesToInt(RafRBuffered raf, int byteLength) throws IOException {
+	protected int readBytesToInt(RafRBuffered raf, int byteLength) throws IOException {
 		raf.read(buffer, 0, byteLength);
 		return bytes2Int(buffer, byteLength);
 	}
 
-	private byte[] int2Bytes(int value) {
+	protected byte[] int2Bytes(int value) {
 		byte[] byteRet = new byte[4];
 		for (int i = 0; i < 4; i++) {
 			byteRet[3 - i] = (byte) ((value >> 8 * i) & 0xff);
@@ -279,7 +279,7 @@ public class FlvCheckerWithBuffer {
 		return byteRet;
 	}
 
-	private int bytes2Int(byte[] bytes, int byteLength) {
+	protected int bytes2Int(byte[] bytes, int byteLength) {
 		int result = 0;
 		for (int i = 0; i < byteLength; i++) {
 			result |= ((bytes[byteLength - 1 - i] & 0xff) << (i * 8));
@@ -288,7 +288,7 @@ public class FlvCheckerWithBuffer {
 		return result;
 	}
 
-	private byte[] double2Bytes(double d) {
+	protected byte[] double2Bytes(double d) {
 		long value = Double.doubleToRawLongBits(d);
 		byte[] byteRet = new byte[8];
 		for (int i = 0; i < 8; i++) {
