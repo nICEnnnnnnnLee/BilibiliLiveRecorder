@@ -49,7 +49,12 @@ public class RafRBuffered {
 			return len;
 		} else {
 			// buffer里面内容不足，先将缓存里的全部读取
-			System.arraycopy(buffer, pointer, b, off, bufferRemainSize);
+			try {
+				System.arraycopy(buffer, pointer, b, off, bufferRemainSize);
+			}catch (Exception e) {
+				return -1;
+			}
+			
 			int remainToRead = len - bufferRemainSize;
 			// 若要读的还剩很多，直接读取，否则先读入缓存
 			if (remainToRead >= buffer.length) {
