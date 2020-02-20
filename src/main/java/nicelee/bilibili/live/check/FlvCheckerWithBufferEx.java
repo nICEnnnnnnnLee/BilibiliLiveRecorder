@@ -1,11 +1,39 @@
 package nicelee.bilibili.live.check;
 
+import java.io.File;
 import java.io.IOException;
 
 import nicelee.bilibili.util.Logger;
 
 public class FlvCheckerWithBufferEx extends FlvCheckerWithBuffer {
 
+	public static void main(String[] args) throws IOException {
+
+		FlvCheckerWithBufferEx fChecker = new FlvCheckerWithBufferEx();
+		boolean splitScripts = false;
+		String saveFolder = null;
+		if(args != null) {
+			if(args.length >= 4) {
+				saveFolder = args[3];
+				File f = new File(saveFolder);
+				if(!f.exists())
+					f.mkdirs();
+			}
+			if(args.length >= 3 && "false".equals(args[2]))
+				Logger.debug = false;
+			
+			if(args.length >= 2)
+				splitScripts = "true".equals(args[1]);
+			
+			if (args.length >= 1) {
+				System.out.println("校对时间戳开始...");
+				fChecker.check(args[0], false, splitScripts, saveFolder);
+				System.out.println("校对时间戳完毕。");
+			} else {
+				System.out.println("请输入正确的文件路径");
+			}
+		}
+	}
 	
 	private long count = 0;
 	private int firstTimeStamp = 0;
