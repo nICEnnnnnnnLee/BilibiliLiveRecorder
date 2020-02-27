@@ -16,7 +16,7 @@ public class SignalHandler extends Thread {
 
 	@Override
 	public void run() {
-		Main.flagSplit = false;
+		Config.flagSplit = false;
 		roomDealer.stopRecord();
 		lock.lock();// 等待录制完毕，时间戳处理完成
 		lock.unlock();
