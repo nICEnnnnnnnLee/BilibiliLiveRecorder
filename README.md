@@ -51,6 +51,7 @@ Go go go, Bilibili Pikachu!
 | maxRetryIfLiveOff  | 否 | 当目标不在直播时，继续重试的次数。默认0，此时会一直进行尝试，直到主播上线 | 
 | retryAfterMinutes  | 否 | 当目标不在直播时，每次获取直播间信息的时间间隔，单位分钟。默认`5.0` | 
 | checkWithBuffer  | 否 | 校准时间戳时是否使用缓存，默认true。测试功能，使用后性能有所提升 |  
+| plugin  | 否 | 插件功能，允许用户自定义某些操作。默认false |  
 
 + 各直播源解析情况  
 
@@ -79,86 +80,115 @@ Go go go, Bilibili Pikachu!
     将cookie保存到同级目录的`{liver}-cookie.txt`即可，e.g. `douyu-cookie.txt`   
 
 
-+ 关于文件命名规则
-    + 请勿传入非法字符，如`&`  
-	+ 建议保留`{startTime}`和`{seq}`，以确保文件名唯一，否则很可能出现未知错误  
-	+ 校准时间戳这一动作将会产生若干个文件，这些文件将在原来的基础上增加-checked[0-9]+后缀  
-	+ 举例：
-	```
-	fileName={name}-{shortId} 的{liver}直播{startTime}-{seq}&filePeriod=20&check=false
-	那么，一个可能的结果是：
-	英雄联盟赛事-288016 的douyu直播 2019-09-19 17.40-0.flv
-	英雄联盟赛事-288016 的douyu直播 2019-09-19 18.00-1.flv
+<details>
+<summary>关于Plugin</summary>
 
-	fileName={name}-{shortId} 的{liver}直播{startTime}-{seq}&filePeriod=20&check=true
-	增加时间戳校准动作。那么，一个可能的结果是：
-	英雄联盟赛事-288016 的douyu直播 2019-09-19 17.40-0-checked0.flv
-	英雄联盟赛事-288016 的douyu直播 2019-09-19 18.00-1-checked0.flv
-	```	
 
-	| Key  | 释义 |  
-	| ------------- | ------------- | 
-	| name      | 主播名称 | 
-	| shortId    | 直播网址id | 
-	| roomId     | 实际房间id，可能与shortId不同 |   
-	| liver     | 直播源，同传入参数 |   
-	| startTime     | 录制开始时间，精确到分，例如2019-11-19 20.18 |  
-	| endTime     | 录制开始时间，精确到分，例如2019-11-19 20.18 |  
-	| seq     | 录制产生的文件序号。从0开始；分段录制或异常重试均会使序号增大 | 
++ 写死的文件位置：`plugin/CustomOperation.java`  
++ 可以新增`import`和自定义各种方法  
++ 可以调用另外的库，这时需要`java -jar`换成 `java -cp`的形式，请善用搜索  
++ 当Plugin文件发生变化时，请先删除运行时编译的class文件，否则不会生效
+</details>          
+    
+<details>
+<summary>关于文件命名规则</summary>
+
+
++ 请勿传入非法字符，如`&`  
++ 建议保留`{startTime}`和`{seq}`，以确保文件名唯一，否则很可能出现未知错误  
++ 校准时间戳这一动作将会产生若干个文件，这些文件将在原来的基础上增加-checked[0-9]+后缀  
++ 举例：
+```
+fileName={name}-{shortId} 的{liver}直播{startTime}-{seq}&filePeriod=20&check=false
+那么，一个可能的结果是：
+英雄联盟赛事-288016 的douyu直播 2019-09-19 17.40-0.flv
+英雄联盟赛事-288016 的douyu直播 2019-09-19 18.00-1.flv
+
+fileName={name}-{shortId} 的{liver}直播{startTime}-{seq}&filePeriod=20&check=true
+增加时间戳校准动作。那么，一个可能的结果是：
+英雄联盟赛事-288016 的douyu直播 2019-09-19 17.40-0-checked0.flv
+英雄联盟赛事-288016 的douyu直播 2019-09-19 18.00-1-checked0.flv
+```	
+
+| Key  | 释义 |  
+| ------------- | ------------- | 
+| name      | 主播名称 | 
+| shortId    | 直播网址id | 
+| roomId     | 实际房间id，可能与shortId不同 |   
+| liver     | 直播源，同传入参数 |   
+| startTime     | 录制开始时间，精确到分，例如2019-11-19 20.18 |  
+| endTime     | 录制开始时间，精确到分，例如2019-11-19 20.18 |  
+| seq     | 录制产生的文件序号。从0开始；分段录制或异常重试均会使序号增大 | 
+</details>
 
 	
 
+<details>
+<summary>关于清晰度规则(ver>=2.5.0)</summary>
 
-+ 关于清晰度规则(ver>=2.5.0)
-	+ `qn`和`qnPri`可以同时存在，优先考虑`qnPri`，若匹配失败，再考虑传入的`qn` 
-    ```
-	可提供直播质量:
-        0 : 超清
-        2 : 高清
-        1 : 流畅
-    传入参数： qn=2&qnPri=蓝光4M>蓝光
-    此时取 2 : 高清
-    -------------------------------
-    可提供直播质量:
-        0 : 蓝光
-        3 : 超清
-        2 : 高清
-        1 : 流畅
-    传入参数： qn=2&qnPri=蓝光4M>蓝光
-    此时取 0 : 蓝光
-	```	
+
++ `qn`和`qnPri`可以同时存在，优先考虑`qnPri`，若匹配失败，再考虑传入的`qn` 
+```
+可提供直播质量:
+    0 : 超清
+    2 : 高清
+    1 : 流畅
+传入参数： qn=2&qnPri=蓝光4M>蓝光
+此时取 2 : 高清
+-------------------------------
+可提供直播质量:
+    0 : 蓝光
+    3 : 超清
+    2 : 高清
+    1 : 流畅
+传入参数： qn=2&qnPri=蓝光4M>蓝光
+此时取 0 : 蓝光
+```	
+
++ 当未传入qn，且(qnPri为空或不匹配)，程序将提示输入qn值
+```
+可提供直播质量:
+    0 : 超清
+    2 : 高清
+    1 : 流畅
+传入参数： 不包含qn、qnPri   
+or传入参数： qnPri=蓝光4M>蓝光
+此时程序将提示输入qn值
+```	
+
++ 当指定qn生效(指qnPri为空或不匹配)，且获取的清晰度列表不存在该清晰度值时，程序将退出
+```
+可提供直播质量:
+    0 : 超清
+    2 : 高清
+    1 : 流畅
+传入参数： qn=4
+此时程序将退出
+传入参数： qn=4&qnPri=蓝光4M>蓝光
+此时程序将退出
+```	
+</details>
+
     
-    + 当未传入qn，且(qnPri为空或不匹配)，程序将提示输入qn值
-    ```
-	可提供直播质量:
-        0 : 超清
-        2 : 高清
-        1 : 流畅
-    传入参数： 不包含qn、qnPri   
-    or传入参数： qnPri=蓝光4M>蓝光
-    此时程序将提示输入qn值
-	```	
-    
-    + 当指定qn生效(指qnPri为空或不匹配)，且获取的清晰度列表不存在该清晰度值时，程序将退出
-    ```
-	可提供直播质量:
-        0 : 超清
-        2 : 高清
-        1 : 流畅
-    传入参数： qn=4
-    此时程序将退出
-    传入参数： qn=4&qnPri=蓝光4M>蓝光
-    此时程序将退出
-	```	
     
     
-    
-    
-+ 获取 房间id  
+<details>
+<summary>关于获取 房间id</summary>
+
+
+如下图：  
 ![](https://raw.githubusercontent.com/nICEnnnnnnnLee/BilibiliLiveRecorder/master/release/preview/id.png)  
-    
-+ 运行截图
+</details>  
+
+
+<details>
+<summary>运行截图</summary>
+
+
+如下图：  
 ![](https://raw.githubusercontent.com/nICEnnnnnnnLee/BilibiliLiveRecorder/master/release/preview/run.png)  
+</details>      
+
 
 ## :smile:其它  
 * **支持UI的简单易操作的B站视频下载器**：[https://github.com/nICEnnnnnnnLee/BilibiliDown](https://github.com/nICEnnnnnnnLee/BilibiliDown)
