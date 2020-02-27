@@ -18,6 +18,7 @@ public class Config {
 	static boolean deleteOnchecked;
 	static boolean flvCheckWithBuffer;
 	static boolean flagZip;
+	static boolean flagPlugin;
 	static String liver;
 	static String shortId;
 	static String qn;
@@ -56,12 +57,17 @@ public class Config {
 		maxRetryIfLiveOff = 0;
 		retryAfterMinutes = 5;
 		flvCheckWithBuffer = true;
+		flagPlugin = false;
 		
 		// 根据参数初始化值
 		if (args != null && args.length >= 1) {
 			String value = getValue(args[0], "check");
 			if ("false".equals(value)) {
 				autoCheck = false;
+			}
+			value = getValue(args[0], "plugin");
+			if ("true".equals(value)) {
+				flagPlugin = true;
 			}
 			value = getValue(args[0], "checkWithBuffer");
 			if ("false".equals(value)) {

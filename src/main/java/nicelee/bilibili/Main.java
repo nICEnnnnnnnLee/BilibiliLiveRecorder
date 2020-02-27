@@ -17,6 +17,7 @@ import nicelee.bilibili.live.FlvChecker;
 import nicelee.bilibili.live.RoomDealer;
 import nicelee.bilibili.live.check.FlvCheckerWithBufferEx;
 import nicelee.bilibili.live.domain.RoomInfo;
+import nicelee.bilibili.plugin.Plugin;
 import nicelee.bilibili.util.Logger;
 import nicelee.bilibili.util.ZipUtil;
 
@@ -33,15 +34,31 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 //		 args = new String[]{"debug=false&liver=bili&id=221602&qn=10000&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie
 //		args = new String[] {
-//				"debug=false&check=true&retryAfterMinutes=0.5&retryIfLiveOff=true&liver=douyu&qnPri=高清>蓝光4M>超清>蓝光>流畅&qn=-1&id=233233&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&saveFolderAfterCheck=D:\\Workspace\\live-test" }; // 清晰度全部可选，但部分高清需要cookie
+//				"plugin=true&debug=false&check=true&retryAfterMinutes=0.5&retryIfLiveOff=true&liver=douyu&qnPri=高清>蓝光4M>超清>蓝光>流畅&qn=-1&id=233233&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&saveFolderAfterCheck=D:\\Workspace\\live-test" }; // 清晰度全部可选，但部分高清需要cookie
 //		args = new String[] { "debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&timeFormat=yyyyMMddHHmm" }; // 清晰度全部可选，可不需要cookie
 //		args = new String[]{"debug=true&check=false&liver=huya&id=660137"}; 				// 清晰度全部可选，可不需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146&qn=1"}; 		// 只支持默认清晰度 54880976
 //		args = new String[] { "debug=true&check=true&liver=zhanqi&id=90god" }; 			// 清晰度全部可选，可不需要cookie 90god huashan ydjs
 //		args = new String[] { "debug=true&check=true&liver=huajiao&id=278581432&qn=1" }; // 只支持默认清晰度(似乎只有一种清晰度)
 
+		final Plugin plugin = new Plugin();
+		if (args!= null && args[0].contains("plugin=true")) {
+			try {
+				plugin.compile();
+				plugin.runBeforeInit(args);
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		// 根据参数初始化配置
 		Config.init(args);
+		if (Config.flagPlugin) {
+			try {
+				plugin.runAfterInit();
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		System.out.println(Config.liver + " 直播录制 version " + version);
 
 		// 如果没有传入房间号，等待输入房间号
@@ -203,27 +220,37 @@ public class Main {
 							e.printStackTrace();
 						}
 					}
-					if (Config.flagZip) {
-						// 获取所有要压缩的文件
-						List<File> files2Zip = new ArrayList<File>(); // 用于存放
+					if (Config.flagZip || Config.flagPlugin) {
+						// 获取所有处理过的文件
+						List<File> filesAll = new ArrayList<File>(); // 用于存放
 						for (String path : fileList) {
 							// 如果不校正时间戳, 直接加入列表即可
 							if (!Config.autoCheck) {
-								files2Zip.add(new File(path));
+								filesAll.add(new File(path));
 							} else {
 								// 如果校正时间戳，一个个文件名进行尝试，直至不存在
 								for (int count = 0;; count++) {
 									String path_i = path.replaceFirst(".flv$", "-checked" + count + ".flv");
 									File f = new File(path_i);
 									if (f.exists())
-										files2Zip.add(f);
+										filesAll.add(f);
 									else
 										break;
 								}
 							}
 						}
+						// 启用插件
+						if (Config.flagPlugin) {
+							try {
+								plugin.runAfterComplete(filesAll);
+							}catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
 						// 压缩文件
-						ZipUtil.zipFiles(files2Zip, fileList.get(0) + ".zip");
+						if (Config.flagZip) {
+							ZipUtil.zipFiles(filesAll, fileList.get(0) + ".zip");
+						}
 					}
 				} else if (".ts".equals(roomDealer.getType())) {
 //					System.out.println("正在合并...");
