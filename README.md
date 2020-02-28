@@ -65,20 +65,41 @@ Go go go, Bilibili Pikachu!
 | yy        | 2019/06/15 | `flv`只支持默认清晰度 | 
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
 
-+ 校正某FLV文件的时间戳  
-    + `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.check.FlvCheckerWithBufferEx "源文件路径"`
-	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径"`  
-	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true`  
-	+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true false "保存的文件夹路径"` 
-		+ 两个校验工具使用方法类似，仅入口类不一致。功能稳定后将一直使用缓存减少IO
-        + 第二个参数-布尔参数的意义是**当遇到某种特定情况时，是否分割文件**  
-        + 第三个参数-布尔参数的意义是**是否输出debug信息**  
-		+ 注意：这些操作**没法还原**，所以理论上原始文件最保真。  `不校验时间戳` ≈ `校验文件不分割` > `校验文件分割scripts tag`  
-		+ 如果仍旧没办法满足需求的话，建议拿着各种版本都去ffmpeg处理一下  
-		
-+ 加载cookies(适用于高清晰度录制)
-    将cookie保存到同级目录的`{liver}-cookie.txt`即可，e.g. `douyu-cookie.txt`   
 
+
+<details>
+<summary>校正某FLV文件的时间戳</summary>
+
+
++ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.check.FlvCheckerWithBufferEx "源文件路径"`
++ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径"`  
++ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true`  
++ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true false "保存的文件夹路径"` 
+    + 两个校验工具使用方法类似，仅入口类不一致。功能稳定后将一直使用缓存减少IO
+    + 第二个参数-布尔参数的意义是**当遇到某种特定情况时，是否分割文件**  
+    + 第三个参数-布尔参数的意义是**是否输出debug信息**  
+    + 注意：这些操作**没法还原**，所以理论上原始文件最保真。  `不校验时间戳` ≈ `校验文件不分割` > `校验文件分割scripts tag`  
+    + 如果仍旧没办法满足需求的话，建议拿着各种版本都去ffmpeg处理一下  
+</details>     	
+
+<details>
+<summary>加载cookies(适用于高清晰度录制)</summary>
+
+
++ 将cookie保存到同级目录的`{liver}-cookie.txt`即可，e.g. `douyu-cookie.txt`     
++ cookie内容为以下格式：  
+```
+dy_did=xxx; acf_did=xxx; acf_auth=xxx; ...
+```
++ 如何获取cookie(以斗鱼举例)：  
+    + 打开浏览器，进入斗鱼直播  
+    + 登录账号  
+    + 进入一个热度较高的直播间，选择清晰度： 蓝光10M(保险操作，如果清晰度不够试一试)   
+    + 按F12键  
+    + 过滤网址`www.douyu.com`  
+    + 任意选择一条记录，复制右边的cookie，如下图  
+    ![](/release/preview/cookie.png)  
+</details>     
 
 <details>
 <summary>关于Plugin</summary>
@@ -177,7 +198,7 @@ or传入参数： qnPri=蓝光4M>蓝光
 
 
 如下图：  
-![](https://raw.githubusercontent.com/nICEnnnnnnnLee/BilibiliLiveRecorder/master/release/preview/id.png)  
+![](/release/preview/id.png)  
 </details>  
 
 
@@ -186,7 +207,7 @@ or传入参数： qnPri=蓝光4M>蓝光
 
 
 如下图：  
-![](https://raw.githubusercontent.com/nICEnnnnnnnLee/BilibiliLiveRecorder/master/release/preview/run.png)  
+![](/release/preview/run.png)  
 </details>      
 
 
