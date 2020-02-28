@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import nicelee.bilibili.enums.StatusEnum;
 import nicelee.bilibili.live.FlvChecker;
@@ -23,7 +25,7 @@ import nicelee.bilibili.util.ZipUtil;
 
 public class Main {
 
-	final static String version = "v2.6.5";
+	final static String version = "v2.6.6";
 
 	/**
 	 * 程序入口
@@ -34,7 +36,7 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 //		 args = new String[]{"debug=false&liver=bili&id=221602&qn=10000&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie
 //		args = new String[] {
-//				"plugin=true&debug=false&check=true&retryAfterMinutes=0.5&retryIfLiveOff=true&liver=douyu&qnPri=高清>蓝光4M>超清>蓝光>流畅&qn=-1&id=233233&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&saveFolderAfterCheck=D:\\Workspace\\live-test" }; // 清晰度全部可选，但部分高清需要cookie
+//				"plugin=true&debug=false&check=true&retryAfterMinutes=0.5&retryIfLiveOff=true&liver=douyu&qnPri=高清>蓝光4M>超清>蓝光>流畅&qn=-1&id=198859&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&saveFolderAfterCheck=D:\\Workspace\\live-test" }; // 清晰度全部可选，但部分高清需要cookie
 //		args = new String[] { "debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&timeFormat=yyyyMMddHHmm" }; // 清晰度全部可选，可不需要cookie
 //		args = new String[]{"debug=true&check=false&liver=huya&id=660137"}; 				// 清晰度全部可选，可不需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146&qn=1"}; 		// 只支持默认清晰度 54880976
@@ -42,11 +44,11 @@ public class Main {
 //		args = new String[] { "debug=true&check=true&liver=huajiao&id=278581432&qn=1" }; // 只支持默认清晰度(似乎只有一种清晰度)
 
 		final Plugin plugin = new Plugin();
-		if (args!= null && args[0].contains("plugin=true")) {
+		if (args != null && args[0].contains("plugin=true")) {
 			try {
 				plugin.compile();
 				plugin.runBeforeInit(args);
-			}catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -55,7 +57,7 @@ public class Main {
 		if (Config.flagPlugin) {
 			try {
 				plugin.runAfterInit();
-			}catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -229,9 +231,17 @@ public class Main {
 								filesAll.add(new File(path));
 							} else {
 								// 如果校正时间戳，一个个文件名进行尝试，直至不存在
+								File f = null;
+								Pattern fileNamePattern = Pattern.compile("[^/\\\\]+$");
 								for (int count = 0;; count++) {
-									String path_i = path.replaceFirst(".flv$", "-checked" + count + ".flv");
-									File f = new File(path_i);
+									if(Config.saveFolderAfterCheck != null) {
+										Matcher matcher = fileNamePattern.matcher(path);
+										matcher.find();
+										f = new File(Config.saveFolderAfterCheck, matcher.group().replaceFirst(".flv$", "-checked" + count + ".flv"));
+									}else {
+										String path_i = path.replaceFirst(".flv$", "-checked" + count + ".flv");
+										f = new File(path_i);
+									}
 									if (f.exists())
 										filesAll.add(f);
 									else
@@ -243,7 +253,7 @@ public class Main {
 						if (Config.flagPlugin) {
 							try {
 								plugin.runAfterComplete(filesAll);
-							}catch (Exception e) {
+							} catch (Exception e) {
 								e.printStackTrace();
 							}
 						}

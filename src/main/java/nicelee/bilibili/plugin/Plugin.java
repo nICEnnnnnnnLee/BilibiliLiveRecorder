@@ -1,13 +1,13 @@
 package nicelee.bilibili.plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
-import nicelee.bilibili.Config;
 
 public class Plugin {
 
@@ -44,11 +44,7 @@ public class Plugin {
 	
 	public void runBeforeInit(String[] args) {
 		try {
-			if(clazz == null) {
-				File file = new File(workingDir, "plugin/CustomOperation.class");
-				CustomClassLoader ccloader = new CustomClassLoader();
-				clazz = ccloader.findClass(file.getCanonicalPath(), "CustomOperation");
-			}
+			loadClass();
 			Method method = clazz.getMethod("runBeforeInit", String[].class);
 			method.invoke(clazz.newInstance(), new Object[]{args});
 		} catch (Exception e) {
@@ -58,11 +54,7 @@ public class Plugin {
 
 	public void runAfterInit() {
 		try {
-			if(clazz == null) {
-				File file = new File(workingDir, "plugin/CustomOperation.class");
-				CustomClassLoader ccloader = new CustomClassLoader();
-				clazz = ccloader.findClass(file.getCanonicalPath(), "CustomOperation");
-			}
+			loadClass();
 			Method method = clazz.getMethod("runAfterInit");
 			method.invoke(clazz.newInstance());
 		} catch (Exception e) {
@@ -72,15 +64,28 @@ public class Plugin {
 	
 	public void runAfterComplete(List<File> files) {
 		try {
-			if(clazz == null) {
-				File file = new File(workingDir, "plugin/CustomOperation.class");
-				CustomClassLoader ccloader = new CustomClassLoader();
-				clazz = ccloader.findClass(file.getCanonicalPath(), "CustomOperation");
-			}
+			loadClass();
+			System.out.println("runAfterComplete ");
 			Method method = clazz.getMethod("runAfterComplete", java.util.List.class);
 			method.invoke(clazz.newInstance(), files);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	void loadClass() throws IOException {
+		if(clazz == null) {
+			CustomClassLoader ccloader = new CustomClassLoader();
+			File pluginDir = new File(workingDir, "plugin");
+			for(File f: pluginDir.listFiles()) {
+				if(f.getName().endsWith(".class")) {
+					String name = f.getName().replaceFirst("\\.class$", "");
+					if(name.equals("CustomOperation"))
+						clazz = ccloader.findClass(f.getCanonicalPath(), "CustomOperation");
+					else
+						ccloader.findClass(f.getCanonicalPath(), name);
+				}
+			}
 		}
 	}
 }
