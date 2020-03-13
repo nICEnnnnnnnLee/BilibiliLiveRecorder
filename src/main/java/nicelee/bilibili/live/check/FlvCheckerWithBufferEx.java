@@ -9,6 +9,9 @@ public class FlvCheckerWithBufferEx extends FlvCheckerWithBuffer {
 
 	public static void main(String[] args) throws IOException {
 
+//		args = new String[] { "D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\样本\\快手-header.flv",
+//				"true", "false" };
+		
 		FlvCheckerWithBufferEx fChecker = new FlvCheckerWithBufferEx();
 		boolean splitScripts = false;
 		String saveFolder = null;

@@ -9,8 +9,9 @@ import java.util.regex.Pattern;
 import nicelee.bilibili.util.Logger;
 
 /**
- * 原理 https://www.cnblogs.com/lidabo/p/9018548.html
+ * 已废弃, 请使用nicelee.bilibili.live.check.FlvCheckerWithBufferEx
  */
+@Deprecated 
 public class FlvChecker {
 
 	public static void main(String[] args) throws IOException {
