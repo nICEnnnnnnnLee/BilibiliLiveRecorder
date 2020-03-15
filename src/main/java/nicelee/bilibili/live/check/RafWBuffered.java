@@ -12,7 +12,7 @@ public class RafWBuffered {
 	RandomAccessFile raf;
 
 	public RafWBuffered(File file, String mode) throws FileNotFoundException {
-		this(file, mode, 1024 * 1024 * 4);
+		this(file, mode, 1024 * 1024 * 2);
 	}
 
 	public RafWBuffered(File file, String mode, int buffSize) throws FileNotFoundException {

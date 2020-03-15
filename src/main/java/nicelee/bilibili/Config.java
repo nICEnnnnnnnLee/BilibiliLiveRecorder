@@ -185,7 +185,7 @@ public class Config {
 	 * @param key
 	 * @return
 	 */
-	private static String getValue(String param, String key) {
+	public static String getValue(String param, String key) {
 		Pattern pattern = Pattern.compile(key + "=([^&]*)");
 		Matcher matcher = pattern.matcher(param);
 		if (matcher.find()) {

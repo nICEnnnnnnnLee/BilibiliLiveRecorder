@@ -6,6 +6,7 @@ import java.io.RandomAccessFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import nicelee.bilibili.Config;
 import nicelee.bilibili.util.Logger;
 
 public class FlvCheckerWithBuffer {
@@ -19,29 +20,73 @@ public class FlvCheckerWithBuffer {
 //		args = new String[] { "D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\样本\\快手-header.flv",
 //				"true", "true" };
 //		args = new String[] {"D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\样本\\快手-原始样本2.flv" };
+//		args = new String[] { "flv=D:\\Workspace\\javaweb-springboot\\BilibiliLiveRecord\\download\\样本\\快手-header.flv"
+//				+ "&debug=true&splitScripts=true" };
 
 		FlvCheckerWithBuffer fChecker = new FlvCheckerWithBuffer();
 		boolean splitScripts = false;
+		boolean splitAVHeaders = false;
 		String saveFolder = null;
 		if (args != null) {
-			if (args.length >= 4) {
-				saveFolder = args[3];
-				File f = new File(saveFolder);
-				if (!f.exists())
-					f.mkdirs();
-			}
-			if (args.length >= 3 && "false".equals(args[2]))
-				Logger.debug = false;
+			// 如果是flv=xxx&debug=xxx的形式
+			if (args.length == 1 && args[0].startsWith("flv=")) {
+				String flv = Config.getValue(args[0], "flv");
 
-			if (args.length >= 2)
-				splitScripts = "true".equals(args[1]);
+				String value = Config.getValue(args[0], "saveFolder");
+				if (value != null) {
+					saveFolder = value;
+					File f = new File(saveFolder);
+					if (!f.exists())
+						f.mkdirs();
+				}
 
-			if (args.length >= 1) {
+				value = Config.getValue(args[0], "debug");
+				if ("false".equals(value))
+					Logger.debug = false;
+
+				value = Config.getValue(args[0], "splitScripts");
+				splitScripts = "true".equals(value);
+				splitAVHeaders = splitScripts;
+
+				value = Config.getValue(args[0], "splitAVHeaders");
+				if (value != null)
+					splitAVHeaders = "true".equals(value);
+
+				value = Config.getValue(args[0], "deleteOnchecked");
+				boolean deleteOnchecked = "true".equals(value);
+
+				value = Config.getValue(args[0], "maxAudioHeaderSize");
+				if (value != null)
+					TagOptions.maxAudioHeaderSize = Integer.parseInt(value);
+
+				value = Config.getValue(args[0], "maxVideoHeaderSize");
+				if (value != null)
+					TagOptions.maxVideoHeaderSize = Integer.parseInt(value);
+
 				System.out.println("校对时间戳开始...");
-				fChecker.check(args[0], false, splitScripts, saveFolder);
+				fChecker.check(flv, deleteOnchecked, splitScripts, splitAVHeaders, saveFolder);
 				System.out.println("校对时间戳完毕。");
 			} else {
-				System.out.println("请输入正确的文件路径");
+				// 为了兼容旧版本
+				if (args.length >= 4) {
+					saveFolder = args[3];
+					File f = new File(saveFolder);
+					if (!f.exists())
+						f.mkdirs();
+				}
+				if (args.length >= 3 && "false".equals(args[2]))
+					Logger.debug = false;
+
+				if (args.length >= 2)
+					splitScripts = "true".equals(args[1]);
+
+				if (args.length >= 1) {
+					System.out.println("校对时间戳开始...");
+					fChecker.check(args[0], false, splitScripts, splitScripts, saveFolder);
+					System.out.println("校对时间戳完毕。");
+				} else {
+					System.out.println("请输入正确的文件路径");
+				}
 			}
 		}
 	}
@@ -55,7 +100,7 @@ public class FlvCheckerWithBuffer {
 	// 用于统计时间戳
 	protected int lastTimestampRead[] = { -1, -1 }, lastTimestampWrite[] = { -1, -1 };
 	// 用于缓冲
-	private static byte[] buffer = new byte[1024 * 1024 * 8];
+	private static byte[] buffer = new byte[1024 * 1024 * 4];
 
 	public void check(String path) throws IOException {
 		check(path, false, false);
@@ -66,11 +111,16 @@ public class FlvCheckerWithBuffer {
 	}
 
 	public void check(String path, boolean deleteOnchecked, boolean splitScripts) throws IOException {
-		check(path, deleteOnchecked, splitScripts, null);
+		check(path, deleteOnchecked, splitScripts, splitScripts, null);
 	}
 
 	public void check(String path, boolean deleteOnchecked, boolean splitScripts, String saveFolder)
 			throws IOException {
+		check(path, deleteOnchecked, splitScripts, splitScripts, saveFolder);
+	}
+
+	public void check(String path, boolean deleteOnchecked, boolean splitScripts, boolean splitAVHeaders,
+			String saveFolder) throws IOException {
 		Logger.println("校对时间戳开始...");
 		File file = new File(path);
 		RafRBuffered raf = new RafRBuffered(file, "r");
@@ -96,7 +146,7 @@ public class FlvCheckerWithBuffer {
 		raf.read(buffer, 0, 9);
 		rafNew.write(buffer, 0, 9);
 		// 处理Tag内容
-		checkTag(raf, rafNew, fileNew, splitScripts);
+		checkTag(raf, rafNew, fileNew, splitScripts, splitAVHeaders);
 
 		raf.close();
 		rafNew.close();
@@ -106,8 +156,9 @@ public class FlvCheckerWithBuffer {
 		}
 	}
 
-	private void checkTag(RafRBuffered raf, RafWBuffered rafNew, File fileNew, boolean splitScripts) {
-		checkTag(raf, rafNew, fileNew, splitScripts, false, new TagOptions());
+	private void checkTag(RafRBuffered raf, RafWBuffered rafNew, File fileNew, boolean splitScripts,
+			boolean splitAVHeaders) {
+		checkTag(raf, rafNew, fileNew, splitScripts, splitAVHeaders, false, new TagOptions());
 	}
 
 	/**
@@ -115,7 +166,7 @@ public class FlvCheckerWithBuffer {
 	 * @param rafNew
 	 */
 	private void checkTag(RafRBuffered raf, RafWBuffered rafNew, File fileNew, boolean splitScripts,
-			boolean invokedSplitByHeader, TagOptions options) {
+			boolean splitAVHeaders, boolean invokedSplitByHeader, TagOptions options) {
 		// 用于排除无效尾巴帧
 		long currentLength = 9L, latsValidLength = currentLength;
 		try {
@@ -152,27 +203,26 @@ public class FlvCheckerWithBuffer {
 					// Logger.print(" ,当前tag data 长度为：" + dataSize);
 
 					boolean isHeader = false;
-					if (tagType == 8 && dataSize < 10) {
+					if (tagType == 8 && dataSize < options.maxAudioHeaderSize) {
 						if (!isFirstAudioHeader) {
-							// System.out.println("audio header");
 							needSplitAudioHeader = true;
+							// System.out.println("AudioHeaderSize: " + dataSize);
 						}
 						isFirstAudioHeader = false;
 						isHeader = true;
 						options.pAudio = raf.getFilePointer() - 3; // 记录最后一个audio header位置
 					}
-					if (tagType == 9 && dataSize < 100) {
+					if (tagType == 9 && dataSize < options.maxVideoHeaderSize) {
 						if (!isFirstVideoHeader) {
-							// System.out.println("video header");
 							needSplitVideoHeader = true;
+							System.out.println("VideoHeaderSize: " + dataSize);
 						}
 						isFirstVideoHeader = false;
 						isHeader = true;
 						options.pVideo = raf.getFilePointer() - 3; // 记录最后一个video header位置
 					}
 					// 一直到keyframe，如果需要分割文件，那么开始
-					if (splitScripts && !isHeader && (needSplitVideoHeader || needSplitAudioHeader)) {
-						// System.out.println("split headers...");
+					if (splitAVHeaders && !isHeader && (needSplitVideoHeader || needSplitAudioHeader)) {
 						// 1. 新建一份文件
 						File fileNew2 = null;
 						Pattern pattern = Pattern.compile("-checked([0-9]+).flv$");
@@ -234,7 +284,7 @@ public class FlvCheckerWithBuffer {
 						raf.seek(pos - 3 - 5);
 						// 2. 处理新文件
 						FlvCheckerWithBuffer fc = this.getClass().newInstance();
-						fc.checkTag(raf, rafNew2, fileNew2, splitScripts, true, options);
+						fc.checkTag(raf, rafNew2, fileNew2, splitScripts, splitAVHeaders, true, options);
 						// 3. 收尾并处理时长
 						rafNew2.close();
 						changeDuration(fileNew2.getAbsolutePath(), fc.getDuration() / 1000);
@@ -253,10 +303,10 @@ public class FlvCheckerWithBuffer {
 					Logger.println("scripts");
 					options.pMeta = raf.getFilePointer();
 					if (!splitScripts || isFirstScriptTag) {
-						// 如果是scripts脚本，默认为第一个tag，此时将前一个tag Size 置零
-						rafNew.seek(rafNew.getFilePointer() - 4);
-						byte[] zeroTimestamp = new byte[] { 0, 0, 0, 0 };
-						rafNew.write(zeroTimestamp);
+//						// 如果是scripts脚本，默认为第一个tag，此时将前一个tag Size 置零
+//						rafNew.seek(rafNew.getFilePointer() - 4);
+//						byte[] zeroTimestamp = new byte[] { 0, 0, 0, 0 };
+//						rafNew.write(zeroTimestamp);
 						rafNew.write(tagType);
 						isFirstScriptTag = false;
 
@@ -294,11 +344,12 @@ public class FlvCheckerWithBuffer {
 						raf.seek(0);
 						raf.read(header);
 						rafNew2.write(header);
+						options.tagSize = 0;
 						// 恢复位置
 						raf.seek(pos - 5);
 						// 2. 处理新文件
 						FlvCheckerWithBuffer fc = this.getClass().newInstance();
-						fc.checkTag(raf, rafNew2, fileNew2, splitScripts, false, options);
+						fc.checkTag(raf, rafNew2, fileNew2, splitScripts, splitAVHeaders, false, options);
 						// 3. 收尾并处理时长
 						rafNew2.close();
 						changeDuration(fileNew2.getAbsolutePath(), fc.getDuration() / 1000);
