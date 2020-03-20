@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import nicelee.bilibili.live.check.TagOptions;
 import nicelee.bilibili.util.Logger;
 import nicelee.bilibili.util.TrustAllCertSSLUtil;
 
@@ -15,6 +16,7 @@ public class Config {
 
 	static boolean autoCheck;
 	static boolean splitScriptTagsIfCheck;
+	static boolean splitAVHeaderTagsIfCheck;
 	static boolean deleteOnchecked;
 	static boolean flvCheckWithBuffer;
 	static boolean flagZip;
@@ -76,6 +78,19 @@ public class Config {
 			value = getValue(args[0], "splitScriptTags");
 			if ("true".equals(value)) {
 				splitScriptTagsIfCheck = true;
+			}
+			splitAVHeaderTagsIfCheck = splitScriptTagsIfCheck;
+			value = getValue(args[0], "splitAVHeaderTags");
+			if ("true".equals(value)) {
+				splitAVHeaderTagsIfCheck = true;
+			}
+			value = getValue(args[0], "maxAudioHeaderSize");
+			if (value != null) {
+				TagOptions.maxAudioHeaderSize = Integer.parseInt(value);
+			}
+			value = getValue(args[0], "maxVideoHeaderSize");
+			if (value != null) {
+				TagOptions.maxVideoHeaderSize = Integer.parseInt(value);
 			}
 			value = getValue(args[0], "delete");
 			if ("false".equals(value)) {
@@ -185,7 +200,7 @@ public class Config {
 	 * @param key
 	 * @return
 	 */
-	private static String getValue(String param, String key) {
+	public static String getValue(String param, String key) {
 		Pattern pattern = Pattern.compile(key + "=([^&]*)");
 		Matcher matcher = pattern.matcher(param);
 		if (matcher.find()) {
