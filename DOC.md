@@ -61,7 +61,7 @@ import java.io.File;
 import java.io.IOException;
 
 import nicelee.bilibili.enums.StatusEnum;
-import nicelee.bilibili.live.FlvChecker;
+import nicelee.bilibili.live.check.FlvCheckerWithBufferEx;
 import nicelee.bilibili.live.RoomDealer;
 import nicelee.bilibili.live.domain.RoomInfo;
 import nicelee.bilibili.live.impl.RoomDealerBilibili;
@@ -75,8 +75,8 @@ public class Example0 {
 		String cookie = "xxx1=xxx; xxx2=xxxx; xxx3=xxxx"; // cookie = null is also allowed
 		String fileNameWithoutSuffix = "保存文件名";
 		boolean deleteOnchecked = true; // 处理完录制后，是否删除源文件
-		boolean splitScriptTagsIfCheck = false; // 针对FLV的处理方式
-		
+		boolean splitScriptTagsIfCheck = false; // 针对异常FLV的处理方式
+		boolean splitAVHeaderTagsIfCheck = false; // 针对异常FLV的处理方式
 		
 		// 获取工具类
 		RoomDealer dealer = RoomDealer.createRoomDealer(liver);
@@ -135,7 +135,7 @@ public class Example0 {
 				File partFile = new File(file.getParent(), file.getName() + ".part");
 				partFile.renameTo(file);
 			}
-			new FlvChecker().check(file.getCanonicalPath(), deleteOnchecked, splitScriptTagsIfCheck);
+			new FlvCheckerWithBufferEx().check(file.getCanonicalPath(), deleteOnchecked, splitScriptTagsIfCheck, splitAVHeaderTagsIfCheck, null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -228,12 +228,13 @@ if(dealer.util.getStatus() != StatusEnum.SUCCESS) {
 try {
     boolean deleteOriginFilesOnchecked = true;
     boolean splitScriptTags = false; // Normally, there should be only 1 ScriptTag in FLV. Two methods provided to solve the problem of ScriptTag**s**.
+    boolean splitAVHeaderTags = false; // Normally, there should be only 1 Video header and 1 Audio header in FLV. 
     
     // The method will block the thread util the work is done. Noway to stop it manually.
-    new FlvChecker().check("D:\Workspace\123.flv", deleteOriginFilesOnchecked, splitScriptTags);
+    new FlvCheckerWithBufferEx().check("D:\Workspace\123.flv", deleteOriginFilesOnchecked, splitScriptTags, splitAVHeaderTags, "D:\Workspace\");
     // D:\Workspace\123-checked0.flv will appear
-    // D:\Workspace\123-checked1.flv may appear if splitScriptTags = true, it depends on number of ScriptTag**s**
-    // D:\Workspace\123-checked2.flv may appear if splitScriptTags = true, it depends on number of ScriptTag**s**
+    // D:\Workspace\123-checked1.flv may appear if splitScriptTags||splitAVHeaderTags = true, it depends on the duplication of ScriptTag**s** and headers
+    // D:\Workspace\123-checked2.flv may appear if splitScriptTags||splitAVHeaderTags = true, it depends on the duplication of ScriptTag**s** and headers
     // ...
 } catch (IOException e) {
     e.printStackTrace();

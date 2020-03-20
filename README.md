@@ -43,6 +43,9 @@ Go go go, Bilibili Pikachu!
 | socksProxy  | 否 | 按需配置。socks代理 e.g. `127.0.0.1:1080` |   
 | trustAllCert  | 否 | 是否无条件信任所有SSL证书。默认false |   
 | splitScriptTags  | 否 | 校准文件时是否分割ScriptTag。默认false | 
+| splitAVHeaderTags  | 否 | 校准文件时是否分割a/v header Tag时。默认与splitScriptTags一致 |  
+| maxAudioHeaderSize  | 否 | 当Audio tag的data size小于该值时，认为是audio header。默认`10` | 
+| maxVideoHeaderSize  | 否 | 当Video tag的data size小于该值时，认为是video header。默认`60`  | 
 | fileName  | 否 | 文件命名规则，默认`{name}-{shortId} 的{liver}直播{startTime}-{seq}` | 
 | timeFormat  | 否 | 文件命名中{startTime}和{endTime}的格式，默认`yyyy-MM-dd HH.mm` | 
 | saveFolder  | 否 | 源文件保存路径 | 
@@ -50,7 +53,6 @@ Go go go, Bilibili Pikachu!
 | retryIfLiveOff  | 否 | 当目标不在直播时，是否继续重试。默认false | 
 | maxRetryIfLiveOff  | 否 | 当目标不在直播时，继续重试的次数。默认0，此时会一直进行尝试，直到主播上线 | 
 | retryAfterMinutes  | 否 | 当目标不在直播时，每次获取直播间信息的时间间隔，单位分钟。默认`5.0` | 
-| checkWithBuffer  | 否 | 校准时间戳时是否使用缓存，默认true。测试功能，使用后性能有所提升 |  
 | plugin  | 否 | 插件功能，允许用户自定义某些操作。默认false |  
 
 + 各直播源解析情况  
@@ -59,7 +61,7 @@ Go go go, Bilibili Pikachu!
 | ------------- | ------------- | ------------- | 
 | bili      | 2019/09/19 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
-| douyu     | 2020/02/20 | `flv`清晰度可多选，但部分高清需要cookie | 
+| douyu     | 2020/03/10 | `flv`清晰度可多选，但部分高清需要cookie | 
 | kuaishou  | 2020/01/12 | `flv`清晰度可多选，可能需要cookie(与登录无关，首次进入直播页面有反爬措施，会需要拖拽验证) | 
 | huya      | 2019/08/30 | `flv`清晰度可多选，可不需要cookie | 
 | yy        | 2019/06/15 | `flv`只支持默认清晰度 | 
@@ -71,15 +73,24 @@ Go go go, Bilibili Pikachu!
 <summary>校正某FLV文件的时间戳</summary>
 
 
-+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.check.FlvCheckerWithBufferEx "源文件路径"`
-+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径"`  
-+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true`  
-+ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.FlvChecker "源文件路径" true false "保存的文件夹路径"` 
-    + 两个校验工具使用方法类似，仅入口类不一致。功能稳定后将一直使用缓存减少IO
-    + 第二个参数-布尔参数的意义是**当遇到某种特定情况时，是否分割文件**  
-    + 第三个参数-布尔参数的意义是**是否输出debug信息**  
-    + 注意：这些操作**没法还原**，所以理论上原始文件最保真。  `不校验时间戳` ≈ `校验文件不分割` > `校验文件分割scripts tag`  
-    + 如果仍旧没办法满足需求的话，建议拿着各种版本都去ffmpeg处理一下  
++ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.check.FlvCheckerWithBufferEx "flv=源文件路径&debug=false&splitScripts=true&splitAVHeader=true&saveFolder=保存的文件夹路径"`
+
+| Key  | 必选 | 释义 | 
+| ------------- | ------------- | ------------- |  
+| flv  | 是 | 源文件路径 |  
+| debug  | 否 | debug模式,输出更多信息。默认true |  
+| splitScripts  | 否 | 当出现多个Script tag时，是否分割文件。默认false |  
+| splitAVHeaders  | 否 | 当出现多个a/v header时，是否分割文件。默认与splitScripts一致 |  
+| saveFolder  | 否 | 校准时间戳后的保存目录。默认与源文件相同目录 |  
+| deleteOnchecked  | 否 | 校准后是否删除源文件，默认false |  
+| maxAudioHeaderSize  | 否 | 当Audio tag的data size小于该值时，认为是audio header。默认`10` | 
+| maxVideoHeaderSize  | 否 | 当Video tag的data size小于该值时，认为是video header。默认`60`  | 
+
++ 旧版本的调用方法仍然兼容，但功能已经不再更新  
++ 当**主播pk/更换设备/修改推流参数/旋转画面/网络不稳定**时，可能出现许多异常情况。  
+    + `splitScripts`和`splitAVHeaders`参数就是针对这些异常采取的某些处理。  
+    + 当录制正常时，上面两个参数基本没有影响。  
+    + 注意：这些操作**没法还原**，所以理论上原始文件最保真。  `不校验时间戳` ≈ `校验文件不分割` > `校验文件分割script/video header/audio header`  
 </details>     	
 
 <details>

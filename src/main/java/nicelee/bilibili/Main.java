@@ -15,7 +15,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import nicelee.bilibili.enums.StatusEnum;
-import nicelee.bilibili.live.FlvChecker;
 import nicelee.bilibili.live.RoomDealer;
 import nicelee.bilibili.live.check.FlvCheckerWithBufferEx;
 import nicelee.bilibili.live.domain.RoomInfo;
@@ -25,7 +24,7 @@ import nicelee.bilibili.util.ZipUtil;
 
 public class Main {
 
-	final static String version = "v2.6.6";
+	final static String version = "v2.7.0";
 
 	/**
 	 * 程序入口
@@ -67,11 +66,8 @@ public class Main {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		if (Config.shortId == null) {
 			System.out.println("请输入房间号(直播网址是https://xxx.com/xxx，那么房间号就是xxx)");
-			while (true) {
-				String line = reader.readLine();
-				Config.shortId = line;
-				break;
-			}
+			String line = reader.readLine();
+			Config.shortId = line;
 		}
 
 		// 加载cookies
@@ -210,12 +206,10 @@ public class Main {
 						try {
 							for (String path : fileList) {
 								System.out.println("校对时间戳开始...");
-								if (Config.flvCheckWithBuffer)
-									new FlvCheckerWithBufferEx().check(path, Config.deleteOnchecked,
-											Config.splitScriptTagsIfCheck, Config.saveFolderAfterCheck);
-								else
-									new FlvChecker().check(path, Config.deleteOnchecked, Config.splitScriptTagsIfCheck,
-											Config.saveFolderAfterCheck);
+								new FlvCheckerWithBufferEx().check(path, Config.deleteOnchecked,
+										Config.splitScriptTagsIfCheck, 
+										Config.splitAVHeaderTagsIfCheck,
+										Config.saveFolderAfterCheck);
 								System.out.println("校对时间戳完毕。");
 							}
 						} catch (IOException e) {
