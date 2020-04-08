@@ -1,155 +1,129 @@
 package nicelee.bilibili;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.json.JSONObject;
+
+import nicelee.bilibili.annotations.Option;
 import nicelee.bilibili.live.check.TagOptions;
 import nicelee.bilibili.util.Logger;
 import nicelee.bilibili.util.TrustAllCertSSLUtil;
 
 public class Config {
 
-	static boolean autoCheck;
-	static boolean splitScriptTagsIfCheck;
-	static boolean splitAVHeaderTagsIfCheck;
-	static boolean deleteOnchecked;
-	static boolean flvCheckWithBuffer;
-	static boolean flagZip;
-	static boolean flagPlugin;
-	static String liver;
-	static String shortId;
-	static String qn;
-	static String[] qnPriority;
-	static int maxFailCnt;
-	static int failCnt;
+	@Option(name = "check", defaultValue = "true")
+	public static boolean autoCheck;
 
-	static boolean retryIfLiveOff;
-	static int maxRetryIfLiveOff;
-	static double retryAfterMinutes;
+	@Option(name = "splitScriptTags", defaultValue = "false")
+	public static boolean splitScriptTagsIfCheck;
 
-	static long splitFileSize;
-	static long splitRecordPeriod;
-	volatile static boolean flagSplit;
+	@Option(name = "splitAVHeaderTags", followField = "splitScriptTagsIfCheck", defaultValue = "")
+	public static Boolean splitAVHeaderTagsIfCheck;
 
-	static String fileName = "{name}-{shortId} 的{liver}直播{startTime}-{seq}";
-	static String timeFormat = "yyyy-MM-dd HH.mm";
-	static String saveFolder;
-	static String saveFolderAfterCheck = null;
-	
-	
+	@Option(name = "delete", defaultValue = "true")
+	public static boolean deleteOnchecked;
+
+	@Option(name = "checkWithBuffer", defaultValue = "true")
+	public static boolean flvCheckWithBuffer;
+
+	@Option(name = "zip", defaultValue = "false")
+	public static boolean flagZip;
+
+	@Option(name = "plugin", defaultValue = "false")
+	public static boolean flagPlugin;
+
+	@Option(name = "liver", defaultValue = "bili")
+	public static String liver;
+
+	@Option(name = "id", defaultValue = "")
+	public static String shortId;
+
+	@Option(name = "qn", defaultValue = "")
+	public static String qn;
+
+	@Option(name = "qnPri", defaultValue = "")
+	public static String[] qnPriority;
+
+	@Option(name = "retry", defaultValue = "5")
+	public static int maxFailCnt;
+	public static int failCnt = 0;
+
+	@Option(name = "retryIfLiveOff", defaultValue = "false")
+	public static boolean retryIfLiveOff;
+
+	@Option(name = "maxRetryIfLiveOff", defaultValue = "0")
+	public static int maxRetryIfLiveOff;
+
+	@Option(name = "retryAfterMinutes", defaultValue = "5")
+	public static double retryAfterMinutes;
+
+	@Option(name = "fileSize", defaultValue = "0")
+	public static long splitFileSize = 1024 * 1024;
+
+	@Option(name = "filePeriod", defaultValue = "0")
+	public static long splitRecordPeriod = 60 * 1000;
+
+	public volatile static boolean flagSplit = false;
+
+	@Option(name = "fileName", defaultValue = "{name}-{shortId} 的{liver}直播{startTime}-{seq}")
+	public static String fileName;
+
+	@Option(name = "timeFormat", defaultValue = "yyyy-MM-dd HH.mm")
+	public static String timeFormat;
+
+	@Option(name = "saveFolder", defaultValue = "")
+	public static String saveFolder;
+
+	@Option(name = "saveFolderAfterCheck", defaultValue = "")
+	public static String saveFolderAfterCheck;
+
 	public static void init(String[] args) {
-		// 初始化默认值
-		autoCheck = true;
-		splitScriptTagsIfCheck = false;
-		deleteOnchecked = true;
-		Logger.debug = false;
-		liver = "bili";
-		maxFailCnt = 5;
-		failCnt = 0;
-		splitFileSize = 0;
-		splitRecordPeriod = 0;
-		flagSplit = false;
-		flagZip = false;
-		retryIfLiveOff = false;
-		maxRetryIfLiveOff = 0;
-		retryAfterMinutes = 5;
-		flvCheckWithBuffer = true;
-		flagPlugin = false;
-		
 		// 根据参数初始化值
 		if (args != null && args.length >= 1) {
-			String value = getValue(args[0], "check");
-			if ("false".equals(value)) {
-				autoCheck = false;
+			// 遍历field
+			for (Field field : Config.class.getDeclaredFields()) {
+				// 只给有注解的赋值
+				Option opts = field.getAnnotation(Option.class);
+				if (opts != null) {
+					String value = getValue(args[0], opts.name());
+					// 如为null, 再取默认值
+					if (value == null)
+						value = opts.defaultValue();
+					if (!value.isEmpty()) {
+						setValue(field, value);
+					}
+				}
 			}
-			value = getValue(args[0], "plugin");
-			if ("true".equals(value)) {
-				flagPlugin = true;
-			}
-			value = getValue(args[0], "checkWithBuffer");
-			if ("false".equals(value)) {
-				flvCheckWithBuffer = false;
-			}
-			value = getValue(args[0], "splitScriptTags");
-			if ("true".equals(value)) {
-				splitScriptTagsIfCheck = true;
-			}
-			splitAVHeaderTagsIfCheck = splitScriptTagsIfCheck;
-			value = getValue(args[0], "splitAVHeaderTags");
-			if ("true".equals(value)) {
-				splitAVHeaderTagsIfCheck = true;
-			}
-			value = getValue(args[0], "maxAudioHeaderSize");
-			if (value != null) {
-				TagOptions.maxAudioHeaderSize = Integer.parseInt(value);
-			}
-			value = getValue(args[0], "maxVideoHeaderSize");
-			if (value != null) {
-				TagOptions.maxVideoHeaderSize = Integer.parseInt(value);
-			}
-			value = getValue(args[0], "delete");
-			if ("false".equals(value)) {
-				deleteOnchecked = false;
-			}
-			value = getValue(args[0], "debug");
-			if ("true".equals(value)) {
-				Logger.debug = true;
-			}
-			value = getValue(args[0], "zip");
-			if ("true".equals(value)) {
-				flagZip = true;
-			}
-			value = getValue(args[0], "retryIfLiveOff");
-			if ("true".equals(value)) {
-				retryIfLiveOff = true;
-			}
-			value = getValue(args[0], "maxRetryIfLiveOff");
-			if (value != null && !value.isEmpty()) {
-				maxRetryIfLiveOff = Integer.parseInt(value);
-			}
-			value = getValue(args[0], "retryAfterMinutes");
-			if (value != null && !value.isEmpty()) {
-				retryAfterMinutes = Double.parseDouble(value);
-			}
-			value = getValue(args[0], "liver");
-			if (value != null && !value.isEmpty()) {
-				liver = value;
-			}
-			value = getValue(args[0], "id");
-			if (value != null && !value.isEmpty()) {
-				shortId = value;
-			}
-			value = getValue(args[0], "qn");
-			if (value != null) {// && !value.isEmpty()
-				qn = value;
-			}
-			value = getValue(args[0], "qnPri");
-			if (value != null) {// && !value.isEmpty()
+			//再遍历一次，将属性为null的，且followField不为空的赋值
+			for (Field field : Config.class.getDeclaredFields()) {
+				Option opts = field.getAnnotation(Option.class);
 				try {
-					value = URLDecoder.decode(value, "UTF-8");
-				} catch (UnsupportedEncodingException e) {
+					if (field.get(null) == null && opts != null && !opts.followField().isEmpty()) {
+						Object value = Config.class.getDeclaredField(opts.followField()).get(null);
+						field.set(null, value);
+					}
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				qnPriority = value.split(">");
 			}
-			value = getValue(args[0], "retry");
-			if (value != null && !value.isEmpty()) {
-				maxFailCnt = Integer.parseInt(value);
+			// 后续补充措施
+			if (saveFolderAfterCheck != null) {
+				File f = new File(saveFolderAfterCheck);
+				if (!f.exists())
+					f.mkdirs();
 			}
-			value = getValue(args[0], "fileSize"); // 单位： MB
-			if (value != null && !value.isEmpty()) {
-				splitFileSize = Long.parseLong(value) * 1024 * 1024;
-			}
-			value = getValue(args[0], "filePeriod"); // 单位：min
-			if (value != null && !value.isEmpty()) {
-				splitRecordPeriod = Long.parseLong(value) * 60 * 1000;
-			}
-			value = getValue(args[0], "proxy"); // http(s)代理 e.g. 127.0.0.1:8888
+			String value = getValue(args[0], "proxy"); // http(s)代理 e.g. 127.0.0.1:8888
 			if (value != null && !value.isEmpty()) {
 				String argus[] = value.split(":");
 				System.setProperty("proxyHost", argus[0]);
@@ -171,36 +145,98 @@ public class Config {
 					}
 				}
 			}
-			value = getValue(args[0], "saveFolder");
-			if (value != null && !value.isEmpty()) {
-				saveFolder = value;
-			}
-			value = getValue(args[0], "saveFolderAfterCheck");
-			if (value != null && !value.isEmpty()) {
-				saveFolderAfterCheck = value;
-				File f = new File(saveFolderAfterCheck);
-				if (!f.exists())
-					f.mkdirs();
-			}
-			value = getValue(args[0], "fileName");
-			if (value != null && !value.isEmpty()) {
-				fileName = value;
-			}
-			value = getValue(args[0], "timeFormat");
-			if (value != null && !value.isEmpty()) {
-				timeFormat = value;
-			}
+			value = getValue(args[0], "maxAudioHeaderSize");
+			if (value != null)
+				TagOptions.maxAudioHeaderSize = Integer.parseInt(value);
+			value = getValue(args[0], "maxVideoHeaderSize");
+			if (value != null)
+				TagOptions.maxVideoHeaderSize = Integer.parseInt(value);
+			value = getValue(args[0], "debug");
+			if ("true".equals(value))
+				Logger.debug = true;
+			else
+				Logger.debug = false;
 		}
 	}
-	
+
 	/**
-	 * 从参数字符串中取出值 "key1=value1&key2=value2 ..."
+	 * @param field
+	 * @param value
+	 */
+	private static void setValue(Field field, String value) {
+		try {
+			if (field.getType().equals(String.class)) {
+				field.set(null, value);
+			} else if (field.getType().equals(int.class)) {
+				field.set(null, Integer.parseInt(value));
+			} else if (field.getType().equals(long.class)) {
+				Long obj = (Long) field.get(null);
+				field.set(null, obj * Long.parseLong(value));
+			} else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class) ) {
+				field.set(null, "true".equals(value));
+			} else if (field.getType().equals(double.class)) {
+				field.set(null, Double.parseDouble(value));
+			} else if (field.getType().equals(String[].class)) {
+				try {
+					value = URLDecoder.decode(value, "UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+				field.set(null, value.split(">"));
+			} else {
+				System.err.println("未知类型：" + field.getType());
+			}
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+
+	static JSONObject json = null;
+	static boolean jsonParsed = false;
+	static String charset = null;
+	/**
+	 * 从配置文件 + 参数字符串中取出值 "key1=value1&key2=value2 ..."
 	 * 
-	 * @param param
+	 * @param args
 	 * @param key
-	 * @return
 	 */
 	public static String getValue(String param, String key) {
+		// 先获取配置文件
+		if (!jsonParsed) {
+			jsonParsed = true;
+			String fileStr = getValueFromParam(param, "options");
+			if (fileStr == null)
+				fileStr = "config.json";
+			File configFile = new File(fileStr);
+			if (configFile.exists()) {
+				charset = getValueFromParam(param, "charset");
+				if (charset == null)
+					charset = "UTF-8";
+				try {
+					BufferedReader reader = new BufferedReader(
+							new InputStreamReader(new FileInputStream(configFile), charset));
+					StringBuilder sb = new StringBuilder();
+					String line = reader.readLine();
+					while (line != null) {
+						sb.append(line).append("\r\n");
+						line = reader.readLine();
+					}
+					reader.close();
+					json = new JSONObject(sb.toString());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		// 先从args中取值
+		String value = getValueFromParam(param, key);
+		// 如为null, 再从json文件中取值
+		if (value == null && json != null)
+			value = json.optString(key, null);
+		return value;
+	}
+
+	private static String getValueFromParam(String param, String key) {
 		Pattern pattern = Pattern.compile(key + "=([^&]*)");
 		Matcher matcher = pattern.matcher(param);
 		if (matcher.find()) {
