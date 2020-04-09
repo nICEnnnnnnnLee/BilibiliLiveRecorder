@@ -28,6 +28,8 @@ Go go go, Bilibili Pikachu!
 
 | Key  | 必选 | 释义 | 
 | ------------- | ------------- | ------------- |  
+| options  | 否 | json配置文件位置。支持相对/绝对路径。默认`config.json` |  
+| charset  | 否 | json配置文件编码格式。默认`UTF-8` |  
 | debug  | 否 | debug模式,输出更多信息。默认false |  
 | check  | 否 | 下载完后是否校准时间戳，默认true |  
 | delete  | 否 | 校准后是否删除源文件，默认true |  
@@ -50,6 +52,7 @@ Go go go, Bilibili Pikachu!
 | timeFormat  | 否 | 文件命名中{startTime}和{endTime}的格式，默认`yyyy-MM-dd HH.mm` | 
 | saveFolder  | 否 | 源文件保存路径 | 
 | saveFolderAfterCheck  | 否 | FLV文件校准后的保存路径，check为true时有效。默认为空，此时与`saveFolder`等同 | 
+| stopAfterOffline  | 否 | 当目标下播后，是否停止程序。为false时，需要和下面三个参数配合。默认true | 
 | retryIfLiveOff  | 否 | 当目标不在直播时，是否继续重试。默认false | 
 | maxRetryIfLiveOff  | 否 | 当目标不在直播时，继续重试的次数。默认0，此时会一直进行尝试，直到主播上线 | 
 | retryAfterMinutes  | 否 | 当目标不在直播时，每次获取直播间信息的时间间隔，单位分钟。默认`5.0` | 
@@ -68,6 +71,42 @@ Go go go, Bilibili Pikachu!
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
 
 
+
+
+<details>
+<summary>关于json配置</summary>
+
+
++ 如出现乱码，请尝试将charset设为不同的值，例如`charset=GBK`  
++ 支持文件配置 + 参数字符串混用，此时直接传入的参数配置拥有更高优先级，例如
+```
+假设传入参数为： 
+    options=D:\\Workspace\\config.json&liver=huya
+
+对应的json文件为：
+{
+    "debug": false,
+    "check": true,
+    "delete": true,
+    "zip": false,
+    "liver": "bili",
+    "retry": 5,
+    "fileSize": 0,
+    "filePeriod": 0,
+    "splitScriptTags": false,
+    "splitAVHeaderTags": false,
+    "fileName": "{name}-{shortId} 的{liver}直播{startTime}-{seq}",
+    "timeFormat": "yyyy-MM-dd HH.mm",
+    "retryIfLiveOff": false,
+    "maxRetryIfLiveOff": 0,
+    "retryAfterMinutes": 5.0,
+    "plugin": false,
+    "stopAfterOffline": true
+}
+
+那么，此时生效的liver应该为： huya
+```
+</details>
 
 <details>
 <summary>校正某FLV文件的时间戳</summary>
