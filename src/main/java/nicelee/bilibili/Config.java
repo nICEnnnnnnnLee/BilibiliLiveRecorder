@@ -74,8 +74,10 @@ public class Config {
 	@Option(name = "filePeriod", defaultValue = "0")
 	public static long splitRecordPeriod = 60 * 1000;
 
+	@Option(name = "stopAfterOffline", defaultValue = "true")
+	public volatile static boolean flagStopAfterOffline;
 	public volatile static boolean flagSplit = false;
-
+	
 	@Option(name = "fileName", defaultValue = "{name}-{shortId} 的{liver}直播{startTime}-{seq}")
 	public static String fileName;
 
