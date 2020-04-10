@@ -11,7 +11,7 @@ Go go go, Bilibili Pikachu!
 ![测试版本64位Win10系统, jre 1.8.0_101](https://img.shields.io/badge/TestPass-Win10%20x64__java__1.8.0__101-green.svg)
 ![开源协议Apache2.0](https://img.shields.io/badge/license-apache--2.0-green.svg)  
 ![当前版本](https://img.shields.io/github/release/nICEnnnnnnnLee/BilibiliLiveRecorder.svg?style=flat-square)
-![CI](https://github.com/nICEnnnnnnnLee/BilibiliDown/workflows/CI/badge.svg)
+![CI](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/workflows/CI/badge.svg)
 ![Release 下载总量](https://img.shields.io/github/downloads/nICEnnnnnnnLee/BilibiliLiveRecorder/total.svg?style=flat-square)
 
 #### 支持Bilibili/Douyu/Huya/Kuaishou/Huajiao/Zhanqi/YY 直播录制  

@@ -53,8 +53,8 @@ jobs:
     - name: ZIP files
       run: |
         mv -f ./target/live-record-${{steps.tag_main.outputs.value}}-jar-with-dependencies.jar BiliLiveRecorder.jar
-        rm -rf ./plugin/
-        rm -rf ./LICENSE/
+        rm -rf ./plugin
+        rm -rf ./LICENSE
         mkdir ./plugin/
         mkdir ./LICENSE/
         mv -f ./release/run-zhanqi.bat .
