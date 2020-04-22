@@ -120,11 +120,6 @@ public class Config {
 				}
 			}
 			// 后续补充措施
-			if (saveFolderAfterCheck != null) {
-				File f = new File(saveFolderAfterCheck);
-				if (!f.exists())
-					f.mkdirs();
-			}
 			String value = getValue(args[0], "proxy"); // http(s)代理 e.g. 127.0.0.1:8888
 			if (value != null && !value.isEmpty()) {
 				String argus[] = value.split(":");

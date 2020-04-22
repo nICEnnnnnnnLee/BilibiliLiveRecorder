@@ -109,16 +109,28 @@ public class ThRecord extends Thread {
 		}
 	}
 
+	static String pathFormat(String pattern, RoomInfo roomInfo, SimpleDateFormat sdf) {
+		return pattern.replace("{name}", roomInfo.getUserName()).replace("{shortId}", roomInfo.getShortId())
+				.replace("{roomId}", roomInfo.getRoomId()).replace("{liver}", Config.liver)
+				.replace("{startTime}", sdf.format(new Date()));
+	}
+
 	static void record(RoomDealer roomDealer, RoomInfo roomInfo, String url, List<String> fileList) {
 		SimpleDateFormat sdf = new SimpleDateFormat(Config.timeFormat);
 		// "{name}-{shortId} 的{liver}直播{startTime}-{seq}";
-		String realName = Config.fileName.replace("{name}", roomInfo.getUserName())
-				.replace("{shortId}", roomInfo.getShortId()).replace("{roomId}", roomInfo.getRoomId())
-				.replace("{liver}", Config.liver).replace("{startTime}", sdf.format(new Date()))
-				.replace("{seq}", "" + fileList.size()).replaceAll("[\\\\|\\/|:\\*\\?|<|>|\\||\\\"$]", ".");
+		String realName = pathFormat(Config.fileName, roomInfo, sdf).replace("{seq}", "" + fileList.size())
+				.replaceAll("[\\\\|\\/|:\\*\\?|<|>|\\||\\\"$]", ".");
 		// 如果saveFolder不为空
 		if (Config.saveFolder != null) {
+			pathFormat(Config.saveFolder, roomInfo, sdf);
 			roomDealer.util.setSavePath(Config.saveFolder);
+		}
+		// 如果saveFolderAfterCheck不为空
+		if (Config.autoCheck && Config.saveFolderAfterCheck != null) {
+			pathFormat(Config.saveFolderAfterCheck, roomInfo, sdf);
+			File f = new File(Config.saveFolderAfterCheck);
+			if (!f.exists())
+				f.mkdirs();
 		}
 		roomDealer.startRecord(url, realName, roomInfo.getShortId());// 此处一直堵塞， 直至停止
 		File file = roomDealer.util.getFileDownload();
