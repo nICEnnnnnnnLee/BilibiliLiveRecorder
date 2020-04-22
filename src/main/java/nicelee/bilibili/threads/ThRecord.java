@@ -122,12 +122,12 @@ public class ThRecord extends Thread {
 				.replaceAll("[\\\\|\\/|:\\*\\?|<|>|\\||\\\"$]", ".");
 		// 如果saveFolder不为空
 		if (Config.saveFolder != null) {
-			pathFormat(Config.saveFolder, roomInfo, sdf);
+			Config.saveFolder = pathFormat(Config.saveFolder, roomInfo, sdf);
 			roomDealer.util.setSavePath(Config.saveFolder);
 		}
 		// 如果saveFolderAfterCheck不为空
 		if (Config.autoCheck && Config.saveFolderAfterCheck != null) {
-			pathFormat(Config.saveFolderAfterCheck, roomInfo, sdf);
+			Config.saveFolderAfterCheck = pathFormat(Config.saveFolderAfterCheck, roomInfo, sdf);
 			File f = new File(Config.saveFolderAfterCheck);
 			if (!f.exists())
 				f.mkdirs();
