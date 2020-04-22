@@ -13,7 +13,7 @@ import nicelee.bilibili.threads.ThRecord;
 
 public class Main {
 
-	final static String version = "v2.7.1";
+	final static String version = "v2.8.0";
 	public static Thread thRecord;
 	public static Thread thMonitor;
 
@@ -32,6 +32,7 @@ public class Main {
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146&qn=1"}; 		// 只支持默认清晰度 54880976
 //		args = new String[] { "debug=true&check=true&liver=zhanqi&id=90god" }; 			// 清晰度全部可选，可不需要cookie 90god huashan ydjs
 //		args = new String[] { "debug=true&check=true&liver=huajiao&id=278581432&qn=1" }; // 只支持默认清晰度(似乎只有一种清晰度)
+//		args = new String[] { "debug=true&check=true&liver=acfun&id=10515090" };
 
 		final Plugin plugin = new Plugin();
 		if (args != null && args[0].contains("plugin=true")) {

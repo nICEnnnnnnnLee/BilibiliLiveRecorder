@@ -63,6 +63,7 @@ jobs:
         mv -f ./release/run-huya.bat .
         mv -f ./release/run-douyu.bat .
         mv -f ./release/run-bili.bat .
+        mv -f ./release/run-acfun.bat .
         mv -f ./release/checkFlv.splitScripts.bat .
         mv -f ./release/checkFlv.bat .
         mv -f ./release/plugin/* ./plugin/

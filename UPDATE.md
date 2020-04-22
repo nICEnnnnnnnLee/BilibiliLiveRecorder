@@ -1,4 +1,9 @@
 ## 更新
++ V2.8.0
+    * 新增功能[#38](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/38)：`saveFolder`配置支持部分约定的变量
+    * 新增功能[#40](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/40)：增加acfun直播录制，房间id即up主id
+    * 新增功能[#39](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/39)：延长直播信息查询超时时间；当哔哩哔哩查询超时时，视为主播下播情况处理。
+	
 + V2.7.1
     * 新增功能：从json文件读取配置
     * 新增功能[#36](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/36)：在主播下播后可尝试继续查询/轮询房间信息

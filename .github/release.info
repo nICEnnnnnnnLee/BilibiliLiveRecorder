@@ -1,1 +1,3 @@
-同v2.7.1 beta版本，该版本为workflow自动发布
+* 新增功能[#38](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/38)：`saveFolder`配置支持部分约定的变量
+* 新增功能[#40](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/40)：增加acfun直播录制，房间id即up主id
+* 新增功能[#39](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/39)：延长直播信息查询超时时间；当哔哩哔哩查询超时时，视为主播下播情况处理。
