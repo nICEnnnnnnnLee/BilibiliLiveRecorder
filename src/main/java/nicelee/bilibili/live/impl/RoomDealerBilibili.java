@@ -31,13 +31,18 @@ public class RoomDealerBilibili extends RoomDealer{
 			String basicInfoUrl = String.format("https://api.live.bilibili.com/room/v1/Room/get_info?id=%s&from=room", shortId);
 			String jsonStr = util.getContent(basicInfoUrl, headers.getBiliLiveJsonAPIHeaders(Long.parseLong(shortId)), null);
 			Logger.println(jsonStr);
-
-			JSONObject jObj = new JSONObject(jsonStr).getJSONObject("data");
-			roomInfo.setRoomId("" + jObj.getLong("room_id"));
-			roomInfo.setUserId(jObj.getLong("uid"));
-			roomInfo.setTitle(jObj.getString("title"));
-			roomInfo.setDescription(jObj.getString("description"));// .replaceAll("</?(h4|a|p|span)[^>]*>", " "));
-			roomInfo.setLiveStatus(jObj.getInt("live_status"));
+			
+			if(jsonStr.isEmpty()) {
+				roomInfo.setTitle("网络超时，尚未获得信息");
+				roomInfo.setLiveStatus(0);
+			}else {
+				JSONObject jObj = new JSONObject(jsonStr).getJSONObject("data");
+				roomInfo.setRoomId("" + jObj.getLong("room_id"));
+				roomInfo.setUserId(jObj.getLong("uid"));
+				roomInfo.setTitle(jObj.getString("title"));
+				roomInfo.setDescription(jObj.getString("description"));// .replaceAll("</?(h4|a|p|span)[^>]*>", " "));
+				roomInfo.setLiveStatus(jObj.getInt("live_status"));
+			}
 
 			if (roomInfo.getLiveStatus() == 1) {
 				// 获取该房间的主播信息 - 名称等

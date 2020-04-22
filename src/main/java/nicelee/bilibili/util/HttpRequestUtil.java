@@ -172,7 +172,7 @@ public class HttpRequestUtil {
 			String urlNameString = url;
 			URL realUrl = new URL(urlNameString);
 			HttpURLConnection conn = (HttpURLConnection) realUrl.openConnection();
-			conn.setConnectTimeout(10000);
+			conn.setConnectTimeout(20000);
 			conn.setReadTimeout(120000);
 			for (Map.Entry<String, String> entry : headers.entrySet()) {
 				conn.setRequestProperty(entry.getKey(), entry.getValue());
@@ -258,10 +258,11 @@ public class HttpRequestUtil {
 	}
 
 	/**
-	 * do a Http Get Not Worked with http stream with Deflate
+	 * do a Http Get.
 	 * 
 	 * @param url
 	 * @param headers
+	 * @param listCookie
 	 * @return content, mostly a html page
 	 * @throws IOException
 	 */
@@ -272,8 +273,8 @@ public class HttpRequestUtil {
 			String urlNameString = url;
 			URL realUrl = new URL(urlNameString);
 			HttpURLConnection conn = (HttpURLConnection) realUrl.openConnection();
-			conn.setConnectTimeout(2000);
-			conn.setReadTimeout(2000);
+			conn.setConnectTimeout(20000);
+			conn.setReadTimeout(20000);
 			for (Map.Entry<String, String> entry : headers.entrySet()) {
 				conn.setRequestProperty(entry.getKey(), entry.getValue());
 				// System.out.println(entry.getKey()+ " : " +entry.getValue());
