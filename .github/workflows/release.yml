@@ -76,6 +76,7 @@ jobs:
         zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-huya.bat
         zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-douyu.bat
         zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-bili.bat
+        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-acfun.bat
         zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./checkFlv.bat
         zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./checkFlv.splitScripts.bat
         zip -rm BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./plugin/
