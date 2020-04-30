@@ -4,9 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>top.nicelee</groupId>
 	<artifactId>live-record</artifactId>
-	<version>2.8.0</version>
+	<version>2.9.0</version>
 	<name>iLiveRecord</name>
-	<description>B站、斗鱼、虎牙、快手、战旗、花椒直播录制</description>
+	<description>B站、Acfun、斗鱼、虎牙、快手、战旗、花椒直播录制</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>

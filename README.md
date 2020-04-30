@@ -14,7 +14,7 @@ Go go go, Bilibili Pikachu!
 ![CI](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/workflows/CI/badge.svg)
 ![Release 下载总量](https://img.shields.io/github/downloads/nICEnnnnnnnLee/BilibiliLiveRecorder/total.svg?style=flat-square)
 
-#### 支持Bilibili/Douyu/Huya/Kuaishou/Huajiao/Zhanqi/YY 直播录制  
+#### 支持Bilibili/Acfun/Douyu/Huya/Kuaishou/Huajiao/Zhanqi/YY 直播录制  
 [<h4>Instruction For Developers</h4>](/DOC.md)
 
 
@@ -63,10 +63,10 @@ Go go go, Bilibili Pikachu!
 
 | liver  | 最后测试时间 | 备注 | 
 | ------------- | ------------- | ------------- | 
-| bili      | 2019/04/22 | `flv`清晰度可多选，可不需要cookie | 
+| bili      | 2020/04/22 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
 | douyu     | 2020/04/22 | `flv`清晰度可多选，但部分高清需要cookie | 
-| kuaishou  | 2020/01/12 | `flv`清晰度可多选，可能需要cookie(与登录无关，首次进入直播页面有反爬措施，会需要拖拽验证) | 
+| kuaishou  | 2020/04/30 | `flv`清晰度可多选，可能需要cookie(与登录无关，首次进入直播页面有反爬措施，会需要拖拽验证) | 
 | huya      | 2019/08/30 | `flv`清晰度可多选，可不需要cookie | 
 | yy        | 2019/06/15 | `flv`只支持默认清晰度 | 
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 

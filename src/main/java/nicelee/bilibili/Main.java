@@ -13,7 +13,7 @@ import nicelee.bilibili.threads.ThRecord;
 
 public class Main {
 
-	final static String version = "v2.8.0";
+	final static String version = "v2.9.0";
 	public static Thread thRecord;
 	public static Thread thMonitor;
 
@@ -70,7 +70,6 @@ public class Main {
 			buReader.close();
 			// Logger.println(cookie);
 		} catch (Exception e) {
-			// e.printStackTrace();
 		}
 		RoomDealer roomDealer = getRoomDealer(Config.liver);
 		if (cookie != null) {

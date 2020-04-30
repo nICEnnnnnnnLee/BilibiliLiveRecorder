@@ -1,4 +1,6 @@
 ## 更新
++ V2.9.0
+    * 修复快手不能录制的问题(graph查询返回字段更改+Accept头部修改)
 + V2.8.0
     * 新增功能[#38](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/38)：`saveFolder`配置支持部分约定的变量
     * 新增功能[#40](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/40)：增加acfun直播录制，房间id即up主id
