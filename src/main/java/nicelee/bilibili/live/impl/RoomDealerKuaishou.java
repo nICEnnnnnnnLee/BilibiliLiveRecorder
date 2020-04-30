@@ -145,7 +145,7 @@ public class RoomDealerKuaishou extends RoomDealer {
 		String json = util.postContent(graphSqlUrl, headers.getKuaishouHeaders(roomId), param.toString(),
 				null);
 		Logger.println(json);
-		JSONObject obj = new JSONObject(json).getJSONObject("data").getJSONObject("liveDetail")
+		JSONObject obj = new JSONObject(json).getJSONObject("data").getJSONObject("webLiveDetail")
 				.getJSONObject("liveStream");
 		return obj;
 	}

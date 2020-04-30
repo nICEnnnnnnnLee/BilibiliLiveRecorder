@@ -210,7 +210,7 @@ public class HttpHeaders {
 	 */
 	public HashMap<String, String> getKuaishouHeaders(String roomId) {
 		headerMap = new HashMap<String, String>();
-		headerMap.put("Accept", "text/html,application/xhtml+xm…ml;q=0.9,image/webp,*/*;q=0.8");
+		headerMap.put("Accept", "*/*");
 		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
 		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 		headerMap.put("Cache-Control", "max-age=0");
