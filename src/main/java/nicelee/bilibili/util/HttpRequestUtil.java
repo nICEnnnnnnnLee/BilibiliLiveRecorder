@@ -14,6 +14,7 @@ import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +127,7 @@ public class HttpRequestUtil {
 			System.out.println("人工停止");
 			return false;
 		}
-		if(buffer == null) {
+		if (buffer == null) {
 			buffer = new byte[1024 * 1024];
 		}
 		status = StatusEnum.DOWNLOADING;
@@ -137,7 +138,7 @@ public class HttpRequestUtil {
 			fileDownload = getFile(fileName);
 			File fileDst = new File(fileDownload.getParent(),
 					fileDownload.getName().replaceAll("_(video|audio)", "").replaceAll("\\.m4s$", ".mp4"));
-			//System.out.println(fileDst.getName());
+			// System.out.println(fileDst.getName());
 			// 如果av1234-64-p4.flv已下完， 那么av1234-64-p4-part1.flv这种也不是必须的
 			Matcher ma = filePartPattern.matcher(fileDst.getName());
 			if (ma.find()) {
@@ -176,7 +177,7 @@ public class HttpRequestUtil {
 			conn.setReadTimeout(120000);
 			for (Map.Entry<String, String> entry : headers.entrySet()) {
 				conn.setRequestProperty(entry.getKey(), entry.getValue());
-				//System.out.println(entry.getKey() + ":" + entry.getValue());
+				// System.out.println(entry.getKey() + ":" + entry.getValue());
 			}
 			conn.connect();
 			// 获取所有响应头字段
@@ -196,7 +197,7 @@ public class HttpRequestUtil {
 				inn = conn.getInputStream();
 			} catch (Exception e) {
 				e.printStackTrace();
-				//Logger.println(headers.get("range"));
+				// Logger.println(headers.get("range"));
 				BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
 				String temp;
 				while ((temp = reader.readLine()) != null) {
@@ -233,7 +234,7 @@ public class HttpRequestUtil {
 		}
 		// 使用finally块来关闭输入流
 		finally {
-			//System.out.println("下载Finally...");
+			// System.out.println("下载Finally...");
 			try {
 				if (inn != null) {
 					inn.close();
@@ -292,7 +293,7 @@ public class HttpRequestUtil {
 				// System.out.println(cookie);
 				conn.setRequestProperty("Cookie", cookie);
 			}
-			conn.connect();
+			connectWithHostKnown(conn);
 			String encoding = conn.getContentEncoding();
 			InputStream ism = conn.getInputStream();
 			if (encoding != null && encoding.contains("gzip")) {// 首先判断服务器返回的数据是否支持gzip压缩，
@@ -323,8 +324,25 @@ public class HttpRequestUtil {
 				e2.printStackTrace();
 			}
 		}
-		//printCookie(manager.getCookieStore());
+		// printCookie(manager.getCookieStore());
 		return result.toString();
+	}
+
+	int hostUnknownCnt = 0;
+	private void connectWithHostKnown(HttpURLConnection conn) throws IOException, InterruptedException {
+		try {
+			conn.connect();
+			hostUnknownCnt = 0;
+		} catch (UnknownHostException e) {
+			hostUnknownCnt++;
+			if(hostUnknownCnt <= 10) {
+				Thread.sleep(1000);
+				connectWithHostKnown(conn);
+			}else {
+				hostUnknownCnt = 0;
+				throw e;
+			}
+		}
 	}
 
 	/**
@@ -396,10 +414,10 @@ public class HttpRequestUtil {
 			in = new BufferedReader(new InputStreamReader(ism, "UTF-8"));
 			String line;
 			while ((line = in.readLine()) != null) {
-				//line = new String(line.getBytes(), "UTF-8");
+				// line = new String(line.getBytes(), "UTF-8");
 				result.append(line);
 			}
-			//printCookie(manager.getCookieStore());
+			// printCookie(manager.getCookieStore());
 		} catch (Exception e) {
 			System.out.println("发送GET请求出现异常！" + e);
 			// e.printStackTrace();
