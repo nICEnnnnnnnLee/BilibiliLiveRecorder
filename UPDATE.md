@@ -1,4 +1,7 @@
 ## 更新
++ V2.10.0
+    * 修复[#44](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/44)：修复虎牙直播录制  
+    * 优化[#41](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/41)：抛出UnknownHost异常时自动重试  
 + V2.9.0
     * 修复快手不能录制的问题(graph查询返回字段更改+Accept头部修改)
 + V2.8.0
