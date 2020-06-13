@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,14 +69,16 @@ public class RoomDealerHuya extends RoomDealer {
 			matcher.find();
 			//System.out.println(matcher.group(1));
 			JSONObject obj = new JSONObject(matcher.group(1));
-
 			if(roomInfo.getLiveStatus() == 1) {
+				String stream = obj.getString("stream");
+				stream = new String(Base64.getDecoder().decode(stream), "UTF-8");
+				obj = new JSONObject(stream);
 				// 房间主名称
-				JSONObject liveInfo = obj.getJSONObject("stream").getJSONArray("data").getJSONObject(0).getJSONObject("gameLiveInfo");
+				JSONObject liveInfo = obj.getJSONArray("data").getJSONObject(0).getJSONObject("gameLiveInfo");
 				roomInfo.setUserName(liveInfo.getString("nick"));
 				roomInfo.setTitle(liveInfo.getString("roomName"));
 				// 清晰度
-				JSONArray jArray = obj.getJSONObject("stream").getJSONArray("vMultiStreamInfo");
+				JSONArray jArray = obj.getJSONArray("vMultiStreamInfo");
 				String[] qn = new String[jArray.length()];
 				String[] qnDesc = new String[jArray.length()];
 				for (int i = 0; i < jArray.length(); i++) {
@@ -132,9 +135,12 @@ public class RoomDealerHuya extends RoomDealer {
 			Pattern pJson = Pattern.compile("var hyPlayerConfig *= *(.*?});");
 			Matcher matcher = pJson.matcher(html);
 			matcher.find();
-			JSONObject obj = new JSONObject(matcher.group(1));// vMultiStreamInfo 
-
-			JSONObject streamDetail = obj.getJSONObject("stream").getJSONArray("data").getJSONObject(0)
+			JSONObject obj = new JSONObject(matcher.group(1));
+			String stream = obj.getString("stream");
+			stream = new String(Base64.getDecoder().decode(stream), "UTF-8");
+			obj = new JSONObject(stream);
+			
+			JSONObject streamDetail = obj.getJSONArray("data").getJSONObject(0)
 					.getJSONArray("gameStreamInfoList").getJSONObject(0);// Integer.parseInt(qn)
 //			String url = String.format("%s/%s.m3u8?%s", streamDetail.getString("sHlsUrl"),
 //					streamDetail.getString("sStreamName"), streamDetail.getString("sHlsAntiCode"));
