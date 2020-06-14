@@ -8,14 +8,16 @@ import java.io.InputStreamReader;
 import nicelee.bilibili.live.RoomDealer;
 import nicelee.bilibili.live.domain.RoomInfo;
 import nicelee.bilibili.plugin.Plugin;
+import nicelee.bilibili.threads.ThCommand;
 import nicelee.bilibili.threads.ThMonitor;
 import nicelee.bilibili.threads.ThRecord;
 
 public class Main {
 
-	final static String version = "v2.10.0";
+	final static String version = "v2.10.1";
 	public static Thread thRecord;
 	public static Thread thMonitor;
+	public static Thread thCommand;
 
 	/**
 	 * 程序入口
@@ -24,7 +26,7 @@ public class Main {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-//		 args = new String[]{"debug=true&liver=bili&id=22100594&delete=false&check=false&socksProxy=127.0.0.1:1080"};  			// 清晰度全部可选，可不需要cookie
+//		 args = new String[]{"debug=true&liver=bili&id=22100594&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie
 //		args = new String[] {
 //				"plugin=true&debug=false&check=true&retryAfterMinutes=0.5&retryIfLiveOff=true&liver=douyu&qnPri=高清>蓝光4M>超清>蓝光>流畅&qn=-1&id=312212&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&saveFolderAfterCheck=D:\\Workspace\\live-test" }; // 清晰度全部可选，但部分高清需要cookie
 //		args = new String[] { "debug=true&check=true&liver=kuaishou&id=mianf666&qn=0&delete=false&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&timeFormat=yyyyMMddHHmm" }; // 清晰度全部可选，可不需要cookie
@@ -128,18 +130,10 @@ public class Main {
 		thMonitor = new ThMonitor(roomDealer);
 		thMonitor.start();
 		
-		String line;
-		while ((line = reader.readLine()) != null) {
-			if (line.startsWith("stop") || line.startsWith("q")) {
-				Config.flagStopAfterOffline = true;
-				roomDealer.stopRecord();
-				reader.close();
-				thRecord.interrupt();
-				break;
-			} else {
-				System.out.println("输入stop 或 q 停止录制");
-			}
-		}
+		// 接收输入指令，停止录制
+		thCommand = new ThCommand(roomDealer, thRecord, reader);
+		thCommand.start();
+		
 	}
 
 	/**
