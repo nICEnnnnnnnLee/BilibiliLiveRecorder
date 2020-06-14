@@ -49,53 +49,57 @@ public class ThRecord extends Thread {
 		Runtime.getRuntime().addShutdownHook(new SignalHandler(lockOfRecord, lockOfCheck, roomDealer));
 		record(roomDealer, roomInfo, url, fileList);
 
-		while (true) {
-			if ((roomDealer.util.getStatus() == StatusEnum.STOP && Config.flagSplit)
-					|| (roomDealer.util.getStatus() == StatusEnum.SUCCESS && !Config.flagStopAfterOffline)) {
-				// 判断当前状态
-				if (roomDealer.util.getStatus() == StatusEnum.STOP) {
-					System.out.println("文件大小或录制时长超过阈值，重新尝试录制");
-				} else {
-					System.out.println("主播下播，等待下一次录制");
-					// 另起线程处理媒体文件
-					Thread th = new ThCheckMedia(roomDealer, fileList, lockOfCheck, plugin);
-					fileList = new ArrayList<String>();
-					th.start();
-					lockOfRecord.unlock();
+		try {
+			while (true) {
+				if ((roomDealer.util.getStatus() == StatusEnum.STOP && Config.flagSplit)
+						|| (roomDealer.util.getStatus() == StatusEnum.SUCCESS && !Config.flagStopAfterOffline)) {
+					// 判断当前状态
+					if (roomDealer.util.getStatus() == StatusEnum.STOP) {
+						System.out.println("文件大小或录制时长超过阈值，重新尝试录制");
+					} else {
+						System.out.println("主播下播，等待下一次录制");
+						// 另起线程处理媒体文件
+						Thread th = new ThCheckMedia(roomDealer, fileList, lockOfCheck, plugin);
+						fileList = new ArrayList<String>();
+						th.start();
+						lockOfRecord.unlock();
+						try {
+							System.out.println(Config.retryAfterMinutes + "分钟左右后重试");
+							sleep((long) (Config.retryAfterMinutes * 60000));
+						} catch (InterruptedException e) {
+							break;
+						}
+						roomInfo = Main.getRoomInfo(roomDealer);
+						if (roomInfo.getLiveStatus() != 1)
+							break;
+						lockOfRecord.lock();
+					}
+
+					// 重置状态
+					roomDealer.util.init();
+					Config.flagSplit = false;
+					Config.failCnt = 0;
+					url = roomDealer.getLiveUrl((roomInfo.getRoomId()), "" + Config.qn, roomInfo.getRemark(), cookie);
+					Logger.println(url);
+					record(roomDealer, roomInfo, url, fileList);
+				} else if (roomDealer.util.getStatus() == StatusEnum.FAIL && Config.maxFailCnt >= Config.failCnt) {
+					// 判断当前状态 如果异常连接导致失败，那么重命名后重新录制
+					Config.failCnt++;
+					System.out.println("连接异常，1min后重新尝试录制");
 					try {
-						System.out.println(Config.retryAfterMinutes + "分钟左右后重试");
-						sleep((long) (Config.retryAfterMinutes * 60000));
+						sleep(60000);
 					} catch (InterruptedException e) {
 						break;
 					}
-					roomInfo = Main.getRoomInfo(roomDealer);
-					if (roomInfo.getLiveStatus() != 1)
-						break;
-					lockOfRecord.lock();
-				}
-
-				// 重置状态
-				roomDealer.util.init();
-				Config.flagSplit = false;
-				Config.failCnt = 0;
-				url = roomDealer.getLiveUrl((roomInfo.getRoomId()), "" + Config.qn, roomInfo.getRemark(), cookie);
-				Logger.println(url);
-				record(roomDealer, roomInfo, url, fileList);
-			} else if (roomDealer.util.getStatus() == StatusEnum.FAIL && Config.maxFailCnt >= Config.failCnt) {
-				// 判断当前状态 如果异常连接导致失败，那么重命名后重新录制
-				Config.failCnt++;
-				System.out.println("连接异常，1min后重新尝试录制");
-				try {
-					sleep(60000);
-				} catch (InterruptedException e) {
+					url = roomDealer.getLiveUrl((roomInfo.getRoomId()), "" + Config.qn, roomInfo.getRemark(), cookie);
+					Logger.println(url);
+					record(roomDealer, roomInfo, url, fileList);
+				} else {
 					break;
 				}
-				url = roomDealer.getLiveUrl((roomInfo.getRoomId()), "" + Config.qn, roomInfo.getRemark(), cookie);
-				Logger.println(url);
-				record(roomDealer, roomInfo, url, fileList);
-			} else {
-				break;
 			}
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		System.out.println("下载停止");
