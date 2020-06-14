@@ -1,4 +1,7 @@
-## 更新
+## 更新  
++ V2.10.1
+    * 优化[#45](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/45)：将命令交互放入Daemon线程 
+    * 增加一个异常处理  
 + V2.10.0
     * 修复[#44](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/44)：修复虎牙直播录制  
     * 优化[#41](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/41)：抛出UnknownHost异常时自动重试  

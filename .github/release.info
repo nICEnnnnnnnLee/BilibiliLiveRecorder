@@ -1,2 +1,2 @@
-* 修复[#44](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/44)：修复虎牙直播录制  
-* 优化[#41](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/41)：抛出UnknownHost异常时自动重试  
+* 优化[#45](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/45)：将命令交互放入Daemon线程 
+* 增加一个异常处理 
