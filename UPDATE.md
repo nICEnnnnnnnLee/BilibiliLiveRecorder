@@ -1,4 +1,6 @@
 ## 更新  
++ V2.11.0
+    * 修复[#47](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/47)：尝试修复虎牙录制一段时间后自动断开的问题   
 + V2.10.1
     * 优化[#45](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/45)：将命令交互放入Daemon线程 
     * 增加一个异常处理  
