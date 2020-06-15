@@ -3,7 +3,6 @@ package nicelee.bilibili.live.impl;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -139,15 +138,26 @@ public class RoomDealerHuya extends RoomDealer {
 			String stream = obj.getString("stream");
 			stream = new String(Base64.getDecoder().decode(stream), "UTF-8");
 			obj = new JSONObject(stream);
-			
-			JSONObject streamDetail = obj.getJSONArray("data").getJSONObject(0)
-					.getJSONArray("gameStreamInfoList").getJSONObject(0);// Integer.parseInt(qn)
+			JSONObject streamDetail = null;
+			JSONArray cdns = obj.getJSONArray("data").getJSONObject(0)
+					.getJSONArray("gameStreamInfoList");
+			for(int i=0; i< cdns.length(); i++) {
+				JSONObject cdn = cdns.getJSONObject(i);
+				// ali CDN 似乎坚持不到5min就会断掉
+				if("TX".equals(cdn.getString("sCdnType"))) {
+					streamDetail = cdn;
+					break;
+				}
+			}
+			if(streamDetail == null) {
+				streamDetail = cdns.getJSONObject(cdns.length() -1);
+			}
 //			String url = String.format("%s/%s.m3u8?%s", streamDetail.getString("sHlsUrl"),
 //					streamDetail.getString("sStreamName"), streamDetail.getString("sHlsAntiCode"));
 			String url = String.format("%s/%s.%s?%s", streamDetail.getString("sFlvUrl"),
 					streamDetail.getString("sStreamName"), 
 					streamDetail.getString("sFlvUrlSuffix"), 
-					streamDetail.getString("sFlvAntiCode").replace("&amp;", "&"));
+					streamDetail.getString("newCFlvAntiCode").replace("&amp;", "&"));
 			if(!"".equals(qn) && !"0".equals(qn)) {
 				url = url + "&ratio=" + qn;
 			}
