@@ -2,7 +2,10 @@ package nicelee.bilibili.live.impl;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -162,6 +165,8 @@ public class RoomDealerHuya extends RoomDealer {
 				url = url + "&ratio=" + qn;
 			}
 			Logger.println(url);
+			url = genRealUrl(url);
+			Logger.println(url);
 			//Logger.println(obj.getJSONObject("stream").getInt("iWebDefaultBitRate"));
 			return url;
 		} catch (Exception e) {
@@ -171,6 +176,45 @@ public class RoomDealerHuya extends RoomDealer {
 
 	}
 
+	/**
+	 * https://github.com/wbt5/real-url/issues/39
+	 * https://github.com/wbt5/real-url/blob/df183eee17022d558cfc2aec221dfe632e360b13/huya.py#L11-L28
+	 */
+	String genRealUrl(String url) {
+		try {
+			String[] parts =  url.split("\\?");
+			String[] r = parts[0].split("/");
+			String s = r[r.length -1].replace(".flv", "");
+			String[] c = parts[1].split("&", 4);
+			HashMap<String, String> n = new HashMap<>();
+			for(String str: c) {
+				String temp[] = str.split("=");
+				if(temp.length > 1 && !temp[1].isEmpty()) {
+					n.put(temp[0], temp[1]);
+				}
+			}
+			String fm = URLDecoder.decode(n.get("fm"), "UTF-8");
+			String u = new String(Base64.getDecoder().decode(fm), "UTF-8");
+			String p = u.split("_")[0];
+			String f = System.currentTimeMillis()*10000 + (long)(Math.random()*10000) + "";
+			String ll = n.get("wsTime");
+			String t = "0";
+			String h = String.format("%s_%s_%s_%s_%s", p, t, s, f, ll);
+			byte[] secretBytes = MessageDigest.getInstance("md5").digest(h.getBytes());
+	        String md5code = new BigInteger(1, secretBytes).toString(16);
+	        for (int i = 0; i < 32 - md5code.length(); i++) {
+	            md5code = "0" + md5code;
+	        }
+	        String y = c[c.length -1];
+	        
+	        String realUrl = String.format("%s?wsSecret=%s&wsTime=%s&u=%s&seqid=%s&%s", parts[0], md5code, ll, t, f, y);
+	        return realUrl;
+		}catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	@Override
 	public void startRecord(String url, String fileName, String shortId) {
 		
