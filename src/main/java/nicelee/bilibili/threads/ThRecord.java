@@ -85,9 +85,9 @@ public class ThRecord extends Thread {
 				} else if (roomDealer.util.getStatus() == StatusEnum.FAIL && Config.maxFailCnt >= Config.failCnt) {
 					// 判断当前状态 如果异常连接导致失败，那么重命名后重新录制
 					Config.failCnt++;
-					System.out.println("连接异常，1min后重新尝试录制");
+					System.out.printf("连接异常，%.1fmin后重新尝试录制\r\n", Config.failRetryAfterMinutes);
 					try {
-						sleep(60000);
+						sleep((long) (Config.failRetryAfterMinutes * 60000));
 					} catch (InterruptedException e) {
 						break;
 					}

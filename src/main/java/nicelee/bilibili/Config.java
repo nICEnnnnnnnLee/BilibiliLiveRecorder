@@ -67,6 +67,9 @@ public class Config {
 
 	@Option(name = "retryAfterMinutes", defaultValue = "5")
 	public static double retryAfterMinutes;
+	
+	@Option(name = "failRetryAfterMinutes", defaultValue = "1")
+	public static double failRetryAfterMinutes;
 
 	@Option(name = "fileSize", defaultValue = "0")
 	public static long splitFileSize = 1024 * 1024;
