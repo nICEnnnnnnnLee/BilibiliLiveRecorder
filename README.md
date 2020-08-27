@@ -57,21 +57,22 @@ Go go go, Bilibili Pikachu!
 | retryIfLiveOff  | 否 | 当目标不在直播时，是否继续重试。默认false | 
 | maxRetryIfLiveOff  | 否 | 当目标不在直播时，继续重试的次数。默认0，此时会一直进行尝试，直到主播上线 | 
 | retryAfterMinutes  | 否 | 当目标不在直播时，每次获取直播间信息的时间间隔，单位分钟。默认`5.0` | 
+| failRetryAfterMinutes  | 否 | 当连接出现异常时，下次尝试录制的时间间隔，单位分钟。默认`1.0` | 
 | plugin  | 否 | 插件功能，允许用户自定义某些操作。默认false |  
 
 + 各直播源解析情况  
 
 | liver  | 最后测试时间 | 备注 | 
 | ------------- | ------------- | ------------- | 
-| bili      | 2020/06/13 | `flv`清晰度可多选，可不需要cookie | 
+| bili      | 2020/08/27 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
-| douyu     | 2020/04/22 | `flv`清晰度可多选，但部分高清需要cookie | 
-| kuaishou  | 2020/04/30 | `flv`清晰度可多选，可能需要cookie(与登录无关，首次进入直播页面有反爬措施，会需要拖拽验证) | 
-| huya      | 2020/06/13 | `flv`清晰度可多选，可不需要cookie | 
+| douyu     | 2020/08/27 | `flv`清晰度可多选，但部分高清需要cookie | 
+| kuaishou  | 2020/08/27 | `flv`清晰度可多选，可能需要cookie(与登录无关，首次进入直播页面有反爬措施，会需要拖拽验证) | 
+| huya      | 2020/08/27 | `flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
 | yy        | 2019/06/15 | `flv`只支持默认清晰度 | 
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
-| acfun     | 2020/04/22 | `flv`清晰度可多选，可不需要cookie | 
-
+| acfun     | 2020/08/27 | `flv`清晰度可多选，可不需要cookie | 
+xu
 
 
 
@@ -270,9 +271,9 @@ or传入参数： qnPri=蓝光4M>蓝光
 * **更新历史**: <https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/blob/master/UPDATE.md>
 
 ## :smile:第三方库使用声明  
-* 使用[JSON.org](https://github.com/stleary/JSON-java)库做简单的Json解析[![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/stleary/JSON-java/blob/master/LICENSE)
++ 使用[JSON.org](https://github.com/stleary/JSON-java)库做简单的Json解析[![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/stleary/JSON-java/blob/master/LICENSE)
 + 使用[Crypto-js](https://github.com/brix/crypto-js)仿浏览器生成斗鱼直播录制token[![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/brix/crypto-js/blob/develop/LICENSE) 
-
++ 虎牙对得到的直播流地址做进一步参数处理参考了[wbt5/real-url](https://github.com/wbt5/real-url/blob/df183eee17022d558cfc2aec221dfe632e360b13/huya.py#L11-L28)  
 
 ## :smile:LICENSE 
 ```
