@@ -1,4 +1,6 @@
 ## 更新  
++ V2.13.0
+    * 新增[#52](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/52)：新增抖音录制   
 + V2.12.0
     * 优化[#48](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/48)：新增录制异常重试间隔配置项`failRetryAfterMinutes`   
     * 修复[#53](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/53)：对得到的直播流链接做进一步处理，解决虎牙一起看录制失败问题  

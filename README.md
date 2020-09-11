@@ -64,17 +64,15 @@ Go go go, Bilibili Pikachu!
 
 | liver  | 最后测试时间 | 备注 | 
 | ------------- | ------------- | ------------- | 
-| bili      | 2020/08/27 | `flv`清晰度可多选，可不需要cookie | 
-| zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
+| douyin     | 2020/09/11 | `flv`只支持默认清晰度，不咋玩，没找到多清晰度的直播间😳 | 
 | douyu     | 2020/08/27 | `flv`清晰度可多选，但部分高清需要cookie | 
 | kuaishou  | 2020/08/27 | `flv`清晰度可多选，可能需要cookie(与登录无关，首次进入直播页面有反爬措施，会需要拖拽验证) | 
 | huya      | 2020/08/27 | `flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
+| acfun     | 2020/08/27 | `flv`清晰度可多选，可不需要cookie | 
+| bili      | 2020/08/27 | `flv`清晰度可多选，可不需要cookie | 
+| zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
 | yy        | 2019/06/15 | `flv`只支持默认清晰度 | 
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
-| acfun     | 2020/08/27 | `flv`清晰度可多选，可不需要cookie | 
-xu
-
-
 
 <details>
 <summary>关于json配置</summary>
