@@ -134,8 +134,11 @@ public class RoomDealerKuaishou extends RoomDealer {
 	 * @return
 	 */
 	private JSONObject getLiveInfoObj(String roomId) {
+		// 在查询之前先访问一下网页，否则可能查询不到信息
+		String html = util.getContent("https://live.kuaishou.com/u/" + roomId,
+				new HttpHeaders().getKuaishouHeaders(roomId), HttpCookies.convertCookies(cookie));
+		
 		String graphSqlUrl = String.format("https://live.kuaishou.com/graphql");
-
 		StringBuffer param = new StringBuffer();
 		param.append("{\"operationName\":\"LiveDetail\",\"variables\":{\"principalId\":\"");
 		param.append(roomId);
