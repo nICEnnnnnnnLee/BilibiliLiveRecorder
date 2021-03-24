@@ -1,4 +1,8 @@
 ## 更新  
++ V2.14.0
+    * 修复[#60](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/60)：修复bilibili概率性出错的问题  
+    * 修复： 更新斗鱼API，解决得不到高清晰度的问题  
+    * 修复： 解决快手在合法cookie下得不到直播源的问题  
 + V2.13.0
     * 新增[#52](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/52)：新增抖音录制   
 + V2.12.0
