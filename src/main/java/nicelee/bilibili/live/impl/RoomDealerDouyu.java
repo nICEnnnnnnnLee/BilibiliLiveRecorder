@@ -141,22 +141,22 @@ public class RoomDealerDouyu extends RoomDealer {
 			cookie = HttpCookies.convertCookies(cookieStr);
 		}
 		try {
-			String url = String.format("https://www.douyu.com/lapi/live/getH5Play/%s", roomId);
+			// https://playweb.douyu.com/lapi/live/getH5Play/312212
 			// //ttId 可从cookie dy_did获取
 			// e.g.
-			// v=220120190527&did=2206c59057010dd04573c76400081501&tt=1558935405&sign=79ec53bd8d789fc544697c07095fe592&cdn=ws-h5&rate=2&ver=Douyu_219052705&iar=0&ive=1
+			// v=220120190527&did=_did&tt=_tt&sign=_sign&cdn=ws-h5&rate=2&ver=Douyu_219052705&iar=0&ive=0&hevc=0&fa=0,0&aid=web-alone&uid=_uid从cookie获取，是用户id
 			// post提交的数据里面有个&sign=xxx参数，这个调用的是js里面的名为ub98484234的方法（注释1），神tm的加密混淆，纯java太麻烦了，就直接调用js了
 			// 注释1: 关键词搜索&cdn= 或 &ver=，可查到该方法附近ub98484234
 			// 注释2: 主页html里，直接有ub98484234方法
 			// 注释3:java调用js方法ub98484234，提示"CryptoJS" is not defined，另需要引入CryptoJS
 			String param = JSEngine.run(scripts, encryptMethod, roomId, ttId, System.currentTimeMillis() / 1000L);
-
-			param += String.format("&cdn=%s&rate=%s&ver=%s&iar=0&ive=1", "", // cdn 可为空
-																				// [{"name":"主线路","cdn":"ws-h5"},{"name":"备用线路5","cdn":"tct-h5"},{"name":"备用线路6","cdn":"ali-h5"}]
+			String param2 = String.format("&cdn=%s&rate=%s&ver=%s&iar=0&ive=0", "", // cdn 可为空
+					// [{"name":"主线路","cdn":"ws-h5"},{"name":"备用线路5","cdn":"tct-h5"},{"name":"备用线路6","cdn":"ali-h5"}]
 					qn, // rate 模糊到清晰 1，2，... 0 流畅 高清 超清 蓝光4M
 					version);
 			Logger.println(param);
-			String json = util.postContent(url, headers.getDouyuJsonAPIHeaders(Long.parseLong(roomId)), param, cookie);
+			String url = String.format("https://playweb.douyu.com/lapi/live/getH5Play/%s?%s%s", roomId, param, param2);
+			String json = util.getContent(url, headers.getDouyuJsonAPIHeaders(Long.parseLong(roomId)), cookie);
 			Logger.println(json);
 
 			JSONObject jobj = new JSONObject(json);
