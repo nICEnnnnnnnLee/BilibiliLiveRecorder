@@ -56,7 +56,7 @@ public class HttpHeaders {
 	public HashMap<String, String> getBiliLiveJsonAPIHeaders(long shortId) {
 		headerMap = new HashMap<String, String>();
 		headerMap.put("Accept", "application/json, text/javascript, */*; q=0.01");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Encoding", "gzip");
 		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 		headerMap.put("Connection", "keep-alive");
 		headerMap.put("Host", "api.bilibili.com");
@@ -74,7 +74,7 @@ public class HttpHeaders {
 	public HashMap<String, String> getKuaishouLiveRecordHeaders(String url, String shortId) {
 		headerMap = new HashMap<String, String>();
 		headerMap.put("Accept", "*/*");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Encoding", "gzip");
 		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 		headerMap.put("Host", getHost(url));
 		headerMap.put("Origin", "https://live.kuaishou.com");
@@ -91,7 +91,7 @@ public class HttpHeaders {
 	public HashMap<String, String> getDouyuJsonAPIHeaders(long shortId) {
 		headerMap = new HashMap<String, String>();
 		headerMap.put("Accept", "application/json, text/plain, */*");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Encoding", "gzip");
 		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 		headerMap.put("content-type", "application/x-www-form-urlencoded");
 		headerMap.put("x-requested-with", "XMLHttpRequest");
@@ -109,7 +109,7 @@ public class HttpHeaders {
 	public HashMap<String, String> getDouyuLiveRecordHeaders(String url, long shortId) {
 		headerMap = new HashMap<String, String>();
 		headerMap.put("Accept", "*/*");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Encoding", "gzip");
 		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 		headerMap.put("Host", getHost(url));
 		headerMap.put("Origin", "https://www.douyu.com");
@@ -126,7 +126,7 @@ public class HttpHeaders {
 	public HashMap<String, String> getBiliLiveRecordHeaders(String url, long shortId) {
 		headerMap = new HashMap<String, String>();
 		headerMap.put("Accept", "*/*");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Encoding", "gzip");
 		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 		headerMap.put("Connection", "keep-alive");
 		headerMap.put("Origin", "https://live.bilibili.com");
@@ -143,7 +143,7 @@ public class HttpHeaders {
 	public HashMap<String, String> getAiqiyiHeaders(String url, String sid) {
 		headerMap = new HashMap<String, String>();
 		headerMap.put("Accept", "*/*");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Encoding", "gzip");
 		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 		headerMap.put("Connection", "keep-alive");
 		headerMap.put("Origin", "https://www.iqiyi.com");
@@ -160,7 +160,7 @@ public class HttpHeaders {
 	public HashMap<String, String> getZhanqiHeaders() {
 		headerMap = new HashMap<String, String>();
 		headerMap.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Encoding", "gzip");
 		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 		headerMap.put("Connection", "keep-alive");
 		headerMap.put("Host", "www.zhanqi.tv");
@@ -176,7 +176,7 @@ public class HttpHeaders {
 	public HashMap<String, String> getZhanqiTokenHeaders(String shortId, String boundary, String gid) {
 		headerMap = new HashMap<String, String>();
 		headerMap.put("Accept", "*/*");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Encoding", "gzip");
 		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 		headerMap.put("Connection", "keep-alive");
 		headerMap.put("Host", "www.zhanqi.tv");
@@ -195,7 +195,7 @@ public class HttpHeaders {
 	public HashMap<String, String> getCommonHeaders(String host) {
 		headerMap = new HashMap<String, String>();
 		headerMap.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Encoding", "gzip");
 		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 		headerMap.put("Cache-Control", "max-age=0");
 		headerMap.put("Connection", "keep-alive");
@@ -211,7 +211,7 @@ public class HttpHeaders {
 	public HashMap<String, String> getKuaishouHeaders(String roomId) {
 		headerMap = new HashMap<String, String>();
 		headerMap.put("Accept", "*/*");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Encoding", "gzip");
 		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 		headerMap.put("Cache-Control", "max-age=0");
 		headerMap.put("Connection", "keep-alive");
@@ -230,7 +230,7 @@ public class HttpHeaders {
 	public HashMap<String, String> getHuajiaoHeaders(String shortId) {
 		headerMap = new HashMap<String, String>();
 		headerMap.put("Accept", "*/*");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+		headerMap.put("Accept-Encoding", "gzip");
 		headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 		headerMap.put("Connection", "keep-alive");
 		headerMap.put("Host", "live.huajiao.com");
