@@ -50,7 +50,7 @@ authorId=直播间id&__clientSign=这个暂时没法整
 		mobile.put("User-Agent", "Mozilla/5.0 (Android 9.0; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0");
 		mobile.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 		mobile.put("Accept-Language", "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2");
-		mobile.put("Accept-Encoding", "gzip, deflate, br");
+		mobile.put("Accept-Encoding", "gzip");
 		// 先访问获取cookie
 		util.getContent("https://m.acfun.cn/live/detail/" + roomId, mobile);
 		
@@ -69,7 +69,7 @@ authorId=直播间id&__clientSign=这个暂时没法整
 		headers.put("User-Agent", "Mozilla/5.0 (Android 9.0; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0");
 		headers.put("Accept", "application/json, text/plain, */*");
 		headers.put("Accept-Language", "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2");
-		headers.put("Accept-Encoding", "gzip, deflate, br");
+		headers.put("Accept-Encoding", "gzip");
 		headers.put("Content-Type", "application/x-www-form-urlencoded");
 		headers.put("Origin", "https://m.acfun.cn");
 		headers.put("Referer", "https://m.acfun.cn");
@@ -92,7 +92,7 @@ authorId=直播间id&__clientSign=这个暂时没法整
 		headers.put("User-Agent", "Mozilla/5.0 (Android 9.0; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0");
 		headers.put("Accept", "application/json, text/plain, */*");
 		headers.put("Accept-Language", "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2");
-		headers.put("Accept-Encoding", "gzip, deflate, br");
+		headers.put("Accept-Encoding", "gzip");
 		headers.put("Content-Type", "application/x-www-form-urlencoded");
 		headers.put("Origin", "https://m.acfun.cn");
 		headers.put("Referer", "https://m.acfun.cn/live/detail/" + roomId);
@@ -123,7 +123,7 @@ authorId=直播间id&__clientSign=这个暂时没法整
 		headers.put("User-Agent", "Mozilla/5.0 (Android 9.0; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0");
 		headers.put("Accept", "application/json, text/plain, */*");
 		headers.put("Accept-Language", "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2");
-		headers.put("Accept-Encoding", "gzip, deflate, br");
+		headers.put("Accept-Encoding", "gzip");
 		headers.put("Content-Type", "application/x-www-form-urlencoded");
 		headers.put("Origin", "https://m.acfun.cn");
 		headers.put("Referer", "https://m.acfun.cn/live/detail/" + roomId);
@@ -146,7 +146,7 @@ authorId=直播间id&__clientSign=这个暂时没法整
 		headers.put("User-Agent", "Mozilla/5.0 (Android 9.0; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0");
 		headers.put("Accept", "application/json, text/plain, */*");
 		headers.put("Accept-Language", "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2");
-		headers.put("Accept-Encoding", "gzip, deflate, br");
+		headers.put("Accept-Encoding", "gzip");
 		headers.put("Content-Type", "application/x-www-form-urlencoded");
 		headers.put("Origin", "https://m.acfun.cn");
 		headers.put("Referer", "https://m.acfun.cn/live/detail/" + roomId);

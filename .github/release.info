@@ -1,3 +1,1 @@
-* 修复[#60](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/60)：修复bilibili概率性出错的问题  
-* 修复： 更新斗鱼API，解决得不到高清晰度的问题  
-* 修复： 解决快手在合法cookie下得不到直播源的问题  
+* 优化抖音直播录制逻辑，支持PC/移动端直播、支持清晰度选择、理论上短链接不再是一次性录制 

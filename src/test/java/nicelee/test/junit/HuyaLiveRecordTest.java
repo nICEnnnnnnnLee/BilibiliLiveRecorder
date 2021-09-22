@@ -69,7 +69,7 @@ public class HuyaLiveRecordTest {
 				HttpHeaders headers = new HttpHeaders();
 				HashMap<String, String> headerMap = headers.getHeaders();
 				headerMap.put("Accept", "*/*");
-				headerMap.put("Accept-Encoding", "gzip, deflate, sdch, br");
+				headerMap.put("Accept-Encoding", "gzip");
 				headerMap.put("Accept-Language", "zh-CN,zh;q=0.8");
 				headerMap.put("Host", "js.p2p.huya.com");
 				headerMap.put("Origin", "https://www.huya.com");

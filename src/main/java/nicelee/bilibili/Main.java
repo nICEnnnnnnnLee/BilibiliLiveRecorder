@@ -14,7 +14,7 @@ import nicelee.bilibili.threads.ThRecord;
 
 public class Main {
 
-	final static String version = "v2.14.0";
+	final static String version = "v2.15.0";
 	public static Thread thRecord;
 	public static Thread thMonitor;
 	public static Thread thCommand;
@@ -28,16 +28,18 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 //		 args = new String[]{"debug=true&liver=bili&id=3291024&delete=false&check=true"};  			// 清晰度全部可选，可不需要cookie
 //		args = new String[] {
-//				"plugin=true&debug=false&check=true&retryAfterMinutes=0.5&retryIfLiveOff=true&liver=douyu&qnPri=蓝光4M>高清>蓝光8M>超清>蓝光>流畅&qn=-1&id=312212&saveFolder=D:\\Workspace&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&saveFolderAfterCheck=D:\\Workspace\\live-test" }; // 清晰度全部可选，但部分高清需要cookie
+//				"plugin=true&debug=false&check=true&retryAfterMinutes=0.5&retryIfLiveOff=true&liver=douyu&qnPri=蓝光4M>高清>蓝光8M>超清>蓝光>流畅&qn=-1&id=262537&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&" }; // 清晰度全部可选，但部分高清需要cookie
 //		args = new String[] { "debug=true&check=true&liver=kuaishou&id=3xh62hmw79fmc32&qn=0&delete=false&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&timeFormat=yyyyMMddHHmm" }; // 清晰度全部可选，可不需要cookie
 //		args = new String[]{"debug=true&check=true&liver=huya&id=11342412"}; 				// 清晰度全部可选，可不需要cookie 
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146&qn=1"}; 		// 只支持默认清晰度 54880976
 //		args = new String[] { "debug=true&check=true&liver=zhanqi&id=90god" }; 			// 清晰度全部可选，可不需要cookie 90god huashan ydjs
 //		args = new String[] { "debug=true&check=true&liver=huajiao&id=278581432&qn=1" }; // 只支持默认清晰度(似乎只有一种清晰度)
-//		args = new String[] { "debug=true&check=true&liver=acfun&id=12656144" };
-//		args = new String[]{"debug=true&liver=douyin&id=6865508403435801344&delete=false&check=true"};  					// 只支持默认清晰度
-//		args = new String[]{"debug=true&liver=douyin&id=https://v.douyin.com/JhgqCGh&delete=false&check=true"};  			// 只支持默认清晰度
-//		args = new String[]{"debug=true&liver=douyin&id=https://v.douyin.com/JSer8dH&delete=false&check=true"};  			// 只支持默认清晰度
+//		args = new String[] { "debug=true&check=true&liver=acfun&id=378269" };
+//		args = new String[]{"debug=true&liver=douyin&id=https://v.douyin.com/dFfDBcU&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie 
+//		args = new String[]{"debug=true&liver=douyin&id=448984890564&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie 
+//		args = new String[]{"debug=true&liver=douyin&id=https://v.douyin.com/EQBYoH&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie 
+//		args = new String[] { "debug=true&liver=douyin_web&id=https://v.douyin.com/EQBYoH&delete=false&check=false" }; // 清晰度全部可选，可不需要cookie
+//		args = new String[]{"debug=true&liver=douyin_web&id=227807351025&delete=false&check=false"};  			// 清晰度全部可选，可不需要cookie 
 
 		final Plugin plugin = new Plugin();
 		if (args != null && args[0].contains("plugin=true")) {
@@ -132,11 +134,11 @@ public class Main {
 		// 输出进度，超过指定大小后重新开始一次
 		thMonitor = new ThMonitor(roomDealer);
 		thMonitor.start();
-		
+
 		// 接收输入指令，停止录制
 		thCommand = new ThCommand(roomDealer, thRecord, reader);
 		thCommand.start();
-		
+
 	}
 
 	/**

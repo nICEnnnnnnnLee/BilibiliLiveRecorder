@@ -62,6 +62,7 @@ jobs:
         mv -f ./release/run-kuaishou.bat .
         mv -f ./release/run-huya.bat .
         mv -f ./release/run-douyu.bat .
+        mv -f ./release/run-douyin.bat .
         mv -f ./release/run-bili.bat .
         mv -f ./release/run-acfun.bat .
         mv -f ./release/checkFlv.splitScripts.bat .
@@ -75,6 +76,7 @@ jobs:
         zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-kuaishou.bat
         zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-huya.bat
         zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-douyu.bat
+        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-douyin.bat
         zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-bili.bat
         zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-acfun.bat
         zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./checkFlv.bat
