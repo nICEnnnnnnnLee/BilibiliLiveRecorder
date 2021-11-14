@@ -1,4 +1,8 @@
 ## 更新  
++ V2.16.0
+    * 修复[#67](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/67)：使抖音直播录制支持cookie(尚未测试仅移动端限定直播)
++ V2.15.0
+    * 优化抖音直播录制逻辑，支持PC/移动端直播、支持清晰度选择、理论上短链接不再是一次性录制
 + V2.14.0
     * 修复[#60](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/60)：修复bilibili概率性出错的问题  
     * 修复： 更新斗鱼API，解决得不到高清晰度的问题  
