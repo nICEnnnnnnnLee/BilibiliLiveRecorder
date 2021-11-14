@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import nicelee.bilibili.live.RoomDealer;
 import nicelee.bilibili.live.domain.RoomInfo;
+import nicelee.bilibili.util.HttpCookies;
 import nicelee.bilibili.util.Logger;
 
 public class RoomDealerDouyin4User extends RoomDealer {
@@ -80,8 +81,8 @@ public class RoomDealerDouyin4User extends RoomDealer {
 		try {
 			String roomId = shortId;
 
-			String html = util.getContent("https://live.douyin.com/" + roomId, getPCHeader());
-
+			String html = util.getContent("https://live.douyin.com/" + roomId, getPCHeader(), HttpCookies.convertCookies(cookie));
+//			Logger.println(html);
 			Matcher matcher = pJson.matcher(html);
 			matcher.find();
 			String json_str = URLDecoder.decode(matcher.group(1), "UTF-8");
@@ -148,6 +149,7 @@ public class RoomDealerDouyin4User extends RoomDealer {
 			roomInfo.print();
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.err.println("抖音需要cookie, 请确认cookie是否存在或失效");
 			return null;
 		}
 		return roomInfo;
@@ -169,7 +171,7 @@ public class RoomDealerDouyin4User extends RoomDealer {
 				stream_url = json.getJSONObject("stream_url");
 			}else {
 				Logger.println("请求PC Web端播放的链接");
-				String html = util.getContent("https://live.douyin.com/" + roomId, getPCHeader());
+				String html = util.getContent("https://live.douyin.com/" + roomId, getPCHeader(), HttpCookies.convertCookies(cookie));
 	
 				Matcher matcher = pJson.matcher(html);
 				matcher.find();

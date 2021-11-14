@@ -1,1 +1,1 @@
-* 优化抖音直播录制逻辑，支持PC/移动端直播、支持清晰度选择、理论上短链接不再是一次性录制 
+* 修复[#67](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/67)：使抖音直播录制支持cookie(尚未测试仅移动端限定直播)
