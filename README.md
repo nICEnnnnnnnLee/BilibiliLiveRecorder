@@ -64,12 +64,12 @@ Go go go, Bilibili Pikachu!
 
 | liver  | 最后测试时间 | 备注 | 
 | ------------- | ------------- | ------------- | 
-| douyu     | 2021/08/16 | `flv`清晰度可多选，但部分高清需要cookie | 
-| kuaishou  | 2021/08/16 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
-| huya      | 2021/08/16 | `flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
-| acfun     | 2021/08/16 | `flv`清晰度可多选，可不需要cookie | 
-| bili      | 2021/08/16 | `flv`清晰度可多选，可不需要cookie | 
-| douyin    | 2021/09/22 | `flv`清晰度可多选，可不需要cookie。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` | 
+| douyu     | 2021/11/14 | `flv`清晰度可多选，但部分高清需要cookie | 
+| kuaishou  | 2021/11/14 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
+| douyin    | 2021/11/14 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可。没有测试移动端限定独播)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
+| huya      | 2021/11/14 | `flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
+| acfun     | 2021/11/14 | `flv`清晰度可多选，可不需要cookie | 
+| bili      | 2021/11/14 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
 | yy        | 2019/06/15 | `flv`只支持默认清晰度 | 
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
