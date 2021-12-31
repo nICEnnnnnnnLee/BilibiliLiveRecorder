@@ -155,8 +155,10 @@ public class RoomDealerDouyu extends RoomDealer {
 					qn, // rate 模糊到清晰 1，2，... 0 流畅 高清 超清 蓝光4M
 					version);
 			Logger.println(param);
-			String url = String.format("https://playweb.douyu.com/lapi/live/getH5Play/%s?%s%s", roomId, param, param2);
-			String json = util.getContent(url, headers.getDouyuJsonAPIHeaders(Long.parseLong(roomId)), cookie);
+			String url = String.format("https://playweb.douyu.com/lapi/live/getH5Play/%s", roomId);
+			String json = util.postContent(url, headers.getDouyuJsonAPIHeaders(Long.parseLong(roomId)), param + param2, cookie);
+//			String url = String.format("https://playweb.douyu.com/lapi/live/getH5Play/%s?%s%s", roomId, param, param2);
+//			String json = util.getContent(url, headers.getDouyuJsonAPIHeaders(Long.parseLong(roomId)), cookie);
 			Logger.println(json);
 
 			JSONObject jobj = new JSONObject(json);
