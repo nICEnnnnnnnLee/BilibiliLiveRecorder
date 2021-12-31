@@ -9,8 +9,8 @@ on:
       # Trigger only when src/** changes
       - ".github/release.json"
       
-  pull_request:
-    paths:
+    #pull_request:
+    #   paths:
     # Trigger only when src/** changes
       - ".github/release.json"
 
