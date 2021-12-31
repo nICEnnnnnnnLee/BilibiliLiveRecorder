@@ -1,4 +1,6 @@
 ## 更新  
++ V2.17.0
+    * 修复[#69](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/69)：修复斗鱼部分直播间不能录播的问题  
 + V2.16.0
     * 修复[#67](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/67)：使抖音直播录制支持cookie(尚未测试仅移动端限定直播)
 + V2.15.0
