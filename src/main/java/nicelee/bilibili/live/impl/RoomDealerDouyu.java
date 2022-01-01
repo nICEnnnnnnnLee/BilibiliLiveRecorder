@@ -191,8 +191,13 @@ public class RoomDealerDouyu extends RoomDealer {
 			System.out.printf("申请清晰度 %s的链接，得到清晰度 %d的链接\r\n", qn, realQN);
 			String header = jobj.getJSONObject("data").getString("rtmp_url");
 			String tail = jobj.getJSONObject("data").getString("rtmp_live");
+			if(tail.contains("/playlist.m3u8?")) {
+				Logger.println("将m3u8链接转为flv链接");
+				tail = tail.replace("/playlist.m3u8?", ".flv?");
+			}
 			String linkURL = header + "/" + tail;
 			Logger.println("链接为：" + linkURL);
+			
 			return linkURL;
 		} catch (Exception e) {
 			e.printStackTrace();
