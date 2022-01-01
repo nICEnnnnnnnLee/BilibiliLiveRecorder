@@ -1,4 +1,6 @@
 ## 更新  
++ V2.18.0
+    * 修复[#72](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/72)：修复斗鱼部分区域获取链接为m3u8的问题  
 + V2.17.0
     * 修复[#69](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/69)：修复斗鱼部分直播间不能录播的问题  
 + V2.16.0
