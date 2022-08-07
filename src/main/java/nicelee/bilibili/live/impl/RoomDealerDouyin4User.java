@@ -20,7 +20,7 @@ public class RoomDealerDouyin4User extends RoomDealer {
 
 	final public static String liver = "douyin";
 
-	final static Pattern pJson = Pattern.compile("<script id=\"RENDER_DATA\".*>(.*?)</script></head>");
+	final static Pattern pJson = Pattern.compile("<script id=\"RENDER_DATA\".*>(.*?%7D)</script>");
 	final static Pattern pShortId = Pattern.compile("live.douyin.com/([0-9]+)");
 
 	final static Pattern pJsonMobile = Pattern.compile("<script>window.__INIT_PROPS__ *= *(.*?)</script>");
@@ -88,7 +88,9 @@ public class RoomDealerDouyin4User extends RoomDealer {
 			String json_str = URLDecoder.decode(matcher.group(1), "UTF-8");
 			Logger.println(json_str);
 			JSONObject json = new JSONObject(json_str);
-			JSONObject info = json.getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo");
+			//有时结构会发生变化
+			boolean app = json.has("app");
+			JSONObject info = app?json.getJSONObject("app").getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo"):json.getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo");
 
 			JSONObject anchor = info.getJSONObject("anchor");
 			JSONObject room = info.getJSONObject("room");
@@ -177,7 +179,10 @@ public class RoomDealerDouyin4User extends RoomDealer {
 				matcher.find();
 				String json_str = URLDecoder.decode(matcher.group(1), "UTF-8");
 				JSONObject json = new JSONObject(json_str);
-				JSONObject info = json.getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo");
+				System.out.println(json.toString());
+
+				boolean app = json.has("app");
+				JSONObject info = app?json.getJSONObject("app").getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo"):json.getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo");
 				stream_url = info.getJSONObject("room").optJSONObject("stream_url");
 			}
 
