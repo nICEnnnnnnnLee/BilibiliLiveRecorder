@@ -179,8 +179,6 @@ public class RoomDealerDouyin4User extends RoomDealer {
 				matcher.find();
 				String json_str = URLDecoder.decode(matcher.group(1), "UTF-8");
 				JSONObject json = new JSONObject(json_str);
-				System.out.println(json.toString());
-
 				boolean app = json.has("app");
 				JSONObject info = app?json.getJSONObject("app").getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo"):json.getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo");
 				stream_url = info.getJSONObject("room").optJSONObject("stream_url");
