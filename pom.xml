@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>top.nicelee</groupId>
 	<artifactId>live-record</artifactId>
-	<version>2.18.1</version>
+	<version>2.19.0</version>
 	<name>iLiveRecord</name>
 	<description>B站、Acfun、斗鱼、虎牙、快手、抖音直播录制</description>
 	<properties>
