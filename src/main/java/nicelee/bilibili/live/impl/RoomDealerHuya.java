@@ -46,7 +46,7 @@ public class RoomDealerHuya extends RoomDealer {
 			String basicInfoUrl = String.format("https://www.huya.com/%s", shortId);
 			String html = util.getContent(basicInfoUrl, headers.getCommonHeaders("www.huya.com"), null);
 
-			Pattern pJson = Pattern.compile("var TT_ROOM_DATA =(.*?);var TT_.{0,18}=");
+			Pattern pJson = Pattern.compile("var TT_ROOM_DATA =(.*?); *var +TT");
 			Matcher matcher = pJson.matcher(html);
 			matcher.find();
 			JSONObject room = new JSONObject(matcher.group(1));
@@ -64,7 +64,7 @@ public class RoomDealerHuya extends RoomDealer {
 			roomInfo.setDescription(room.getString("introduction"));
 
 			// 房间主id
-			roomInfo.setUserId(Long.parseLong(room.getString("profileRoom")));
+			roomInfo.setUserId(room.optLong("profileRoom"));
 			
 			pJson = Pattern.compile("var hyPlayerConfig = (.*?});");
 			matcher = pJson.matcher(html);
@@ -72,9 +72,10 @@ public class RoomDealerHuya extends RoomDealer {
 			//System.out.println(matcher.group(1));
 			JSONObject obj = new JSONObject(matcher.group(1));
 			if(roomInfo.getLiveStatus() == 1) {
-				String stream = obj.getString("stream");
-				stream = new String(Base64.getDecoder().decode(stream), "UTF-8");
-				obj = new JSONObject(stream);
+//				String stream = obj.getString("stream");
+//				stream = new String(Base64.getDecoder().decode(stream), "UTF-8");
+//				obj = new JSONObject(stream);
+				obj = obj.getJSONObject("stream");
 				// 房间主名称
 				JSONObject liveInfo = obj.getJSONArray("data").getJSONObject(0).getJSONObject("gameLiveInfo");
 				roomInfo.setUserName(liveInfo.getString("nick"));
@@ -137,10 +138,10 @@ public class RoomDealerHuya extends RoomDealer {
 			Pattern pJson = Pattern.compile("var hyPlayerConfig *= *(.*?});");
 			Matcher matcher = pJson.matcher(html);
 			matcher.find();
-			JSONObject obj = new JSONObject(matcher.group(1));
-			String stream = obj.getString("stream");
-			stream = new String(Base64.getDecoder().decode(stream), "UTF-8");
-			obj = new JSONObject(stream);
+			JSONObject obj = new JSONObject(matcher.group(1)).getJSONObject("stream");
+//			String stream = obj.getString("stream");
+//			stream = new String(Base64.getDecoder().decode(stream), "UTF-8");
+//			obj = new JSONObject(stream);
 			JSONObject streamDetail = null;
 			JSONArray cdns = obj.getJSONArray("data").getJSONObject(0)
 					.getJSONArray("gameStreamInfoList");
@@ -160,7 +161,7 @@ public class RoomDealerHuya extends RoomDealer {
 			String url = String.format("%s/%s.%s?%s", streamDetail.getString("sFlvUrl"),
 					streamDetail.getString("sStreamName"), 
 					streamDetail.getString("sFlvUrlSuffix"), 
-					streamDetail.getString("newCFlvAntiCode").replace("&amp;", "&"));
+					streamDetail.getString("sFlvAntiCode"));
 			if(!"".equals(qn) && !"0".equals(qn)) {
 				url = url + "&ratio=" + qn;
 			}
