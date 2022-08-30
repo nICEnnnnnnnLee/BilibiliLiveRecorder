@@ -1,4 +1,8 @@
 ## 更新  
++ V2.19.0
+    * 修复[#87](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/87)：修复虎牙录制
++ V2.18.1
+    * 修复[#86](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/86)：适配最新抖音版本 
 + V2.18.0
     * 修复[#72](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/72)：修复斗鱼部分区域获取链接为m3u8的问题  
 + V2.17.0
