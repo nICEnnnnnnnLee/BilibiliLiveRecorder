@@ -5,6 +5,8 @@ name: CI
 
 on:
   push:
+    branches:
+      - master
     paths:
       # Trigger only when src/** changes
       - ".github/release.json"
