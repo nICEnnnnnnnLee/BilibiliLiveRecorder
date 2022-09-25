@@ -1,1 +1,1 @@
-* 修复[#87](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/87)：修复虎牙录制
+* 将POST方式查询视频源时的HTTP连接超时时间改为20s
