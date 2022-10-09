@@ -1,4 +1,9 @@
 ## 更新  
++ V2.21.0
+    * 修复[#94](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/94), 修复YY直播
+    * 修复[#93](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/93), 抖音直播新增另一种备用解析方式, 注意`liver=douyin2`, cookie文件名为`douyin2-cookie.txt`
+    * 修复抖音直播传入短链接`https://v.douyin.com/xxxx`的解析方式
+    
 + V2.20.0
     * 将POST方式查询视频源时的HTTP连接超时时间改为20s
 + V2.19.0
