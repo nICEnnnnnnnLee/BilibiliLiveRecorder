@@ -22,6 +22,7 @@ public class RoomDealerDouyin4User extends RoomDealer {
 
 	final static Pattern pJson = Pattern.compile("<script id=\"RENDER_DATA\".*>(.*?%7D)</script>");
 	final static Pattern pShortId = Pattern.compile("live.douyin.com/([0-9]+)");
+	final static Pattern pWebcastId = Pattern.compile("webcast.amemv.com/webcast/reflow/([0-9]+)");
 
 	final static Pattern pJsonMobile = Pattern.compile("<script>window.__INIT_PROPS__ *= *(.*?)</script>");
 	@Override
@@ -55,7 +56,7 @@ public class RoomDealerDouyin4User extends RoomDealer {
 					location = conn.getHeaderField("Location");
 					Logger.println(location);
 				}
-				if(location.startsWith("https://webcast.amemv.com")) {
+				if (location.startsWith("https://webcast.amemv.com")) {
 					// https://webcast.amemv.com/webcast/reflow/6825590732829657870
 					url = new URL(location);
 					conn = (HttpURLConnection) url.openConnection();
@@ -63,13 +64,24 @@ public class RoomDealerDouyin4User extends RoomDealer {
 					conn.setRequestProperty("User-Agent",
 							"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0");
 					conn.connect();
-					location = conn.getHeaderField("Location");
-					Logger.println(location);
+					if (conn.getResponseCode() >= 300 && conn.getResponseCode() < 400) {
+						location = conn.getHeaderField("Location");
+						Logger.println(location);
+					} else {
+						Matcher matcher = pWebcastId.matcher(location);
+						matcher.find();
+						String webcastId = matcher.group(1);
+						shortId = getLiveDataByWebcastId(webcastId).getJSONObject("data").getJSONObject("room").getJSONObject("owner")
+								.getString("web_rid");
+					}
+
 				}
-				// e.g. https://live.douyin.com/4795593332 ...
-				Matcher matcher = pShortId.matcher(location);
-				if (matcher.find())
-					shortId = matcher.group(1);
+				if (location != null) {
+					// e.g. https://live.douyin.com/4795593332 ...
+					Matcher matcher = pShortId.matcher(location);
+					if (matcher.find())
+						shortId = matcher.group(1);
+				}
 			} catch (IOException e) {
 				System.err.println("不支持这种短链接的解析!!");
 				System.exit(-1);
@@ -164,13 +176,8 @@ public class RoomDealerDouyin4User extends RoomDealer {
 			JSONObject stream_url = null;
 			if(webcastId != null) {
 				Logger.println("请求仅能在移动端播放的链接");
-				String html = util.getContent("https://webcast.amemv.com/webcast/reflow/" + webcastId, getMobileHeader());
-				
-				Matcher matcher = pJsonMobile.matcher(html);
-				matcher.find();
-				JSONObject json = new JSONObject(matcher.group(1)).getJSONObject("/webcast/reflow/:id")
-						.getJSONObject("room");
-				stream_url = json.getJSONObject("stream_url");
+				JSONObject room = getLiveDataByWebcastId(webcastId).getJSONObject("data").getJSONObject("room");
+				stream_url = room.optJSONObject("stream_url");
 			}else {
 				Logger.println("请求PC Web端播放的链接");
 				String html = util.getContent("https://live.douyin.com/" + roomId, getPCHeader(), HttpCookies.convertCookies(cookie));
@@ -210,6 +217,15 @@ public class RoomDealerDouyin4User extends RoomDealer {
 		}
 	}
 
+	JSONObject getLiveDataByWebcastId(String webcastId) {
+		String apiUrl = "https://webcast.amemv.com/webcast/room/reflow/info/?verifyFp=&type_id=0&live_id=1"
+				+ "&sec_user_id=&app_id=1128&msToken=&X-Bogus=&room_id=" + webcastId;
+		Logger.println(apiUrl);
+		String json_str = util.getContent(apiUrl, getMobileHeader(), HttpCookies.convertCookies(cookie));
+		Logger.println(json_str);
+		return new JSONObject(json_str);
+	}
+	
 	/**
 	 * 开始录制
 	 * 
