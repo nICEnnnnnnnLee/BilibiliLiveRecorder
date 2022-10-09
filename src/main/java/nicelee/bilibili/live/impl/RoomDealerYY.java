@@ -1,9 +1,7 @@
 package nicelee.bilibili.live.impl;
 
-import java.net.URLDecoder;
-import java.util.Base64;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Arrays;
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,58 +19,79 @@ public class RoomDealerYY extends RoomDealer {
 		return ".flv";
 	}
 
-	/**
-	 * http://www.yy.com/{shortId}/{shortId} 根据url的shortId获取房间信息(从HTML获取)
-	 * 
-	 * @param shortId
-	 * @return
-	 */
 	@Override
 	public RoomInfo getRoomInfo(String shortId) {
 		RoomInfo roomInfo = new RoomInfo();
 		roomInfo.setShortId(shortId);
 		try {
-			// 获取基础信息
-			String basicInfoUrl = String.format("http://www.yy.com/%s/%s", shortId, shortId);
-			String html = util.getContent(basicInfoUrl, headers.getCommonHeaders("www.yy.com"), null);
-			// Logger.println(html);
-			Pattern pJson = Pattern.compile("var pageInfo = *(.*?});");
-			Matcher matcher = pJson.matcher(html);
-			matcher.find();
-			String strJSON = matcher.group(1).replaceAll("decodeURIComponent\\(\"(.*?)\"\\)", "\"$1\"")
-					.replaceFirst("defaultQuality:.*?,", "");
+			// 获取基本信息
+			String basicInfoUrl = String.format("https://wap.yy.com/mobileweb/play/liveinfo?sid=%s&ssid=%s", shortId,
+					shortId);
+			HashMap<String, String> header = new HashMap<>();
+			header.put("User-Agent",
+					"Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1");
+			header.put("Referer", "https://wap.yy.com");
+			String strJSON = util.getContent(basicInfoUrl, header, null);
 			Logger.println(strJSON);
-			JSONObject jObj = new JSONObject(strJSON);
+			JSONObject data = new JSONObject(strJSON).getJSONObject("data");
 
 			roomInfo.setRoomId(shortId);
-			roomInfo.setUserId(Long.parseLong(jObj.getString("uid")));
-			roomInfo.setTitle(URLDecoder.decode(jObj.getString("roomName")));
-			// TODO
-			roomInfo.setDescription("TODO 暂无");
-			roomInfo.setUserName(jObj.getString("nick"));
-			roomInfo.setLiveStatus(0);
-			// 获取直播可提供的清晰度
-			pJson = Pattern.compile("var livingStream = *(.*?});");
-			matcher = pJson.matcher(html);
-			if(matcher.find()) {
+			roomInfo.setUserId(data.optLong("users"));
+			roomInfo.setDescription(data.getString("liveDesc"));
+			String liveName = data.optString("liveName");
+			if (liveName.isEmpty()) {
+				roomInfo.setLiveStatus(0);
+			} else {
 				roomInfo.setLiveStatus(1);
-				Logger.println(matcher.group(1));
-				JSONObject livingStream = new JSONObject(matcher.group(1));
-				// livingStream.avp_payload.stream_names[0]
-				String currentQN = livingStream.getJSONObject("avp_payload").getJSONArray("stream_names").getString(0);
-				// livingStream.channel_stream_info.streams[2].stream_name
-				// livingStream.channel_stream_info.streams[2].json  --> .gear_info.name
-				JSONArray streams = livingStream.getJSONObject("channel_stream_info").getJSONArray("streams");
-				for(int i=0; i<streams.length(); i++) {
-					if(currentQN.equals(streams.getJSONObject(i).getString("stream_name"))) {
-						JSONObject temp = new JSONObject(streams.getJSONObject(i).getString("json"));
-						String[] qn = {"0"};
-						roomInfo.setAcceptQuality(qn);
-						roomInfo.setAcceptQualityDesc(
-								new String[]{temp.getJSONObject("gear_info").getString("name")});
-						break;
-					}
+				roomInfo.setTitle(liveName);
+				roomInfo.setUserName(data.getString("stageName"));
+			}
+			if (roomInfo.getLiveStatus() == 1) {
+				// 获取直播源
+				JSONObject livingStream = getLiveJsonObj(shortId, "1").getJSONObject("channel_stream_info");
+				JSONArray streams = livingStream.getJSONArray("streams");
+//				String currentQN = livingStream.getJSONObject("avp_payload").getJSONArray("stream_names").getString(0);
+				HashMap<String, String> qnDesc = new HashMap<>();
+				HashMap<String, Integer> qnHeight = new HashMap<>();
+				for (int i = 0; i < streams.length(); i++) {
+					JSONObject obj = streams.getJSONObject(i);
+					if (!obj.has("stream_key"))
+						continue;
+					String json = obj.optString("json");
+					// Logger.println(json);
+					if (json.isEmpty())
+						continue;
+					JSONObject info = new JSONObject(json);
+					JSONObject gear_info = info.optJSONObject("gear_info");
+					if (gear_info == null)
+						continue;
+					String desc = gear_info.getString("name");
+					String qn = gear_info.optString("gear");
+					int height = info.optInt("height");
+					int width = info.optInt("width");
+					int rate = info.optInt("rate");
+					Logger.printf("%s - %s: %d x %d, %d", qn, desc, width, height, rate);
+					qnDesc.put(qn, desc);
+					qnHeight.put(qn, height);
+//					if(currentQN.equals(streams.getJSONObject(i).getString("stream_name"))) {
+//						JSONObject temp = new JSONObject(streams.getJSONObject(i).getString("json"));
+//						String[] qn = {"0"};
+//						roomInfo.setAcceptQuality(qn);
+//						roomInfo.setAcceptQualityDesc(
+//								new String[]{temp.getJSONObject("gear_info").getString("name")});
+//						break;
+//					}
 				}
+				String[] qns = qnDesc.keySet().toArray(new String[qnDesc.size()]);
+				Arrays.sort(qns, (qn1, qn2) -> {
+					return qnHeight.get(qn2) - qnHeight.get(qn1);
+				});
+				String[] qnDescs = new String[qnDesc.size()];
+				for (int i = 0; i < qns.length; i++) {
+					qnDescs[i] = qnDesc.get(qns[i]);
+				}
+				roomInfo.setAcceptQuality(qns);
+				roomInfo.setAcceptQualityDesc(qnDescs);
 			}
 			roomInfo.print();
 		} catch (Exception e) {
@@ -82,39 +101,55 @@ public class RoomDealerYY extends RoomDealer {
 		return roomInfo;
 	}
 
+	public JSONObject getLiveJsonObj(String shortId, String qn) {
+		long currentTime = System.currentTimeMillis();
+		String liveDataUrl = String.format(
+				"https://stream-manager.yy.com/v3/channel/streams?uid=0&cid=%s&sid=%s&appid=0&sequence=%d&encode=json",
+				shortId, shortId, currentTime);
+		String input = String.format("{\"head\":{\"seq\":%d,\"appidstr\":\"0\",\"bidstr\":\"121\","
+				+ "\"cidstr\":\"%s\",\"sidstr\":\"%s\",\"uid64\":0,\"client_type\":108,\"client_ver\":\"5.11.0-alpha.4\","
+				+ "\"stream_sys_ver\":1,\"app\":\"yylive_web\",\"playersdk_ver\":\"5.11.0-alpha.4\",\"thundersdk_ver\":\"0\","
+				+ "\"streamsdk_ver\":\"5.11.0-alpha.4\"},\"client_attribute\":{\"client\":\"web\",\"model\":\"\",\"cpu\":\"\","
+				+ "\"graphics_card\":\"\",\"os\":\"chrome\",\"osversion\":\"0\",\"vsdk_version\":\"\",\"app_identify\":\"\",\"app_version\":\"\","
+				+ "\"business\":\"\",\"width\":\"1536\",\"height\":\"864\",\"scale\":\"\",\"client_type\":8,\"h265\":0},\"avp_parameter\":{\"version\":1,"
+				+ "\"client_type\":8,\"service_type\":0,\"imsi\":0,\"send_time\":%d,\"line_seq\":-1,\"gear\":%s,\"ssl\":1,\"stream_format\":0}}",
+				currentTime, shortId, shortId, currentTime / 1000, qn);
+		Logger.println(input);
+		HashMap<String, String> header2 = headers.getCommonHeaders("stream-manager.yy.com");
+		header2.put("Referer", "https://www.yy.com/");
+		String liveData = util.postContent(liveDataUrl, header2, input, null);
+		Logger.println(liveData);
+		return new JSONObject(liveData);
+	}
+
 	@Override
 	public String getLiveUrl(String shortId, String qn, Object... obj) {
 		try {
-			// 获取基础信息
-			String basicInfoUrl = String.format("http://www.yy.com/%s/%s", shortId, shortId);
-			String html = util.getContent(basicInfoUrl, headers.getCommonHeaders("www.yy.com"), null);
-			// Logger.println(html);
-			Pattern pJson = Pattern.compile("var livingStream = *(.*?});");
-			Matcher matcher = pJson.matcher(html);
-			matcher.find();
-			Logger.println(matcher.group(1));
-			JSONObject jObj = new JSONObject(matcher.group(1));
-			
-			StringBuilder sb = new StringBuilder();
-			String addr = jObj.getJSONObject("avp_payload").getString("addr");
-			String[] args = addr.split("\\n");
-//			Logger.println(args[0]);
-			
-			String decodedStr = new String(Base64.getDecoder().decode(args[0]));
-			sb.append(decodedStr.substring(decodedStr.indexOf("http")));
-			for(int i=1; i<args.length; i++) {
-				decodedStr = new String(Base64.getDecoder().decode(args[i]));
-				if(decodedStr.matches("^[0-9a-zA-Z\\:\\.\\?\\/\\-=_&%]+$")) {
-					sb.append(decodedStr);
-				}else {
-					sb.append(decodedStr.replaceFirst("[^0-9a-zA-Z\\:\\.\\?\\/\\-=_&%].*$", ""));
-					//Logger.println(decodedStr  + "不符合要求");
-					//Logger.println(decodedStr.replaceFirst("[^0-9a-zA-Z\\:\\.\\?\\/\\-=_&%].*$", ""));
-					break;
+			// 得到数据
+			JSONObject liveData = getLiveJsonObj(shortId, qn);
+			// 查询直播源
+			JSONObject stream_line_addr = liveData.getJSONObject("avp_info_res").getJSONObject("stream_line_addr");
+			String name = JSONObject.getNames(stream_line_addr)[0];
+			String url = stream_line_addr.getJSONObject(name).getJSONObject("cdn_info").getString("url");
+
+			// 查询清晰度
+			JSONArray streams = liveData.getJSONObject("channel_stream_info").getJSONArray("streams");
+			for (int i = 0; i < streams.length(); i++) {
+				JSONObject objj = streams.getJSONObject(i);
+				String stream_key = objj.optString("stream_key");
+				if (name.equals(stream_key)) {
+					String json = objj.optString("json");
+					if (json.isEmpty())
+						continue;
+					JSONObject info = new JSONObject(json);
+					JSONObject gear_info = info.optJSONObject("gear_info");
+					if (gear_info == null)
+						continue;
+					String gear = gear_info.optString("gear");
+					System.out.printf("查询清晰度为 %s的链接， 得到清晰度为 %s的链接\r\n", qn, gear);
 				}
 			}
-			Logger.println(sb.toString());
-			return sb.toString();
+			return url;
 		} catch (
 
 		Exception e) {

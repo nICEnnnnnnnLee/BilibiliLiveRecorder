@@ -3,7 +3,6 @@ package nicelee.bilibili.live.impl;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,24 +15,18 @@ import nicelee.bilibili.live.domain.RoomInfo;
 import nicelee.bilibili.util.HttpCookies;
 import nicelee.bilibili.util.Logger;
 
-public class RoomDealerDouyin4User extends RoomDealer {
+public class RoomDealerDouyin extends RoomDealer {
 
-	final public static String liver = "douyin";
+	final public static String liver = "douyin2";
 
-	final static Pattern pJson = Pattern.compile("<script id=\"RENDER_DATA\".*>(.*?%7D)</script>");
 	final static Pattern pShortId = Pattern.compile("live.douyin.com/([0-9]+)");
 	final static Pattern pWebcastId = Pattern.compile("webcast.amemv.com/webcast/reflow/([0-9]+)");
 
-	final static Pattern pJsonMobile = Pattern.compile("<script>window.__INIT_PROPS__ *= *(.*?)</script>");
 	@Override
 	public String getType() {
 		return ".flv";
 	}
 
-	/**
-	 * @param shortId
-	 * @return
-	 */
 	@Override
 	public RoomInfo getRoomInfo(String shortId) {
 		if (shortId.startsWith("https://v.douyin.com")) {
@@ -45,7 +38,7 @@ public class RoomDealerDouyin4User extends RoomDealer {
 
 				String location = conn.getHeaderField("Location");
 				Logger.println(location);
-				if(location.startsWith("https://www.iesdouyin.com")) {
+				if (location.startsWith("https://www.iesdouyin.com")) {
 					// https://www.iesdouyin.com/share/live/6825590732829657870?anchor_id=59592712724
 					url = new URL(location);
 					conn = (HttpURLConnection) url.openConnection();
@@ -92,57 +85,20 @@ public class RoomDealerDouyin4User extends RoomDealer {
 		roomInfo.setShortId(shortId);
 		try {
 			String roomId = shortId;
+			JSONObject data = getLiveDataByShortId(roomId).getJSONObject("data");
 
-			String html = util.getContent("https://live.douyin.com/" + roomId, getPCHeader(), HttpCookies.convertCookies(cookie));
-//			Logger.println(html);
-			Matcher matcher = pJson.matcher(html);
-			matcher.find();
-			String json_str = URLDecoder.decode(matcher.group(1), "UTF-8");
-			Logger.println(json_str);
-			JSONObject json = new JSONObject(json_str);
-			//有时结构会发生变化
-			boolean app = json.has("app");
-			JSONObject info = app?json.getJSONObject("app").getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo"):json.getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo");
-
-			JSONObject anchor = info.getJSONObject("anchor");
-			JSONObject room = info.getJSONObject("room");
+			JSONObject user = data.getJSONObject("user");
+			JSONObject room = data.getJSONArray("data").getJSONObject(0);
 			JSONObject stream_url = room.optJSONObject("stream_url");
 
-			roomInfo.setUserName(anchor.getString("nickname"));
+			roomInfo.setUserName(user.getString("nickname"));
 			roomInfo.setRoomId(roomId);
-			roomInfo.setUserId(anchor.optLong("id_str"));
+			roomInfo.setUserId(user.optLong("id_str"));
 			roomInfo.setTitle(room.getString("title"));
-			roomInfo.setDescription(anchor.getString("nickname") + " 的直播间");
+			roomInfo.setDescription(user.getString("nickname") + " 的直播间");
+			roomInfo.setRemark(room.optString("id_str"));
 			if (stream_url == null) {
-				if(room.getInt("status") == 2) {
-					// 说明仍然在直播，只是PC端不让播放
-					Logger.println("当前直播仅支持移动端播放");
-					String webcastId = room.getString("id_str");
-					roomInfo.setRemark(webcastId);
-					roomInfo.setLiveStatus(1);
-					html = util.getContent("https://webcast.amemv.com/webcast/reflow/" + webcastId, getMobileHeader());
-
-					matcher = pJsonMobile.matcher(html);
-					matcher.find();
-					json = new JSONObject(matcher.group(1)).getJSONObject("/webcast/reflow/:id")
-							.getJSONObject("room");
-					stream_url = json.getJSONObject("stream_url");
-					JSONArray jArray = stream_url.getJSONObject("live_core_sdk_data").getJSONObject("pull_data")
-							.getJSONObject("options").getJSONArray("qualities");
-					int qualityLen = jArray.length();
-					String[] qn = new String[qualityLen];
-					String[] qnDesc = new String[qualityLen];
-					for (int i = 0; i < qualityLen; i++) {
-						JSONObject obj = jArray.getJSONObject(i);
-						int level = obj.optInt("level");
-						qn[i] = "" + i;
-						qnDesc[qualityLen - level] = obj.getString("name");
-					}
-					roomInfo.setAcceptQuality(qn);
-					roomInfo.setAcceptQualityDesc(qnDesc);
-				}else {
-					roomInfo.setLiveStatus(0);
-				}
+				roomInfo.setLiveStatus(0);
 			} else {
 				roomInfo.setLiveStatus(1);
 				JSONArray flv_sources = stream_url.getJSONObject("live_core_sdk_data").getJSONObject("pull_data")
@@ -172,25 +128,19 @@ public class RoomDealerDouyin4User extends RoomDealer {
 	@Override
 	public String getLiveUrl(String roomId, String qn, Object... obj) {
 		try {
-			String webcastId = (String) obj[0];
 			JSONObject stream_url = null;
-			if(webcastId != null) {
-				Logger.println("请求仅能在移动端播放的链接");
+			try {
+				JSONObject data = getLiveDataByShortId(roomId).getJSONObject("data");
+
+				JSONObject room = data.getJSONArray("data").getJSONObject(0);
+				stream_url = room.optJSONObject("stream_url");
+			} catch (Exception e) {
+				e.printStackTrace();
+				Logger.println("尝试抖音解析后备方案");
+				String webcastId = (String) obj[0];
 				JSONObject room = getLiveDataByWebcastId(webcastId).getJSONObject("data").getJSONObject("room");
 				stream_url = room.optJSONObject("stream_url");
-			}else {
-				Logger.println("请求PC Web端播放的链接");
-				String html = util.getContent("https://live.douyin.com/" + roomId, getPCHeader(), HttpCookies.convertCookies(cookie));
-	
-				Matcher matcher = pJson.matcher(html);
-				matcher.find();
-				String json_str = URLDecoder.decode(matcher.group(1), "UTF-8");
-				JSONObject json = new JSONObject(json_str);
-				boolean app = json.has("app");
-				JSONObject info = app?json.getJSONObject("app").getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo"):json.getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo");
-				stream_url = info.getJSONObject("room").optJSONObject("stream_url");
 			}
-
 			JSONArray flv_sources = stream_url.getJSONObject("live_core_sdk_data").getJSONObject("pull_data")
 					.getJSONObject("options").getJSONArray("qualities");
 			int flv_sources_len = flv_sources.length();
@@ -207,14 +157,25 @@ public class RoomDealerDouyin4User extends RoomDealer {
 
 			String pull_data = stream_url.getJSONObject("live_core_sdk_data").getJSONObject("pull_data")
 					.getString("stream_data");
-			JSONObject data = new JSONObject(pull_data).getJSONObject("data");
-			String link = data.getJSONObject(sdk_key).getJSONObject("main").getString("flv");
+			JSONObject data2 = new JSONObject(pull_data).getJSONObject("data");
+			String link = data2.getJSONObject(sdk_key).getJSONObject("main").getString("flv");
 			Logger.println(link);
 			return link;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	JSONObject getLiveDataByShortId(String shortId) {
+		String apiUrl = "https://live.douyin.com/webcast/web/enter/?aid=6383&live_id=1&device_platform=web"
+				+ "&language=zh-CN&enter_from=web_live&cookie_enabled=true&screen_width=1536&screen_height=864"
+				+ "&browser_language=zh-CN&browser_platform=Win32&browser_name=Chrome&browser_version=94.0.4606.81"
+				+ "&room_id_str=&enter_source=&web_rid=" + shortId;
+
+		String json_str = util.getContent(apiUrl, getPCHeader(), HttpCookies.convertCookies(cookie));
+		Logger.println(json_str);
+		return new JSONObject(json_str);
 	}
 
 	JSONObject getLiveDataByWebcastId(String webcastId) {
@@ -225,7 +186,7 @@ public class RoomDealerDouyin4User extends RoomDealer {
 		Logger.println(json_str);
 		return new JSONObject(json_str);
 	}
-	
+
 	/**
 	 * 开始录制
 	 * 
@@ -236,15 +197,14 @@ public class RoomDealerDouyin4User extends RoomDealer {
 	 */
 	@Override
 	public void startRecord(String url, String fileName, String shortId) {
-		HashMap<String, String> mobile = new HashMap<>();
-		mobile.put("User-Agent", "Mozilla/5.0 (Android 9.0; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0");
-		util.download(url, fileName + ".flv", mobile);
+		util.download(url, fileName + ".flv", getMobileHeader());
 	}
-	
+
 	private HashMap<String, String> mobileHeader;
 	private HashMap<String, String> pcHeader;
-	private HashMap<String, String> getPCHeader(){
-		if(pcHeader == null) {
+
+	private HashMap<String, String> getPCHeader() {
+		if (pcHeader == null) {
 			pcHeader = new HashMap<>();
 			pcHeader.put("User-Agent",
 					"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0");
@@ -253,8 +213,9 @@ public class RoomDealerDouyin4User extends RoomDealer {
 		}
 		return pcHeader;
 	}
-	private HashMap<String, String> getMobileHeader(){
-		if(mobileHeader == null) {
+
+	private HashMap<String, String> getMobileHeader() {
+		if (mobileHeader == null) {
 			mobileHeader = new HashMap<>();
 			mobileHeader.put("User-Agent", "Mozilla/5.0 (Android 9.0; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0");
 			mobileHeader.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
