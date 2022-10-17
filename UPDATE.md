@@ -1,4 +1,6 @@
 ## 更新  
++ V2.22.0
+    * 修复[#93](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/93)、[#96](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/96), 修复一个cookie转换问题，该问题导致cookie中存在字符`|`时会出现错误
 + V2.21.0
     * 修复[#94](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/94), 修复YY直播
     * 修复[#93](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/93), 抖音直播新增另一种备用解析方式, 注意`liver=douyin2`, cookie文件名为`douyin2-cookie.txt`
