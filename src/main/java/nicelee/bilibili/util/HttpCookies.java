@@ -9,7 +9,7 @@ public class HttpCookies {
 
 	public static List<HttpCookie> convertCookies(String cookie) {
 		List<HttpCookie> iCookies = new ArrayList<HttpCookie>();
-		String[] cookieStrs = cookie.replaceAll("\\||\r|\n| |\\[|\\]|\"", "").split(";|&");
+		String[] cookieStrs = cookie.replaceAll("\r|\n| |\\[|\\]|\"", "").split(";|&");
 		for (String cookieStr : cookieStrs) {
 			//System.out.println(cookieStr);
 			String entry[] = cookieStr.split("=");
