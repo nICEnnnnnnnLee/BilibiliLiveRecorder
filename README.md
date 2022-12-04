@@ -64,12 +64,12 @@ Go go go, Bilibili Pikachu!
 
 | liver  | 最后测试时间 | 备注 | 
 | ------------- | ------------- | ------------- | 
-| douyu     | 2022/09/25 | `flv`清晰度可多选，但部分高清需要cookie | 
-| kuaishou  | 2022/09/25 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
-| douyin    | 2022/10/09 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
+| douyu     | 2022/12/04 | `flv`清晰度可多选，但部分高清需要cookie | 
+| kuaishou  | 2022/12/04 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
+| douyin    | 2022/12/04 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
 | douyin2   | 2022/10/09 | 抖音的另一种解析方式，前者失败后可以尝试。`flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
 | yy        | 2022/10/09 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
-| huya      | 2022/08/30 | `flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
+| huya      | 2022/12/04 | `flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
 | acfun     | 2022/09/25 | `flv`清晰度可多选，可不需要cookie | 
 | bili      | 2021/11/14 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
@@ -111,7 +111,7 @@ Go go go, Bilibili Pikachu!
 </details>
 
 <details>
-<summary>校正某FLV文件的时间戳</summary>
+<summary>校正某FLV文件的时间戳、分割solo/PK视频</summary>
 
 
 + `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.check.FlvCheckerWithBufferEx "flv=源文件路径&debug=false&splitScripts=true&splitAVHeader=true&saveFolder=保存的文件夹路径"`
@@ -133,6 +133,45 @@ Go go go, Bilibili Pikachu!
     + 当录制正常时，上面两个参数基本没有影响。  
     + 注意：这些操作**没法还原**，所以理论上原始文件最保真。  `不校验时间戳` ≈ `校验文件不分割` > `校验文件分割script/video header/audio header`  
 </details>     	
+
+<details>
+<summary>解决视频分割成多个文件后，分辨率不恰当的问题</summary>
+
+
+主播单人直播和PK的分辨率不一样，使用`splitScripts=true&splitAVHeaders=true/false`可能出现很多只有`KB`大小的视频，以及大小正常的视频。  
+视频内容都在大小正常的视频里。  
+但是，某些大小正常的视频可能只有声音，或者分辨率不对。需要把该视频和前面的视频merge。  
+```
+举例：  
+...
+kuaishou.xxx-abcd 的kuaishou直播2022-12-03 12.08-0-checked4.flv        76KB
+kuaishou.xxx-abcd 的kuaishou直播2022-12-03 12.08-0-checked5.flv        81KB
+kuaishou.xxx-abcd 的kuaishou直播2022-12-03 12.08-0-checked6.flv        473MB
+
+假设checked6.flv分别率不对，可以merge checked5.flv + checked6.flv -> checked5.merge.flv
+假设checked5.merge.flv分别率仍然不对，可以merge checked4.flv + checked5.merge.flv -> checked4.merge.flv
+以此类推。  
+如果还是不行，可以找到以前成功过的相同分辨率的几十KB的FLV作为头部，尝试与该视频merge。
+```
++ `java -Dfile.encoding=utf-8 -cp BiliLiveRecorder.jar nicelee.bilibili.live.check.FlvMerger "flv路径1" "flv路径2"`  
+
+| Key  | 必选 | 释义 | 
+| ------------- | ------------- | ------------- |  
+| flv  | 是 | 源文件路径 |  
+| debug  | 否 | debug模式,输出更多信息。默认true |  
+| splitScripts  | 否 | 当出现多个Script tag时，是否分割文件。默认false |  
+| splitAVHeaders  | 否 | 当出现多个a/v header时，是否分割文件。默认与splitScripts一致 |  
+| saveFolder  | 否 | 校准时间戳后的保存目录。默认与源文件相同目录 |  
+| deleteOnchecked  | 否 | 校准后是否删除源文件，默认false |  
+| maxAudioHeaderSize  | 否 | 当Audio tag的data size小于该值时，认为是audio header。默认`10` | 
+| maxVideoHeaderSize  | 否 | 当Video tag的data size小于该值时，认为是video header。默认`60`  | 
+
++ 旧版本的调用方法仍然兼容，但功能已经不再更新  
++ 当**主播pk/更换设备/修改推流参数/旋转画面/网络不稳定**时，可能出现许多异常情况。  
+    + `splitScripts`和`splitAVHeaders`参数就是针对这些异常采取的某些处理。  
+    + 当录制正常时，上面两个参数基本没有影响。  
+    + 注意：这些操作**没法还原**，所以理论上原始文件最保真。  `不校验时间戳` ≈ `校验文件不分割` > `校验文件分割script/video header/audio header`  
+</details>  
 
 <details>
 <summary>加载cookies(适用于高清晰度录制)</summary>
