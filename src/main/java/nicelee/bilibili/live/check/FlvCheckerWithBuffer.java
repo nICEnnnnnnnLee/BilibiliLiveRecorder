@@ -176,20 +176,25 @@ public class FlvCheckerWithBuffer {
 			boolean isFirstVideoHeader = invokedSplitByHeader ? false : true;
 			boolean needSplitAudioHeader = false;
 			boolean needSplitVideoHeader = false;
+			boolean lastFrameSkipped = false;
+			int skipContentFrames = 0;
 			int timestamp = 0;
 			while (true) {// && remain>=0
 				remain--;
-				// 读取前一个tag size
-				int predataSize = readBytesToInt(raf, 4);
-				// System.out.println("前一个 tagSize：" + predataSize);
-				if (options.tagSize != null) {
-					rafNew.write(int2Bytes(options.tagSize));
-					options.tagSize = null;
+				if(lastFrameSkipped) {
+					lastFrameSkipped = false;
 				} else {
-					rafNew.write(buffer, 0, 4);
+					// 读取前一个tag size
+					int predataSize = readBytesToInt(raf, 4);
+					if (options.tagSize != null) {
+						rafNew.write(int2Bytes(options.tagSize));
+						options.tagSize = null;
+					} else {
+						rafNew.write(buffer, 0, 4);
+					}
+					// 记录当前新文件位置，若下一tag无效，则需要回退
+					latsValidLength = currentLength;
 				}
-				// 记录当前新文件位置，若下一tag无效，则需要回退
-				latsValidLength = currentLength;
 				currentLength = rafNew.getFilePointer();
 				// Logger.print("前一个长度为：" + predataSize);
 
@@ -289,15 +294,28 @@ public class FlvCheckerWithBuffer {
 						rafNew2.close();
 						changeDuration(fileNew2.getAbsolutePath(), fc.getDuration() / 1000);
 					} else {
-						rafNew.write(tagType);
-						rafNew.write(buffer, 0, 3);
-						// 时间戳 3
-						timestamp = readBytesToInt(raf, 3);
-						int timestampEx = raf.read() << 24;
-						timestamp += timestampEx;
-						dealTimestamp(rafNew, timestamp, tagType - 8);
-						raf.read(buffer, 0, 3 + dataSize);
-						rafNew.write(buffer, 0, 3 + dataSize);
+						if(skipContentFrames == TagOptions.contentFramesToSkip ||
+							(tagType == 8 && dataSize < options.maxAudioHeaderSize) ||
+							(tagType == 9 && dataSize < options.maxVideoHeaderSize)
+						) {
+							rafNew.write(tagType);
+							rafNew.write(buffer, 0, 3);
+							// 时间戳 3
+							timestamp = readBytesToInt(raf, 3);
+							int timestampEx = raf.read() << 24;
+							timestamp += timestampEx;
+							dealTimestamp(rafNew, timestamp, tagType - 8);
+							raf.read(buffer, 0, 3 + dataSize);
+							rafNew.write(buffer, 0, 3 + dataSize);
+						} else {
+							skipContentFrames++;
+							lastFrameSkipped = true;
+							timestamp = readBytesToInt(raf, 3);
+							int timestampEx = raf.read() << 24;
+							timestamp += timestampEx;
+							dealTimestamp(rafNew, timestamp, tagType - 8);
+							raf.skipBytes(3 + dataSize + 4);
+						}
 					}
 				} else if (tagType == 18) { // 18 scripts
 					Logger.println("scripts");
