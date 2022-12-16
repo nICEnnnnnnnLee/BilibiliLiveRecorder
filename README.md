@@ -49,6 +49,8 @@ Go go go, Bilibili Pikachu!
 | splitAVHeaderTags  | 否 | 校准文件时是否分割a/v header Tag时。默认与splitScriptTags一致 |  
 | maxAudioHeaderSize  | 否 | 当Audio tag的data size小于该值时，认为是audio header。默认`10` | 
 | maxVideoHeaderSize  | 否 | 当Video tag的data size小于该值时，认为是video header。默认`60`  | 
+| contentFramesToSkip  | 否 | 校验时，跳过前n个内容帧(即不是script、audio header、video header的帧)。默认`0`  | 
+| maxPeriodBetween2Frame  | 否 | 在前10帧里，初始为0，后续如果某帧相比前一帧间隔过大，则选取该帧时间戳作为初始时间戳。默认`5000`，单位`ms`  | 
 | fileName  | 否 | 文件命名规则，默认`{name}-{shortId} 的{liver}直播{startTime}-{seq}` | 
 | timeFormat  | 否 | 文件命名中{startTime}和{endTime}的格式，默认`yyyy-MM-dd HH.mm` | 
 | saveFolder  | 否 | 源文件保存路径 | 
@@ -65,7 +67,7 @@ Go go go, Bilibili Pikachu!
 | liver  | 最后测试时间 | 备注 | 
 | ------------- | ------------- | ------------- | 
 | douyu     | 2022/12/04 | `flv`清晰度可多选，但部分高清需要cookie | 
-| kuaishou  | 2022/12/04 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
+| kuaishou  | 2022/12/16 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
 | douyin    | 2022/12/04 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
 | douyin2   | 2022/10/09 | 抖音的另一种解析方式，前者失败后可以尝试。`flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
 | yy        | 2022/10/09 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
@@ -122,6 +124,8 @@ Go go go, Bilibili Pikachu!
 | debug  | 否 | debug模式,输出更多信息。默认true |  
 | splitScripts  | 否 | 当出现多个Script tag时，是否分割文件。默认false |  
 | splitAVHeaders  | 否 | 当出现多个a/v header时，是否分割文件。默认与splitScripts一致 |  
+| contentFramesToSkip  | 否 | 校验时，跳过前n个内容帧(即不是script、audio header、video header的帧)。默认`0`  | 
+| maxPeriodBetween2Frame  | 否 | 在前10帧里，初始为0，后续如果某帧相比前一帧间隔过大，则选取该帧时间戳作为初始时间戳。默认`5000`，单位`ms`  | 
 | saveFolder  | 否 | 校准时间戳后的保存目录。默认与源文件相同目录 |  
 | deleteOnchecked  | 否 | 校准后是否删除源文件，默认false |  
 | maxAudioHeaderSize  | 否 | 当Audio tag的data size小于该值时，认为是audio header。默认`10` | 
@@ -133,6 +137,15 @@ Go go go, Bilibili Pikachu!
     + 当录制正常时，上面两个参数基本没有影响。  
     + 注意：这些操作**没法还原**，所以理论上原始文件最保真。  `不校验时间戳` ≈ `校验文件不分割` > `校验文件分割script/video header/audio header`  
 </details>     	
+
+<details>
+<summary>解决视频开始时花屏的问题</summary>
+
+
+尝试`contentFramesToSkip=1`甚至更高。  
+校验时，会跳过前`contentFramesToSkip`个内容帧(即不是script、audio header、video header的帧)。  
+可能需要配合参数`maxAudioHeaderSize`、`maxVideoHeaderSize`使用。  
+</details>  
 
 <details>
 <summary>解决视频分割成多个文件后，分辨率不恰当的问题</summary>
