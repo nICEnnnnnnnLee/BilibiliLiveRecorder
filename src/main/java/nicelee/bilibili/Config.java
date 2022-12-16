@@ -151,6 +151,12 @@ public class Config {
 			value = getValue(args[0], "maxVideoHeaderSize");
 			if (value != null)
 				TagOptions.maxVideoHeaderSize = Integer.parseInt(value);
+			value = getValue(args[0], "contentFramesToSkip");
+			if (value != null)
+				TagOptions.contentFramesToSkip = Integer.parseInt(value);
+			value = getValue(args[0], "maxPeriodBetween2Frame");
+			if (value != null)
+				TagOptions.maxPeriodBetween2Frame = Integer.parseInt(value);
 			value = getValue(args[0], "debug");
 			if ("true".equals(value))
 				Logger.debug = true;

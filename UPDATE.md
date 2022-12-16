@@ -1,4 +1,10 @@
 ## 更新  
++ V2.23.0
+    * 新增：提供工具实现合并FLV功能，目的是解决分离视频时出现`只有声音`、`分辨率不对`的问题
+    * 新增: [#91](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/91),[#102](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/102), 针对花屏，新增在校验时去掉前`contentFramesToSkip`个内容帧的功能
+    * 优化：首帧时间戳间隔由`30`s固定值改为`maxPeriodBetween2Frame` ms  
+        + 原理：在前10帧里，初始为0，后续如果某帧相比前一帧间隔过大，则选取该帧时间戳作为初始时间戳。
+        
 + V2.22.0
     * 修复[#93](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/93)、[#96](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/96), 修复一个cookie转换问题，该问题导致cookie中存在字符`|`时会出现错误
 + V2.21.0
