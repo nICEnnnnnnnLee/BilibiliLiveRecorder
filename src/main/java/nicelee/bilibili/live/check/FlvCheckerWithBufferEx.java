@@ -57,6 +57,14 @@ public class FlvCheckerWithBufferEx extends FlvCheckerWithBuffer {
 				if (value != null)
 					TagOptions.maxVideoHeaderSize = Integer.parseInt(value);
 
+				value = Config.getValue(args[0], "contentFramesToSkip");
+				if (value != null)
+					TagOptions.contentFramesToSkip = Integer.parseInt(value);
+				
+				value = Config.getValue(args[0], "maxPeriodBetween2Frame");
+				if (value != null)
+					TagOptions.maxPeriodBetween2Frame = Integer.parseInt(value);
+				
 				long t1 = System.currentTimeMillis();
 				System.out.println("校对时间戳开始...");
 				fChecker.check(flv, deleteOnchecked, splitScripts, splitAVHeaders, saveFolder);
@@ -102,7 +110,7 @@ public class FlvCheckerWithBufferEx extends FlvCheckerWithBuffer {
 		if (count < 10) {
 			// 如果时间差大于30s，当前时间可以算是初始时间戳，但由于前面可能还有几帧数据，时间戳应该非严格?递增，写入的时间戳最小只能是lastTimeStamp
 			// 本来 timestamp -> ▲0, 现在timestamp -> ▲lastTimeStamp, 即
-			if (timestamp - lastTimeStamp > 30 * 1000) {
+			if (timestamp - lastTimeStamp > TagOptions.maxPeriodBetween2Frame) {
 				firstTimeStamp = timestamp - lastTimeStamp;
 			}
 		}
