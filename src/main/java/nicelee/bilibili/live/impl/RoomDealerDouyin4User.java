@@ -20,7 +20,7 @@ public class RoomDealerDouyin4User extends RoomDealer {
 
 	final public static String liver = "douyin";
 
-	final static Pattern pJson = Pattern.compile("<script id=\"RENDER_DATA\".*>(.*?%7D)</script>");
+	final static Pattern pJson = Pattern.compile("<script id=\"RENDER_DATA\".*?>(.*?%7D)</script>");
 	final static Pattern pShortId = Pattern.compile("live.douyin.com/([0-9]+)");
 	final static Pattern pWebcastId = Pattern.compile("webcast.amemv.com/webcast/reflow/([0-9]+)");
 
@@ -84,7 +84,7 @@ public class RoomDealerDouyin4User extends RoomDealer {
 				}
 			} catch (IOException e) {
 				System.err.println("不支持这种短链接的解析!!");
-				System.exit(-1);
+				throw new RuntimeException(e);
 			}
 		}
 

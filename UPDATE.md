@@ -1,4 +1,9 @@
 ## 更新  
++ V2.24.0
+    * 修复[#105](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/105),[#102](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/105) `douyin`正则匹配修复
+    * 修复快手录制
+    * 优化：去除解析器里面的`System.exit`使用
+    
 + V2.23.0
     * 新增：提供工具实现合并FLV功能，目的是解决分离视频时出现`只有声音`、`分辨率不对`的问题
     * 新增: [#91](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/91),[#102](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/102), 针对花屏，新增在校验时去掉前`contentFramesToSkip`个内容帧的功能

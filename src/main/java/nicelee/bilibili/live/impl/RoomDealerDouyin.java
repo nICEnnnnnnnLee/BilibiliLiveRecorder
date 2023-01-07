@@ -77,7 +77,7 @@ public class RoomDealerDouyin extends RoomDealer {
 				}
 			} catch (IOException e) {
 				System.err.println("不支持这种短链接的解析!!");
-				System.exit(-1);
+				throw new RuntimeException(e);
 			}
 		}
 

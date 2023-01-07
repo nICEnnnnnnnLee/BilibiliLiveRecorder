@@ -66,14 +66,14 @@ Go go go, Bilibili Pikachu!
 
 | liver  | 最后测试时间 | 备注 | 
 | ------------- | ------------- | ------------- | 
-| douyu     | 2022/12/04 | `flv`清晰度可多选，但部分高清需要cookie | 
-| kuaishou  | 2022/12/16 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
-| douyin    | 2022/12/04 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
-| douyin2   | 2022/10/09 | 抖音的另一种解析方式，前者失败后可以尝试。`flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
+| douyu     | 2023/01/07 | `flv`清晰度可多选，但部分高清需要cookie | 
+| kuaishou  | 2023/01/07 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
+| douyin    | 2023/01/07 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
+| douyin2   | 2023/01/07 | 抖音的另一种解析方式，前者失败后可以尝试。`flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
 | yy        | 2022/10/09 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
-| huya      | 2022/12/04 | `flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
+| huya      | 2023/01/07 | `flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
 | acfun     | 2022/09/25 | `flv`清晰度可多选，可不需要cookie | 
-| bili      | 2021/11/14 | `flv`清晰度可多选，可不需要cookie | 
+| bili      | 2023/01/07 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
 
