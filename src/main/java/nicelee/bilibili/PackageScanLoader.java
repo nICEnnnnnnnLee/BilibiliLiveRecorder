@@ -136,10 +136,14 @@ public abstract class PackageScanLoader {
 				String jarName = jar.getName();
 				int dotIndex = jarName.indexOf(".class");
 				String className = jarName.substring(0, dotIndex).replace("/", ".");
-				Class<?> klass = Class.forName(className);
-				if (isValid(klass)) {
-					validClazzList.add(klass);
-				}
+				try {
+					Class<?> klass = Class.forName(className);
+					if (isValid(klass)) {
+						validClazzList.add(klass);
+					}
+				} catch (NoClassDefFoundError e) {
+				} 
+				
 			}
 
 		} catch (IOException e) {
