@@ -14,8 +14,9 @@ Go go go, Bilibili Pikachu!
 ![CI](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/workflows/CI/badge.svg)
 ![Release 下载总量](https://img.shields.io/github/downloads/nICEnnnnnnnLee/BilibiliLiveRecorder/total.svg?style=flat-square)
 
-#### 支持Bilibili/Acfun/Douyu/Huya/Kuaishou/Huajiao/Zhanqi/YY 直播录制  
-[<h4>Instruction For Developers</h4>](/DOC.md)
+#### 支持Acfun/Bilibili/Douyu/Douyin/Huya/Kuaishou/Huajiao/Zhanqi/YY 直播录制  
+
+  <h4><a href="/DOC.md">Instruction For Developers</a></h4>
 
 
 ## :smile:作者的话
@@ -71,7 +72,8 @@ Go go go, Bilibili Pikachu!
 | douyin    | 2023/01/07 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
 | douyin2   | 2023/01/07 | 抖音的另一种解析方式，前者失败后可以尝试。`flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
 | yy        | 2022/10/09 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
-| huya      | 2023/01/07 | `flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
+| huya      | 2023/02/16 | `flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
+| huya2     | 2023/02/16 | 虎牙的另一种解析方式，只接受数字id，非数字的需要打开网页寻找（热度值左边）。`flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
 | acfun     | 2022/09/25 | `flv`清晰度可多选，可不需要cookie | 
 | bili      | 2023/01/07 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
@@ -181,7 +183,7 @@ dy_did=xxx; acf_did=xxx; acf_auth=xxx; ...
 ```
 + 如何获取cookie(以斗鱼举例)：  
     + 打开浏览器，进入斗鱼直播  
-    + 登录账号  
+    + 登录账号(某些liver可以跳过)  
     + 进入一个热度较高的直播间，选择清晰度： 蓝光10M(保险操作，如果清晰度不够试一试)   
     + 按F12键  
     + 过滤网址`www.douyu.com`  
@@ -312,7 +314,7 @@ or传入参数： qnPri=蓝光4M>蓝光
 
 ## :smile:LICENSE 
 ```
-Copyright (C) 2019-2022 NiceLee. All Rights Reserved.
+Copyright (C) 2019-2023 NiceLee. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
