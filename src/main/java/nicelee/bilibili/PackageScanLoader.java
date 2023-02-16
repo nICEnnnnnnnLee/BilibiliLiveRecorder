@@ -31,7 +31,7 @@ public abstract class PackageScanLoader {
 					//System.out.println(liver);
 				} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException
 						| SecurityException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 				return false;
 			}
