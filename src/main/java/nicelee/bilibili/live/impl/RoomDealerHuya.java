@@ -1,13 +1,16 @@
 package nicelee.bilibili.live.impl;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,7 +74,18 @@ public class RoomDealerHuya extends RoomDealer {
 			matcher.find();
 			//System.out.println(matcher.group(1));
 			JSONObject obj = new JSONObject(matcher.group(1));
-			if(roomInfo.getLiveStatus() == 1) {
+			if (roomInfo.getLiveStatus() == 1) {
+				JSONObject streamDetail = obj.getJSONObject("stream").getJSONArray("data").getJSONObject(0)
+						.getJSONArray("gameStreamInfoList").getJSONObject(0);
+				String url = String.format("%s/%s.%s?%s", streamDetail.getString("sFlvUrl"),
+						streamDetail.getString("sStreamName"), streamDetail.getString("sFlvUrlSuffix"),
+						streamDetail.getString("sFlvAntiCode"));
+				boolean urlIsValid = test(url, headers.getHeaders());
+				Logger.println("当前url可用性: " + urlIsValid);
+				if (!urlIsValid)
+					roomInfo.setLiveStatus(0);
+			}
+			if (roomInfo.getLiveStatus() == 1) {
 //				String stream = obj.getString("stream");
 //				stream = new String(Base64.getDecoder().decode(stream), "UTF-8");
 //				obj = new JSONObject(stream);
@@ -162,13 +176,13 @@ public class RoomDealerHuya extends RoomDealer {
 					streamDetail.getString("sStreamName"), 
 					streamDetail.getString("sFlvUrlSuffix"), 
 					streamDetail.getString("sFlvAntiCode"));
-			if(!"".equals(qn) && !"0".equals(qn)) {
+			if(!"".equals(qn)) {
 				url = url + "&ratio=" + qn;
 			}
 			Logger.println(url);
 			url = genRealUrl(url);
 			Logger.println(url);
-			//Logger.println(obj.getJSONObject("stream").getInt("iWebDefaultBitRate"));
+			// Logger.println(obj.getJSONObject("stream").getInt("iWebDefaultBitRate"));
 			return url;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -197,7 +211,7 @@ public class RoomDealerHuya extends RoomDealer {
 			String fm = URLDecoder.decode(n.get("fm"), "UTF-8");
 			String u = new String(Base64.getDecoder().decode(fm), "UTF-8");
 			String p = u.split("_")[0];
-			String f = System.currentTimeMillis()*10000 + (long)(Math.random()*10000) + "";
+			String f = System.currentTimeMillis() * 10000 + (long) (Math.random() * 10000) + "";
 			String ll = n.get("wsTime");
 			String t = "0";
 			String h = String.format("%s_%s_%s_%s_%s", p, t, s, f, ll);
@@ -235,8 +249,49 @@ public class RoomDealerHuya extends RoomDealer {
 //			}
 //		}
 	}
-	
-	
+
+	public boolean test(String url, HashMap<String, String> headers) {
+		InputStream inn = null;
+		try {
+			URL realUrl = new URL(url);
+			HttpURLConnection conn = (HttpURLConnection) realUrl.openConnection();
+			conn.setConnectTimeout(20000);
+			conn.setReadTimeout(120000);
+			for (Map.Entry<String, String> entry : headers.entrySet()) {
+				conn.setRequestProperty(entry.getKey(), entry.getValue());
+				// System.out.println(entry.getKey() + ":" + entry.getValue());
+			}
+			conn.connect();
+			// 获取所有响应头字段
+//			Map<String, List<String>> map = conn.getHeaderFields();
+//			// 遍历所有的响应头字段
+//			for (String key : map.keySet()) {
+//				System.out.println(key + "--->" + map.get(key));
+//			}
+			inn = conn.getInputStream();
+			int rspCode = conn.getResponseCode();
+			if (rspCode >= 200 && rspCode < 300)
+				return true;
+			else
+				return false;
+		} catch (Exception e) {
+			System.out.println("发送GET请求出现异常！" + e);
+			return false;
+		}
+		// 使用finally块来关闭输入流
+		finally {
+			// System.out.println("下载Finally...");
+			try {
+				if (inn != null) {
+					inn.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+
+	}
+
 	long lastSeqNo = 0;
 	private static Pattern pSeq = Pattern.compile("[^0-9]+([0-9]+)\\.ts");
 	boolean downloadM3u8(String url, String fileName) {
