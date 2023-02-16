@@ -41,9 +41,11 @@
 							<mainClass>nicelee.bilibili.Main</mainClass>
 						</manifest>
 					</archive>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
+					<!--<descriptorRefs> <descriptorRef>jar-with-dependencies</descriptorRef> 
+						</descriptorRefs> -->
+					<descriptors>
+						<descriptor>src/assembly/assembly.xml</descriptor>
+					</descriptors>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -62,6 +64,13 @@
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20190722</version>
+		</dependency>
+		<dependency>
+			<groupId>com.tencent.yunxiaowei.base</groupId>
+			<artifactId>wup</artifactId>
+			<version>1.0.0-1</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/wup-1.0.0-SNAPSHOT.jar</systemPath>
 		</dependency>
 	</dependencies>
 
