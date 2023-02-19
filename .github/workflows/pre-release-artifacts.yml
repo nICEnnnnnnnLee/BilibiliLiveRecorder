@@ -1,0 +1,73 @@
+# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java#apache-maven-with-a-settings-path
+
+name: Build Pre Release
+
+on:
+  workflow_dispatch:
+    inputs: {}
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+   
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '8' 
+    
+    - name: Read tag_latest
+      id: tag_latest
+      uses:  ashley-taylor/read-json-property-action@v1.0
+      with:
+        path: ./.github/release.json
+        property: tag_latest
+        
+ 
+    - name: MVN Package
+      run: |
+        mvn -B package assembly:single --file pom.xml -Dmaven.test.skip=true
+
+    - name: ZIP files
+      run: |
+        mv -f ./target/live-record-${{steps.tag_main.outputs.value}}-jar-with-dependencies.jar BiliLiveRecorder.jar
+        rm -rf ./plugin
+        rm -rf ./LICENSE
+        mkdir ./plugin/
+        mkdir ./LICENSE/
+        mv -f ./release/run-zhanqi.bat .
+        mv -f ./release/run-yy.bat .
+        mv -f ./release/run-kuaishou.bat .
+        mv -f ./release/run-huya.bat .
+        mv -f ./release/run-douyu.bat .
+        mv -f ./release/run-douyin.bat .
+        mv -f ./release/run-bili.bat .
+        mv -f ./release/run-acfun.bat .
+        mv -f ./release/checkFlv.splitScripts.bat .
+        mv -f ./release/checkFlv.bat .
+        mv -f ./release/plugin/* ./plugin/
+        mv -f ./release/LICENSE/* ./LICENSE/        
+        
+        zip BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip BiliLiveRecorder.jar
+        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-zhanqi.bat
+        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-yy.bat
+        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-kuaishou.bat
+        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-huya.bat
+        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-douyu.bat
+        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-douyin.bat
+        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-bili.bat
+        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-acfun.bat
+        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./checkFlv.bat
+        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./checkFlv.splitScripts.bat
+        zip -rm BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./plugin/
+        zip -rm BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./LICENSE/
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.pre-release
+        path: ./BilibiliLiveRecord v${{steps.tag_latest.outputs.value}}.zip
