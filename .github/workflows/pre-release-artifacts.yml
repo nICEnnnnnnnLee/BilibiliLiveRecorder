@@ -20,9 +20,16 @@ jobs:
         distribution: 'temurin'
         java-version: '8' 
     
+    - name: Read tag_main
+      id: tag_main
+      uses:  ashley-taylor/read-json-property-action@v1.1
+      with:
+        path: ./.github/release.json
+        property: tag_main
+        
     - name: Read tag_latest
       id: tag_latest
-      uses:  ashley-taylor/read-json-property-action@v1.0
+      uses:  ashley-taylor/read-json-property-action@v1.1
       with:
         path: ./.github/release.json
         property: tag_latest
