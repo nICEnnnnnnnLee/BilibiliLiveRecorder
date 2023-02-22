@@ -26,7 +26,10 @@ Go go go, Bilibili Pikachu!
 ## :smile:使用方法
 + 程序调用时传入参数即可(顺序可变)  
     `java -Dfile.encoding=utf-8 -jar BiliLiveRecorder.jar "debug=false&check=false&delete=false&liver=douyu&id=233233&qn=0&retry=5"`  
-+ 各参数意义  
+
+<details>
+<summary>各参数意义 </summary>
+
 
 | Key  | 必选 | 释义 | 
 | ------------- | ------------- | ------------- |  
@@ -62,22 +65,26 @@ Go go go, Bilibili Pikachu!
 | retryAfterMinutes  | 否 | 当目标不在直播时，每次获取直播间信息的时间间隔，单位分钟。默认`5.0` | 
 | failRetryAfterMinutes  | 否 | 当连接出现异常时，下次尝试录制的时间间隔，单位分钟。默认`1.0` | 
 | plugin  | 否 | 插件功能，允许用户自定义某些操作。默认false |  
+</details>
 
-+ 各直播源解析情况  
+<details>
+<summary>各直播源解析情况 </summary>  
+
 
 | liver  | 最后测试时间 | 备注 | 
 | ------------- | ------------- | ------------- | 
-| douyu     | 2023/01/07 | `flv`清晰度可多选，但部分高清需要cookie | 
-| kuaishou  | 2023/01/07 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
-| douyin    | 2023/01/07 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
-| douyin2   | 2023/01/07 | 抖音的另一种解析方式，前者失败后可以尝试。`flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
+| douyu     | 2023/02/22 | `flv`清晰度可多选，但部分高清需要cookie | 
+| kuaishou  | 2023/02/22 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
+| douyin    | 2023/02/22 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
+| douyin2   | 2023/02/22 | 抖音的另一种解析方式，前者失败后可以尝试。`flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
 | yy        | 2022/10/09 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
-| huya      | 2023/02/16 | `flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
-| huya2     | 2023/02/16 | 虎牙的另一种解析方式，只接受数字id，非数字的需要打开网页寻找（热度值左边）。`flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
-| acfun     | 2022/09/25 | `flv`清晰度可多选，可不需要cookie | 
-| bili      | 2023/01/07 | `flv`清晰度可多选，可不需要cookie | 
+| huya      | 2023/02/22 | `flv`清晰度可多选，可不需要cookie。开播后要过一阵才能检测到。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
+| huya2     | 2023/02/22 | 虎牙的另一种解析方式，只接受数字id，非数字的需要打开网页寻找（热度值左边）。`flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
+| acfun     | 2023/02/22 | `flv`清晰度可多选，可不需要cookie | 
+| bili      | 2023/02/22 | `flv`清晰度可多选，可不需要cookie | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
+</details>
 
 <details>
 <summary>关于json配置</summary>
@@ -310,6 +317,7 @@ or传入参数： qnPri=蓝光4M>蓝光
 ## :smile:第三方库使用声明  
 + 使用[JSON.org](https://github.com/stleary/JSON-java)库做简单的Json解析[![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/stleary/JSON-java/blob/master/LICENSE)
 + 使用[Crypto-js](https://github.com/brix/crypto-js)仿浏览器生成斗鱼直播录制token[![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/brix/crypto-js/blob/develop/LICENSE) 
++ 参考[HuyaSender](https://github.com/xyxyxiaoyan/HuyaSender)解析虎牙[TarsTup](https://github.com/TarsCloud/TarsTup)协议[![](https://img.shields.io/badge/license-Tencent%20Binary%20License-green.svg)](https://tencentdingdang.github.io/dmsdk/licenses/android-wup-sdk/LICENSE.txt) 
 + 虎牙对得到的直播流地址做进一步参数处理参考了[wbt5/real-url](https://github.com/wbt5/real-url/blob/df183eee17022d558cfc2aec221dfe632e360b13/huya.py#L11-L28)  
 
 ## :smile:LICENSE 
