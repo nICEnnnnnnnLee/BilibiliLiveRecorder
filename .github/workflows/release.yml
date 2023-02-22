@@ -4,6 +4,8 @@
 name: CI
 
 on:
+  workflow_dispatch:
+    inputs: {}
   push:
     branches:
       - master
@@ -67,19 +69,19 @@ jobs:
         mv -f ./release/plugin/* ./plugin/
         mv -f ./release/LICENSE/* ./LICENSE/        
         
-        zip BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip BiliLiveRecorder.jar
-        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-zhanqi.bat
-        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-yy.bat
-        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-kuaishou.bat
-        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-huya.bat
-        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-douyu.bat
-        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-douyin.bat
-        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-bili.bat
-        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./run-acfun.bat
-        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./checkFlv.bat
-        zip -m BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./checkFlv.splitScripts.bat
-        zip -rm BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./plugin/
-        zip -rm BilibiliLiveRecord\ v${{steps.tag_latest.outputs.value}}.zip ./LICENSE/
+        zip BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip BiliLiveRecorder.jar
+        zip -m BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip ./run-zhanqi.bat
+        zip -m BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip ./run-yy.bat
+        zip -m BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip ./run-kuaishou.bat
+        zip -m BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip ./run-huya.bat
+        zip -m BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip ./run-douyu.bat
+        zip -m BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip ./run-douyin.bat
+        zip -m BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip ./run-bili.bat
+        zip -m BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip ./run-acfun.bat
+        zip -m BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip ./checkFlv.bat
+        zip -m BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip ./checkFlv.splitScripts.bat
+        zip -rm BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip ./plugin/
+        zip -rm BilibiliLiveRecord.v${{steps.tag_latest.outputs.value}}.zip ./LICENSE/
     
     - name: Create Release
       uses: softprops/action-gh-release@v1
