@@ -14,7 +14,7 @@ import nicelee.bilibili.threads.ThRecord;
 
 public class Main {
 
-	final static String version = "v2.24.0";
+	final static String version = "v2.25.0";
 	public static Thread thRecord;
 	public static Thread thMonitor;
 	public static Thread thCommand;
@@ -27,18 +27,18 @@ public class Main {
 	 */
 	public static void main(String[] args) throws IOException {
 //		 args = new String[]{"debug=true&liver=bili&id=3291024&delete=false&check=true"};  			// 清晰度全部可选，可不需要cookie
-//		args = new String[] {
-//				"plugin=true&debug=false&check=true&retryAfterMinutes=0.5&retryIfLiveOff=true&liver=douyu&qnPri=蓝光4M>高清>蓝光8M>超清>蓝光>流畅&qn=-1&id=262537&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&" }; // 清晰度全部可选，但部分高清需要cookie
-//		args = new String[] { "debug=true&check=true&liver=kuaishou&id=3xh62hmw79fmc32&qn=0&delete=false&fileName=测试{liver}-{name}-{startTime}-{endTime}-{seq}&timeFormat=yyyyMMddHHmm" }; // 清晰度全部可选，可不需要cookie
-//		args = new String[]{"debug=true&check=true&liver=huya&id=11342412"}; 				// 清晰度全部可选，可不需要cookie 
+//		args = new String[] {"debug=true&check=false&liver=douyu&id=312212&" }; // 清晰度全部可选，但部分高清需要cookie
+//		args = new String[] { "debug=true&check=false&liver=kuaishou&id=a74874888&" }; // 清晰度全部可选，可不需要cookie
+//		args = new String[]{"debug=true&check=false&liver=huya&id=189201"}; 				// 清晰度全部可选，可不需要cookie 
+//		args = new String[]{"debug=true&check=false&liver=huya2&id=189201"}; 				// 清晰度全部可选，可不需要cookie 
 //		args = new String[]{"debug=true&check=false&liver=yy&id=1355306560"}; 		// 清晰度全部可选，可不需要cookie
 //		args = new String[]{"debug=true&check=true&liver=yy&id=28581146"}; 		// 清晰度全部可选，可不需要cookie
 //		args = new String[]{"debug=true&check=true&liver=yy&id=29216766"}; 		// 清晰度全部可选，可不需要cookie
 //		args = new String[] { "debug=true&check=true&liver=zhanqi&id=90god" }; 			// 清晰度全部可选，可不需要cookie 90god huashan ydjs
 //		args = new String[] { "debug=true&check=true&liver=huajiao&id=278581432&qn=1" }; // 只支持默认清晰度(似乎只有一种清晰度)
-//		args = new String[] { "debug=true&check=true&liver=acfun&id=378269" };
+//		args = new String[] { "debug=true&check=true&liver=acfun&id=36626547" };
 //		args = new String[]{"debug=true&liver=douyin&id=https://v.douyin.com/dFfDBcU&delete=false&check=false"};  			// 清晰度全部可选，需要跳过验证的cookie 
-//		args = new String[]{"debug=true&liver=douyin&id=448984890564&delete=false&check=false"};  			// 清晰度全部可选，需要跳过验证的cookie
+//		args = new String[]{"debug=true&liver=douyin2&id=922606105747&delete=false&check=false"};  			// 清晰度全部可选，需要跳过验证的cookie
 //		args = new String[]{"debug=true&liver=douyin&id=https://v.douyin.com/EQBYoH&delete=false&check=false"};  			// 清晰度全部可选，需要跳过验证的cookie
 //		args = new String[]{"debug=true&liver=douyin2&id=814607739589&delete=false&check=false"};  			// 清晰度全部可选，需要跳过验证的cookie
 
