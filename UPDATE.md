@@ -1,4 +1,8 @@
 ## 更新  
++ V2.26.0
+    * 修复：快手直播`liver=kuaishou`
+    * 新增: 淘宝`taobao`解析，并支持输入回放链接提取m3u8下载链接
+    
 + V2.25.0
     * 修复： 抖音直播`liver=douyin2`
     * 修复[#113](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/113)： 虎牙从网页里面抠的内容有延迟，主播下播后可能误认为仍在直播。为此，获取直播链接后增加有效性检查。  

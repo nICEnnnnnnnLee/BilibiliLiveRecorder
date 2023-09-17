@@ -14,7 +14,7 @@ Go go go, Bilibili Pikachu!
 ![CI](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/workflows/CI/badge.svg)
 ![Release 下载总量](https://img.shields.io/github/downloads/nICEnnnnnnnLee/BilibiliLiveRecorder/total.svg?style=flat-square)
 
-#### 支持Acfun/Bilibili/Douyu/Douyin/Huya/Kuaishou/Huajiao/Zhanqi/YY 直播录制  
+#### 支持Acfun/Bilibili/Douyu/Douyin/Huya/Kuaishou/Taobao/Huajiao/Zhanqi/YY 直播录制  
 
   <h4><a href="/DOC.md">Instruction For Developers</a></h4>
 
@@ -73,15 +73,16 @@ Go go go, Bilibili Pikachu!
 
 | liver  | 最后测试时间 | 备注 | 
 | ------------- | ------------- | ------------- | 
-| douyu     | 2023/02/22 | `flv`清晰度可多选，但部分高清需要cookie | 
-| kuaishou  | 2023/02/22 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
-| douyin    | 2023/02/22 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
-| douyin2   | 2023/02/22 | 抖音的另一种解析方式，前者失败后可以尝试。`flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
-| yy        | 2022/10/09 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
+| bili      | 2023/09/17 | `flv`清晰度可多选，可不需要cookie | 
+| douyu     | 2023/09/17 | `flv`清晰度可多选，但部分高清需要cookie | 
+| taobao    | 2023/09/17 | `flv`清晰度可多选，必须要cookie(先试一试不登录)。id建议首次使用类似`https://m.tb.cn/xxxx`的直播或者回访的分享链接，这时会输出回放m3u8链接和可用id，之后建议一直使用该id。当然，建议是使用相关m3u8下载器下载回放，而不是直接录制。  | 
+| kuaishou  | 2023/09/17 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
+| douyin    | 2023/09/17 | 暂时失效。`flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
+| douyin2   | 2023/09/17 | 抖音的另一种解析方式，前者失败后可以尝试。`flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
 | huya      | 2023/02/22 | `flv`清晰度可多选，可不需要cookie。开播后要过一阵才能检测到。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
 | huya2     | 2023/02/22 | 虎牙的另一种解析方式，只接受数字id，非数字的需要打开网页寻找（热度值左边）。`flv`清晰度可多选，可不需要cookie。部分视频时间戳校正后声音会变形，ffmpeg处理后正常 | 
 | acfun     | 2023/02/22 | `flv`清晰度可多选，可不需要cookie | 
-| bili      | 2023/02/22 | `flv`清晰度可多选，可不需要cookie | 
+| yy        | 2022/10/09 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
 | zhanqi    | 2019/06/30 | `flv`清晰度可多选，可不需要cookie | 
 | huajiao   | 2019/06/02 | `flv`只支持默认清晰度(似乎只有一种清晰度) | 
 </details>
