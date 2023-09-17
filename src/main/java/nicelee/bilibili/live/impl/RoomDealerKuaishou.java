@@ -132,6 +132,10 @@ public class RoomDealerKuaishou extends RoomDealer {
 		String json_str = URLDecoder.decode(matcher.group(1), "UTF-8");
 		Logger.println(json_str);
 		JSONObject raw = new JSONObject(json_str).getJSONObject("liveroom");
+		JSONArray plist = raw.optJSONArray("playList");
+		if(plist != null && plist.length() > 0) {
+			raw = plist.getJSONObject(0);
+		}
 		return raw;
 	}
 
