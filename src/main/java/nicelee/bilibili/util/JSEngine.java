@@ -3,10 +3,12 @@ package nicelee.bilibili.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
+import javax.script.ScriptEngineFactory;
 
 public class JSEngine {
 
@@ -42,8 +44,21 @@ public class JSEngine {
 //		}
         try {
         	//1.得到脚本引擎
-        	ScriptEngineManager m = new ScriptEngineManager();
-        	ScriptEngine engine = m.getEngineByName("JavaScript");
+        	// 引入nashorn-core后，在JDK11 以下 new ScriptEngineManager()会报错，所以换了兼容的写法
+        	ScriptEngine engine = null;
+        	ClassLoader ctxtLoader = Thread.currentThread().getContextClassLoader();
+        	ServiceLoader<ScriptEngineFactory> sl = ServiceLoader.load(ScriptEngineFactory.class, ctxtLoader);
+    		Iterator<ScriptEngineFactory> itr = sl.iterator();
+    		while (itr.hasNext()) {
+                try {
+                    ScriptEngineFactory fact = itr.next();
+                    engine = fact.getScriptEngine();
+                    break;
+                } catch (UnsupportedClassVersionError| Exception err) {
+                    // one factory failed, check other factories...
+                    continue;
+                }
+            }
             //2.引擎读取 脚本字符串
         	engine.eval(scripts);
             engine.eval(initCryptoJS());
