@@ -93,19 +93,27 @@ public class RoomDealerDouyin4User extends RoomDealer {
 		try {
 			String roomId = shortId;
 
-			String html = util.getContent("https://live.douyin.com/" + roomId, getPCHeader(), HttpCookies.convertCookies(cookie));
-//			Logger.println(html);
-			Matcher matcher = pJson.matcher(html);
-			matcher.find();
-			String json_str = URLDecoder.decode(matcher.group(1), "UTF-8");
+			String jsonData = util.getContent("https://live.douyin.com/webcast/room/web/enter/?aid=6383&live_id=1&device_platform=web&language=zh-CN&enter_from=web_live&cookie_enabled=true&screen_width=1920&screen_height=1080&browser_language=zh-CN&browser_platform=Win32&browser_name=Chrome&browser_version=109.0.0.0&web_rid=" + roomId + "&enter_source=&Room-Enter-User-Login-Ab=1&is_need_double_stream=false", getPCHeader(), HttpCookies.convertCookies(cookie));
+			if (jsonData == null || jsonData.trim().isEmpty() || jsonData.contains("系统繁忙，请稍后再试")) {
+				Logger.println("cookie失效: " + jsonData);
+				throw new IllegalArgumentException("cookie失效");
+			}
+			String json_str = URLDecoder.decode(jsonData, "UTF-8");
 			Logger.println(json_str);
 			JSONObject json = new JSONObject(json_str);
 			//有时结构会发生变化
-			boolean app = json.has("app");
-			JSONObject info = app?json.getJSONObject("app").getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo"):json.getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo");
-
-			JSONObject anchor = info.getJSONObject("anchor");
-			JSONObject room = info.getJSONObject("room");
+			boolean existsData = json.has("data") &&
+					json.getJSONObject("data").has("data");
+			if (!existsData) {
+				Logger.println("json格式异常: " + json);
+				throw new IllegalArgumentException("json格式异常");
+			}
+			JSONObject info = json.getJSONObject("data")
+					.getJSONArray("data")
+					.getJSONObject(0);
+			JSONObject anchor = json.getJSONObject("data")
+					.getJSONObject("user");
+			JSONObject room = info;
 			JSONObject stream_url = room.optJSONObject("stream_url");
 
 			roomInfo.setUserName(anchor.getString("nickname"));
@@ -120,6 +128,8 @@ public class RoomDealerDouyin4User extends RoomDealer {
 					String webcastId = room.getString("id_str");
 					roomInfo.setRemark(webcastId);
 					roomInfo.setLiveStatus(1);
+					String html;
+					Matcher matcher;
 					html = util.getContent("https://webcast.amemv.com/webcast/reflow/" + webcastId, getMobileHeader());
 
 					matcher = pJsonMobile.matcher(html);
@@ -180,15 +190,25 @@ public class RoomDealerDouyin4User extends RoomDealer {
 				stream_url = room.optJSONObject("stream_url");
 			}else {
 				Logger.println("请求PC Web端播放的链接");
-				String html = util.getContent("https://live.douyin.com/" + roomId, getPCHeader(), HttpCookies.convertCookies(cookie));
-	
-				Matcher matcher = pJson.matcher(html);
-				matcher.find();
-				String json_str = URLDecoder.decode(matcher.group(1), "UTF-8");
+				String jsonData = util.getContent("https://live.douyin.com/webcast/room/web/enter/?aid=6383&live_id=1&device_platform=web&language=zh-CN&enter_from=web_live&cookie_enabled=true&screen_width=1920&screen_height=1080&browser_language=zh-CN&browser_platform=Win32&browser_name=Chrome&browser_version=109.0.0.0&web_rid=" + roomId + "&enter_source=&Room-Enter-User-Login-Ab=1&is_need_double_stream=false", getPCHeader(), HttpCookies.convertCookies(cookie));
+				if (jsonData == null || jsonData.trim().isEmpty() || jsonData.contains("系统繁忙，请稍后再试")) {
+					Logger.println("cookie失效: " + jsonData);
+					throw new IllegalArgumentException("cookie失效");
+				}
+				String json_str = URLDecoder.decode(jsonData, "UTF-8");
+				Logger.println(json_str);
 				JSONObject json = new JSONObject(json_str);
-				boolean app = json.has("app");
-				JSONObject info = app?json.getJSONObject("app").getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo"):json.getJSONObject("initialState").getJSONObject("roomStore").getJSONObject("roomInfo");
-				stream_url = info.getJSONObject("room").optJSONObject("stream_url");
+				//有时结构会发生变化
+				boolean existsData = json.has("data") &&
+						json.getJSONObject("data").has("data");
+				if (!existsData) {
+					Logger.println("json格式异常: " + json);
+					throw new IllegalArgumentException("json格式异常");
+				}
+				JSONObject info = json.getJSONObject("data")
+						.getJSONArray("data")
+						.getJSONObject(0);
+				stream_url = info.optJSONObject("stream_url");
 			}
 
 			JSONArray flv_sources = stream_url.getJSONObject("live_core_sdk_data").getJSONObject("pull_data")
