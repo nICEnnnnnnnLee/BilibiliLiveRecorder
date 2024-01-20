@@ -1,9 +1,14 @@
 package nicelee.bilibili.live.impl;
 
 import java.io.IOException;
+import java.net.CookieStore;
+import java.net.HttpCookie;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +18,7 @@ import org.json.JSONObject;
 import nicelee.bilibili.live.RoomDealer;
 import nicelee.bilibili.live.domain.RoomInfo;
 import nicelee.bilibili.util.HttpCookies;
+import nicelee.bilibili.util.HttpRequestUtil;
 import nicelee.bilibili.util.Logger;
 
 public class RoomDealerDouyin extends RoomDealer {
@@ -64,8 +70,8 @@ public class RoomDealerDouyin extends RoomDealer {
 						Matcher matcher = pWebcastId.matcher(location);
 						matcher.find();
 						String webcastId = matcher.group(1);
-						shortId = getLiveDataByWebcastId(webcastId).getJSONObject("data").getJSONObject("room").getJSONObject("owner")
-								.getString("web_rid");
+						shortId = getLiveDataByWebcastId(webcastId).getJSONObject("data").getJSONObject("room")
+								.getJSONObject("owner").getString("web_rid");
 					}
 
 				}
@@ -119,10 +125,35 @@ public class RoomDealerDouyin extends RoomDealer {
 			roomInfo.print();
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.err.println("抖音需要cookie, 请确认cookie是否存在或失效");
+			System.err.println("抖音需要cookie, 请确认cookie是否存在或失效, 或尝试以下cookie");
+			tryGetCookie(shortId);
 			return null;
 		}
 		return roomInfo;
+	}
+
+	private String tryGetCookie(String shortId) {
+		try {
+			util.getContent("https://live.douyin.com/" + shortId, getPCHeader(), null);
+			util.getContent("https://live.douyin.com/" + shortId, getPCHeader(), null);
+			CookieStore cookieStore = HttpRequestUtil.DefaultCookieManager().getCookieStore();
+			URI taobaoUri;
+			taobaoUri = new URI("https://douyin.com");
+			List<HttpCookie> cookies = cookieStore.get(taobaoUri);
+			StringBuilder sb = new StringBuilder();
+			for (HttpCookie c : cookies) {
+				sb.append(c.getName()).append("=").append(c.getValue()).append("; ");
+			}
+			int len = sb.length();
+			if(len > 2)
+				sb.setLength(len - 2);
+			String c = sb.toString();
+			Logger.println(c);
+			return c;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override
