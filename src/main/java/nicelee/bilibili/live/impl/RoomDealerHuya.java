@@ -1,16 +1,13 @@
 package nicelee.bilibili.live.impl;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,8 +16,8 @@ import org.json.JSONObject;
 
 import nicelee.bilibili.live.RoomDealer;
 import nicelee.bilibili.live.domain.RoomInfo;
+import nicelee.bilibili.util.JSEngine;
 import nicelee.bilibili.util.Logger;
-import nicelee.bilibili.util.M3u8Downloader;
 
 public class RoomDealerHuya extends RoomDealer {
 
@@ -31,7 +28,6 @@ public class RoomDealerHuya extends RoomDealer {
 //		return ".ts";
 		return ".flv";
 	}
-	
 
 	/**
 	 * https://www.huya.com/{shortId} 根据url的shortId获取房间信息(从网页里面爬)
@@ -41,7 +37,6 @@ public class RoomDealerHuya extends RoomDealer {
 	 */
 	@Override
 	public RoomInfo getRoomInfo(String shortId) {
-		System.out.println("部分清晰度不支持选择");
 		RoomInfo roomInfo = new RoomInfo();
 		roomInfo.setShortId(shortId);
 		try {
@@ -68,18 +63,16 @@ public class RoomDealerHuya extends RoomDealer {
 
 			// 房间主id
 			roomInfo.setUserId(room.optLong("profileRoom"));
-			
+
 			pJson = Pattern.compile("var hyPlayerConfig = (.*?});");
 			matcher = pJson.matcher(html);
 			matcher.find();
-			//System.out.println(matcher.group(1));
+			// System.out.println(matcher.group(1));
 			JSONObject obj = new JSONObject(matcher.group(1));
 			if (roomInfo.getLiveStatus() == 1) {
 				JSONObject streamDetail = obj.getJSONObject("stream").getJSONArray("data").getJSONObject(0)
 						.getJSONArray("gameStreamInfoList").getJSONObject(0);
-				String url = String.format("%s/%s.%s?%s", streamDetail.getString("sFlvUrl"),
-						streamDetail.getString("sStreamName"), streamDetail.getString("sFlvUrlSuffix"),
-						streamDetail.getString("sFlvAntiCode"));
+				String url = getFlvUrlFromStreamDetail(streamDetail, "");
 				boolean urlIsValid = test(url, headers.getHeaders());
 				Logger.println("当前url可用性: " + urlIsValid);
 				if (!urlIsValid)
@@ -100,14 +93,14 @@ public class RoomDealerHuya extends RoomDealer {
 				String[] qnDesc = new String[jArray.length()];
 				for (int i = 0; i < jArray.length(); i++) {
 					JSONObject objTemp = jArray.getJSONObject(i);
-					//qn[i] = "" + i;
-					qn[i] ="" +  objTemp.getInt("iBitRate");
+					// qn[i] = "" + i;
+					qn[i] = "" + objTemp.getInt("iBitRate");
 					qnDesc[i] = objTemp.getString("sDisplayName");
 				}
-				
+
 //				JSONArray jArray = obj.getJSONObject("stream").getJSONArray("data").getJSONObject(0)
 //						.getJSONArray("gameStreamInfoList");
-				
+
 //				String[] qn = new String[jArray.length()];
 //				String[] qnDesc = new String[jArray.length()];
 //				Pattern pQuality = Pattern.compile("&exsphd=([^&]+)");
@@ -153,9 +146,6 @@ public class RoomDealerHuya extends RoomDealer {
 			Matcher matcher = pJson.matcher(html);
 			matcher.find();
 			JSONObject obj = new JSONObject(matcher.group(1)).getJSONObject("stream");
-//			String stream = obj.getString("stream");
-//			stream = new String(Base64.getDecoder().decode(stream), "UTF-8");
-//			obj = new JSONObject(stream);
 			JSONObject streamDetail = null;
 			JSONArray cdns = obj.getJSONArray("data").getJSONObject(0)
 					.getJSONArray("gameStreamInfoList");
@@ -170,17 +160,7 @@ public class RoomDealerHuya extends RoomDealer {
 			if(streamDetail == null) {
 				streamDetail = cdns.getJSONObject(cdns.length() -1);
 			}
-//			String url = String.format("%s/%s.m3u8?%s", streamDetail.getString("sHlsUrl"),
-//					streamDetail.getString("sStreamName"), streamDetail.getString("sHlsAntiCode"));
-			String url = String.format("%s/%s.%s?%s", streamDetail.getString("sFlvUrl"),
-					streamDetail.getString("sStreamName"), 
-					streamDetail.getString("sFlvUrlSuffix"), 
-					streamDetail.getString("sFlvAntiCode"));
-			if(!"".equals(qn)) {
-				url = url + "&ratio=" + qn;
-			}
-			Logger.println(url);
-			url = genRealUrl(url);
+			String url = getFlvUrlFromStreamDetail(streamDetail, qn);
 			Logger.println(url);
 			// Logger.println(obj.getJSONObject("stream").getInt("iWebDefaultBitRate"));
 			return url;
@@ -191,65 +171,91 @@ public class RoomDealerHuya extends RoomDealer {
 
 	}
 
+	String getFlvUrlFromStreamDetail(JSONObject streamDetail, String qn) {
+		String sStreamName = streamDetail.getString("sStreamName");
+		String antiCode = genFlvAntiCode(sStreamName, streamDetail.getString("sFlvAntiCode"), qn);
+		Logger.println(antiCode);
+		String url = String.format("%s/%s.%s?%s", streamDetail.getString("sFlvUrl"),
+				sStreamName, streamDetail.getString("sFlvUrlSuffix"), antiCode);
+		return url;
+	}
+	
 	/**
-	 * https://github.com/wbt5/real-url/issues/39
-	 * https://github.com/wbt5/real-url/blob/df183eee17022d558cfc2aec221dfe632e360b13/huya.py#L11-L28
+	 * key: it,
+        value: function (e) {
+          if ('' === this["_fm"]) return this["_sFlvAnticode"];
+          var t = "web",
+          i = 100;
+          this["_seqid"] = Number(C.a.uid) + Date.now();
+          var s = Oe(''.concat(this["_seqid"], '|').concat(this["_ctype"], '|').concat(i)),
+          a = t === N.a.PLATFORM_TYPE_NAME.wap ? C.a.uid : C.a.convertUid,
+          r = this["_fm"].replace("$0", a).replace("$1", this["_sStreamName"]).replace("$2", s).replace("$3", this["_wsTime"]);
+          e && (r += Je);
+          var n = ''.concat("wsSecret").concat("=").concat(Oe(r)).concat("&").concat("wsTime").concat("=").concat(this["_wsTime"]).concat("&")
+                .concat("seqid").concat("=").concat(this["_seqid"]).concat("&").concat("ctype").concat("=").concat(this["_ctype"]).concat("&").concat("ver=1");
+          return this["_params"].length > 0 && (n += "&" + this["_params"].join("&")),
+          n
+        }
+	 *
 	 */
-	String genRealUrl(String url) {
+	String genFlvAntiCode(String sStreamName, String sFlvAntiCode, String qn) {
 		try {
-			String[] parts =  url.split("\\?");
-			String[] r = parts[0].split("/");
-			String s = r[r.length -1].replace(".flv", "");
-			String[] c = parts[1].split("&", 4);
+			// 根据sFlvAntiCode生成key value表
+			String[] c = sFlvAntiCode.split("&");
 			HashMap<String, String> n = new HashMap<>();
-			for(String str: c) {
+			for (String str : c) {
 				String temp[] = str.split("=");
-				if(temp.length > 1 && !temp[1].isEmpty()) {
+				if (temp.length > 1 && !temp[1].isEmpty()) {
 					n.put(temp[0], temp[1]);
 				}
 			}
-			String fm = URLDecoder.decode(n.get("fm"), "UTF-8");
-			String u = new String(Base64.getDecoder().decode(fm), "UTF-8");
-			String p = u.split("_")[0];
-			String f = System.currentTimeMillis() * 10000 + (long) (Math.random() * 10000) + "";
-			String ll = n.get("wsTime");
-			String t = "0";
-			String h = String.format("%s_%s_%s_%s_%s", p, t, s, f, ll);
-			byte[] secretBytes = MessageDigest.getInstance("md5").digest(h.getBytes());
-	        String md5code = new BigInteger(1, secretBytes).toString(16);
-	        for (int i = 0; i < 32 - md5code.length(); i++) {
-	            md5code = "0" + md5code;
-	        }
-	        String y = c[c.length -1];
-	        
-	        String realUrl = String.format("%s?wsSecret=%s&wsTime=%s&u=%s&seqid=%s&%s", parts[0], md5code, ll, t, f, y);
-	        return realUrl;
-		}catch (Exception e) {
+			// 随机生成uid
+			long uid = 1462220000000L + new Random().nextInt(1145142333);
+			long currentTime = System.currentTimeMillis();
+			String wsTime = Long.toHexString(currentTime/1000);
+			long seqid = uid + currentTime + 216000000L; // 216000000 = 30*1000*60*60 = 30h
+			// 生成 wsSecret, 先获取参数fm, 再逐一替换
+			String fm = n.get("fm");
+			fm = URLDecoder.decode(fm, "utf-8");
+			fm = new String(Base64.getDecoder().decode(fm), "utf-8"); // DWq8BcJ3h6DJt6TY_$0_$1_$2_$3
+			String ctype = n.getOrDefault("ctype", "huya_live"); // huya_live huya_webh5
+			String oe = JSEngine.huyaTrans(String.join("|", "" + seqid, ctype, "100"));
+			String r = fm.replace("$0", "" + uid).replace("$1", sStreamName)
+					.replace("$2", oe).replace("$3", wsTime);
+			String wsSecret = JSEngine.huyaTrans(r);
+			StringBuilder sb = new StringBuilder();
+			sb.append("wsSecret=").append(wsSecret).append("&wsTime=").append(wsTime)
+				.append("&seqid=").append(seqid)
+				.append("&ctype=").append(ctype)
+				.append("&ver=1&fs=").append(n.getOrDefault("fs", ""))
+				.append("&sphdcdn=").append(n.getOrDefault("sphdcdn", ""))
+				.append("&sphdDC=").append(n.getOrDefault("sphdDC", ""))
+				.append("&sphd=").append(n.getOrDefault("sphd", ""))
+				.append("&exsphd=").append(n.getOrDefault("exsphd", ""))
+				// .append("&ratio=").append(qn)
+				.append("&dMod=mseh-32&sdkPcdn=1_1&u=").append(uid)
+				.append("&t=100&sv=2401190627&sdk_sid=").append(currentTime);
+			if (!"".equals(qn) && !"0".equals(qn)) {
+				sb.append("&ratio=").append(qn);
+			}
+			return sb.toString();
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-	
+
 	@Override
 	public void startRecord(String url, String fileName, String shortId) {
-		
-		// flv
-		util.download(url, fileName + ".flv", headers.getHeaders());
-		
-		// m3u8
-//		// 创建文件夹，用于存放片段
-//		util.setSavePath("download/tmp_huya/");
-//		// 
-//		// 从m3u8获取实际地址(只有3个ts，所以最好自己再构造，而不必重复再获取)
-//		Logger.println(" --------- startRecord------------");
-//		while(true) {
-//			if(!this.downloadM3u8(url, fileName)) {
-//				Logger.println(" --------- stopRecord------------");
-//				break;
-//			}
-//		}
-	}
 
+		HashMap<String, String> mobile = new HashMap<>();
+		mobile.put("User-Agent", "Mozilla/5.0 (Android 9.0; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0");
+		mobile.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+		mobile.put("Accept-Language", "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2");
+		// flv
+		util.download(url, fileName + ".flv", mobile);
+	}
+	
 	public boolean test(String url, HashMap<String, String> headers) {
 		InputStream inn = null;
 		try {
@@ -278,9 +284,7 @@ public class RoomDealerHuya extends RoomDealer {
 			System.out.println("发送GET请求出现异常！" + e);
 			return false;
 		}
-		// 使用finally块来关闭输入流
 		finally {
-			// System.out.println("下载Finally...");
 			try {
 				if (inn != null) {
 					inn.close();
@@ -289,55 +293,5 @@ public class RoomDealerHuya extends RoomDealer {
 				e2.printStackTrace();
 			}
 		}
-
-	}
-
-	long lastSeqNo = 0;
-	private static Pattern pSeq = Pattern.compile("[^0-9]+([0-9]+)\\.ts");
-	boolean downloadM3u8(String url, String fileName) {
-		String realUrl = null;
-		BufferedReader buReader = null;
-		Logger.println(url);
-		try {
-			buReader = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
-			while ((realUrl = buReader.readLine()) != null) {
-				realUrl = realUrl.trim();
-				if (!realUrl.startsWith("#") && !realUrl.isEmpty()) {
-					// 检测当前m3u8 序号是否符合要求, 不符合，继续下一行
-					Matcher matcher = pSeq.matcher(realUrl);
-					matcher.find();
-					long currentSeqNo = Long.parseLong(matcher.group(1));
-					if(currentSeqNo <= lastSeqNo) {
-						// 视频源更新速度比不上下载速度，再等等
-						Thread.sleep(1000);
-						continue;
-					}
-					lastSeqNo = currentSeqNo;
-					
-					Logger.println(realUrl);
-					// 如果是相对路径，补全
-					if (!realUrl.startsWith("http")) {
-						realUrl = M3u8Downloader.genABUrl(realUrl, url);
-					}
-					// 获取真实地址
-					String fname = fileName + "-" + currentIndex + ".ts";
-					//Logger.println(realUrl);
-					if (!util.download(realUrl, fname, headers.getHeaders())) {
-						return false;
-					}
-					currentIndex ++;
-				}
-			}
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}finally {
-			try {
-				buReader.close();
-			} catch (Exception e) {
-			}
-		}
-		
 	}
 }

@@ -4,9 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>top.nicelee</groupId>
 	<artifactId>live-record</artifactId>
-	<version>2.26.0</version>
+	<version>2.27.0</version>
 	<name>iLiveRecord</name>
-	<description>B站、Acfun、斗鱼、虎牙、快手、抖音直播录制</description>
+	<description>B站、Acfun、斗鱼、虎牙、快手、抖音、淘宝直播录制</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -58,6 +58,12 @@
 			<!-- 默认的版本为3.8.1，修改为4.x,因为3.x使用的为编程的方式，4.x为注解的形式。 -->
 			<version>4.11</version>
 			<scope>test</scope>
+		</dependency>
+		<!-- Nashorn was deleted from JDK since JDK 15 -->
+		<dependency>
+			<groupId>org.openjdk.nashorn</groupId>
+			<artifactId>nashorn-core</artifactId>
+			<version>15.4</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.json/json -->
 		<dependency>

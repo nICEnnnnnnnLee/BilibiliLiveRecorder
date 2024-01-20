@@ -3,14 +3,10 @@ package nicelee.bilibili.live.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +14,6 @@ import java.util.zip.GZIPInputStream;
 
 import com.qq.jce.wup.UniPacket;
 
-import nicelee.bilibili.live.RoomDealer;
 import nicelee.bilibili.live.domain.RoomInfo;
 import nicelee.bilibili.live.impl.huya.GetLivingInfoReq;
 import nicelee.bilibili.live.impl.huya.GetLivingInfoRsp;
@@ -26,7 +21,7 @@ import nicelee.bilibili.live.impl.huya.MultiStreamInfo;
 import nicelee.bilibili.live.impl.huya.StreamInfo;
 import nicelee.bilibili.util.Logger;
 
-public class RoomDealerHuyaWup extends RoomDealer {
+public class RoomDealerHuyaWup extends RoomDealerHuya {
 
 	final public static String liver = "huya2";
 
@@ -105,13 +100,15 @@ public class RoomDealerHuyaWup extends RoomDealer {
 			if (streamDetail == null) {
 				streamDetail = cdns.get(cdns.size() - 1);
 			}
+			String antiCode = genFlvAntiCode(streamDetail.sStreamName, streamDetail.sFlvAntiCode, qn);
+			Logger.println(streamDetail.sFlvAntiCode);
+			Logger.println(antiCode);
 			String url = String.format("%s/%s.%s?%s", streamDetail.sFlvUrl, streamDetail.sStreamName,
-					streamDetail.sFlvUrlSuffix, streamDetail.sFlvAntiCode);
-			if (!"".equals(qn)) {
-				url = url + "&ratio=" + qn;
-			}
-			Logger.println(url);
-			url = genRealUrl(url);
+					streamDetail.sFlvUrlSuffix, antiCode);
+//			if (!"".equals(qn) && !"0".equals(qn)) {
+//				url = url + "&ratio=" + qn;
+//			}
+			// url = genRealUrl(url);
 			Logger.println(url);
 			return url;
 		} catch (Exception e) {
@@ -119,45 +116,6 @@ public class RoomDealerHuyaWup extends RoomDealer {
 			return null;
 		}
 
-	}
-
-	/**
-	 * https://github.com/wbt5/real-url/issues/39
-	 * https://github.com/wbt5/real-url/blob/df183eee17022d558cfc2aec221dfe632e360b13/huya.py#L11-L28
-	 */
-	String genRealUrl(String url) {
-		try {
-			String[] parts = url.split("\\?");
-			String[] r = parts[0].split("/");
-			String s = r[r.length - 1].replace(".flv", "");
-			String[] c = parts[1].split("&", 4);
-			HashMap<String, String> n = new HashMap<>();
-			for (String str : c) {
-				String temp[] = str.split("=");
-				if (temp.length > 1 && !temp[1].isEmpty()) {
-					n.put(temp[0], temp[1]);
-				}
-			}
-			String fm = URLDecoder.decode(n.get("fm"), "UTF-8");
-			String u = new String(Base64.getDecoder().decode(fm), "UTF-8");
-			String p = u.split("_")[0];
-			String f = System.currentTimeMillis() * 10000 + (long) (Math.random() * 10000) + "";
-			String ll = n.get("wsTime");
-			String t = "0";
-			String h = String.format("%s_%s_%s_%s_%s", p, t, s, f, ll);
-			byte[] secretBytes = MessageDigest.getInstance("md5").digest(h.getBytes());
-			String md5code = new BigInteger(1, secretBytes).toString(16);
-			for (int i = 0; i < 32 - md5code.length(); i++) {
-				md5code = "0" + md5code;
-			}
-			String y = c[c.length - 1];
-
-			String realUrl = String.format("%s?wsSecret=%s&wsTime=%s&u=%s&seqid=%s&%s", parts[0], md5code, ll, t, f, y);
-			return realUrl;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 
 	@Override
