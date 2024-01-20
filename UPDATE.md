@@ -1,4 +1,11 @@
 ## 更新  
++ V2.27.0
+    * 修复：解决JDK15及以上斗鱼不能录制的问题 [#122](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/122)
+    * 修复：修复`huya`开始下载后直接停止的问题 [#124](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/124)
+    * 优化：对`huya2`得到的原始直播流地址换一种处理方式
+    * 修复：修复`douyin`无法解析的问题, 使用移动端页面解析 [#125](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/125)
+    * 优化: 在未配置cookie使用`douyin2`时，尝试打印建议的cookie值
+
 + V2.26.0
     * 修复：快手直播`liver=kuaishou`
     * 新增: 淘宝`taobao`解析，并支持输入回放链接提取m3u8下载链接
