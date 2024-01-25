@@ -1,9 +1,11 @@
 package nicelee.bilibili.live.impl;
 
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +18,6 @@ import org.json.JSONObject;
 
 import nicelee.bilibili.live.RoomDealer;
 import nicelee.bilibili.live.domain.RoomInfo;
-import nicelee.bilibili.util.JSEngine;
 import nicelee.bilibili.util.Logger;
 
 public class RoomDealerHuya extends RoomDealer {
@@ -219,10 +220,11 @@ public class RoomDealerHuya extends RoomDealer {
 			fm = URLDecoder.decode(fm, "utf-8");
 			fm = new String(Base64.getDecoder().decode(fm), "utf-8"); // DWq8BcJ3h6DJt6TY_$0_$1_$2_$3
 			String ctype = n.getOrDefault("ctype", "huya_live"); // huya_live huya_webh5
-			String oe = JSEngine.huyaTrans(String.join("|", "" + seqid, ctype, "100"));
+			//String oe = JSEngine.huyaTrans(String.join("|", "" + seqid, ctype, "100"));
+			String oe = md5(String.join("|", "" + seqid, ctype, "100"));
 			String r = fm.replace("$0", "" + uid).replace("$1", sStreamName)
 					.replace("$2", oe).replace("$3", wsTime);
-			String wsSecret = JSEngine.huyaTrans(r);
+			String wsSecret = md5(r);
 			StringBuilder sb = new StringBuilder();
 			sb.append("wsSecret=").append(wsSecret).append("&wsTime=").append(wsTime)
 				.append("&seqid=").append(seqid)
@@ -245,6 +247,18 @@ public class RoomDealerHuya extends RoomDealer {
 		}
 	}
 
+	private static String md5(String data) {
+		try {
+			byte[] secretBytes = MessageDigest.getInstance("md5").digest(data.getBytes("utf-8"));
+			String md5code = new BigInteger(1, secretBytes).toString(16);
+			for (int i = 0; i < 32 - md5code.length(); i++) {
+				md5code = "0" + md5code;
+			}
+			return md5code;
+		} catch (Exception e) {
+			throw new RuntimeException();
+		}
+	}
 	@Override
 	public void startRecord(String url, String fileName, String shortId) {
 
