@@ -148,18 +148,17 @@ public class RoomDealerHuya extends RoomDealer {
 			matcher.find();
 			JSONObject obj = new JSONObject(matcher.group(1)).getJSONObject("stream");
 			JSONObject streamDetail = null;
-			JSONArray cdns = obj.getJSONArray("data").getJSONObject(0)
-					.getJSONArray("gameStreamInfoList");
-			for(int i=0; i< cdns.length(); i++) {
+			JSONArray cdns = obj.getJSONArray("data").getJSONObject(0).getJSONArray("gameStreamInfoList");
+			for (int i = 0; i < cdns.length(); i++) {
 				JSONObject cdn = cdns.getJSONObject(i);
 				// ali CDN 似乎坚持不到5min就会断掉
-				if("TX".equals(cdn.getString("sCdnType"))) {
+				if (cdnType.equals(cdn.getString("sCdnType"))) {
 					streamDetail = cdn;
 					break;
 				}
 			}
-			if(streamDetail == null) {
-				streamDetail = cdns.getJSONObject(cdns.length() -1);
+			if (streamDetail == null) {
+				streamDetail = cdns.getJSONObject(cdns.length() - 1);
 			}
 			String url = getFlvUrlFromStreamDetail(streamDetail, qn);
 			Logger.println(url);
@@ -176,29 +175,46 @@ public class RoomDealerHuya extends RoomDealer {
 		String sStreamName = streamDetail.getString("sStreamName");
 		String antiCode = genFlvAntiCode(sStreamName, streamDetail.getString("sFlvAntiCode"), qn);
 		Logger.println(antiCode);
-		String url = String.format("%s/%s.%s?%s", streamDetail.getString("sFlvUrl"),
-				sStreamName, streamDetail.getString("sFlvUrlSuffix"), antiCode);
+		String url = String.format("%s/%s.%s?%s", streamDetail.getString("sFlvUrl"), sStreamName,
+				streamDetail.getString("sFlvUrlSuffix"), antiCode);
 		return url;
 	}
-	
-	/**
-	 * key: it,
-        value: function (e) {
-          if ('' === this["_fm"]) return this["_sFlvAnticode"];
-          var t = "web",
-          i = 100;
-          this["_seqid"] = Number(C.a.uid) + Date.now();
-          var s = Oe(''.concat(this["_seqid"], '|').concat(this["_ctype"], '|').concat(i)),
-          a = t === N.a.PLATFORM_TYPE_NAME.wap ? C.a.uid : C.a.convertUid,
-          r = this["_fm"].replace("$0", a).replace("$1", this["_sStreamName"]).replace("$2", s).replace("$3", this["_wsTime"]);
-          e && (r += Je);
-          var n = ''.concat("wsSecret").concat("=").concat(Oe(r)).concat("&").concat("wsTime").concat("=").concat(this["_wsTime"]).concat("&")
-                .concat("seqid").concat("=").concat(this["_seqid"]).concat("&").concat("ctype").concat("=").concat(this["_ctype"]).concat("&").concat("ver=1");
-          return this["_params"].length > 0 && (n += "&" + this["_params"].join("&")),
-          n
-        }
-	 *
-	 */
+
+	static String sv, platform, ctype, t, uaSuffix, ua, cdnType;
+	static {
+		cdnType = System.getProperty("huya.cdn", "TX");
+		sv = System.getProperty("huya.sv", "2408161057");
+		platform = System.getProperty("huya.platform", "adr");
+		uaSuffix = System.getProperty("huya.uaSuffix", "&huya"); // websocket minigame signalsd
+		switch (platform) {
+		case "addr":
+			t = "2";
+			break;
+		case "ios":
+			t = "3";
+			break;
+		case "mini_app":
+			t = "102";
+			break;
+		case "wap":
+			t = "103";
+			sv = "1.0.0";
+			break;
+		case "huya_liveshareh5":
+			platform = "liveshareh5";
+			t = "104";
+			break;
+		case "web":
+			t = "100";
+			break;
+		default:
+			t = System.getProperty("huya.plType", "2");
+			break;
+		}
+		ctype = "huya_" + platform;
+		ua = platform + "&" + sv + uaSuffix;
+	}
+
 	String genFlvAntiCode(String sStreamName, String sFlvAntiCode, String qn) {
 		try {
 			// 根据sFlvAntiCode生成key value表
@@ -213,30 +229,26 @@ public class RoomDealerHuya extends RoomDealer {
 			// 随机生成uid
 			long uid = 1462220000000L + new Random().nextInt(1145142333);
 			long currentTime = System.currentTimeMillis();
-			String wsTime = Long.toHexString(currentTime/1000);
+			String wsTime = Long.toHexString(currentTime / 1000);
 			long seqid = uid + currentTime + 216000000L; // 216000000 = 30*1000*60*60 = 30h
 			// 生成 wsSecret, 先获取参数fm, 再逐一替换
 			String fm = n.get("fm");
 			fm = URLDecoder.decode(fm, "utf-8");
 			fm = new String(Base64.getDecoder().decode(fm), "utf-8"); // DWq8BcJ3h6DJt6TY_$0_$1_$2_$3
-			String ctype = n.getOrDefault("ctype", "huya_live"); // huya_live huya_webh5
-			//String oe = JSEngine.huyaTrans(String.join("|", "" + seqid, ctype, "100"));
-			String oe = md5(String.join("|", "" + seqid, ctype, "100"));
-			String r = fm.replace("$0", "" + uid).replace("$1", sStreamName)
-					.replace("$2", oe).replace("$3", wsTime);
+			Logger.println(n.getOrDefault("ctype", "ctype:none"));
+			Logger.println(ctype);
+			// String oe = JSEngine.huyaTrans(String.join("|", "" + seqid, ctype, t));
+			String oe = md5(String.join("|", "" + seqid, ctype, t));
+			String r = fm.replace("$0", "" + uid).replace("$1", sStreamName).replace("$2", oe).replace("$3", wsTime);
 			String wsSecret = md5(r);
 			StringBuilder sb = new StringBuilder();
-			sb.append("wsSecret=").append(wsSecret).append("&wsTime=").append(wsTime)
-				.append("&seqid=").append(seqid)
-				.append("&ctype=").append(ctype)
-				.append("&ver=1&fs=").append(n.getOrDefault("fs", ""))
-				.append("&sphdcdn=").append(n.getOrDefault("sphdcdn", ""))
-				.append("&sphdDC=").append(n.getOrDefault("sphdDC", ""))
-				.append("&sphd=").append(n.getOrDefault("sphd", ""))
-				.append("&exsphd=").append(n.getOrDefault("exsphd", ""))
-				// .append("&ratio=").append(qn)
-				.append("&dMod=mseh-32&sdkPcdn=1_1&u=").append(uid)
-				.append("&t=100&sv=2401190627&sdk_sid=").append(currentTime);
+			sb.append("wsSecret=").append(wsSecret).append("&wsTime=").append(wsTime).append("&seqid=").append(seqid)
+					.append("&ctype=").append(ctype).append("&ver=1&fs=").append(n.getOrDefault("fs", "")).append("&t=")
+					.append(t).append("&sphdcdn=").append(n.getOrDefault("sphdcdn", "")).append("&sphdDC=")
+					.append(n.getOrDefault("sphdDC", "")).append("&sphd=").append(n.getOrDefault("sphd", ""))
+					.append("&exsphd=").append(n.getOrDefault("exsphd", "")).append("&t=").append(t).append("&sv=")
+					.append(sv) // .append("&ratio=").append(qn)
+					.append("&dMod=mseh-32&sdkPcdn=1_1&u=").append(uid).append("&sdk_sid=").append(currentTime);
 			if (!"".equals(qn) && !"0".equals(qn)) {
 				sb.append("&ratio=").append(qn);
 			}
@@ -259,6 +271,7 @@ public class RoomDealerHuya extends RoomDealer {
 			throw new RuntimeException();
 		}
 	}
+
 	@Override
 	public void startRecord(String url, String fileName, String shortId) {
 
@@ -269,7 +282,7 @@ public class RoomDealerHuya extends RoomDealer {
 		// flv
 		util.download(url, fileName + ".flv", mobile);
 	}
-	
+
 	public boolean test(String url, HashMap<String, String> headers) {
 		InputStream inn = null;
 		try {
@@ -297,8 +310,7 @@ public class RoomDealerHuya extends RoomDealer {
 		} catch (Exception e) {
 			System.out.println("发送GET请求出现异常！" + e);
 			return false;
-		}
-		finally {
+		} finally {
 			try {
 				if (inn != null) {
 					inn.close();
