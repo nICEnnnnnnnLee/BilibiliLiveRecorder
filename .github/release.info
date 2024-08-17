@@ -1,5 +1,3 @@
-* 修复：解决JDK15及以上斗鱼不能录制的问题 [#122](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/122)
-* 修复：修复`huya`开始下载后直接停止的问题 [#124](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/124)
-* 优化：对`huya2`得到的原始直播流地址换一种处理方式
-* 修复：修复`douyin`无法解析的问题, 使用移动端页面解析 [#125](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/125)
-* 优化: 在未配置cookie使用`douyin2`时，尝试打印建议的cookie值
+* 优化：淘宝：兼容可能的json解析错误。
+* 优化：虎牙：通过java代码来计算md5，而不是js。
+* 修复：修改虎牙`ctype`、`t`参数，使之不在2分钟时就断开。 #132

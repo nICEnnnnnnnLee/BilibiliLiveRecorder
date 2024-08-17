@@ -14,7 +14,7 @@ import nicelee.bilibili.threads.ThRecord;
 
 public class Main {
 
-	final static String version = "v2.27.0";
+	final static String version = "v2.28.0";
 	public static Thread thRecord;
 	public static Thread thMonitor;
 	public static Thread thCommand;
