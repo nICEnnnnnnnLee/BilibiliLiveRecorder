@@ -12,7 +12,10 @@ public final class UserId extends JceStruct implements Cloneable {
 	public String sToken = "";
 	public String sDeviceInfo = "";
 
+	public static String UA =  "webh5&0.0.0&websocket";
 	public UserId() {
+		this.sDeviceInfo = "firefox";
+		this.sHuYaUA = UA;
 	}
 
 	public UserId(long var1, String var3, String var4, String var5, String var6, int var7) {

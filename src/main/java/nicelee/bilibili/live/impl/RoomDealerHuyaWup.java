@@ -92,7 +92,7 @@ public class RoomDealerHuyaWup extends RoomDealerHuya {
 			for (int i = 0; i < cdns.size(); i++) {
 				StreamInfo cdn = cdns.get(i);
 				// ali CDN 似乎坚持不到5min就会断掉
-				if ("TX".equals(cdn.sCdnType)) {
+				if (cdnType.equals(cdn.sCdnType)) {
 					streamDetail = cdn;
 					break;
 				}
@@ -100,6 +100,8 @@ public class RoomDealerHuyaWup extends RoomDealerHuya {
 			if (streamDetail == null) {
 				streamDetail = cdns.get(cdns.size() - 1);
 			}
+//			GetCdnTokenExRsp cdnToken = getCdnToken(streamDetail.sFlvUrl, streamDetail.sStreamName);
+//			Logger.println(cdnToken.sFlvToken);
 			String antiCode = genFlvAntiCode(streamDetail.sStreamName, streamDetail.sFlvAntiCode, qn);
 			Logger.println(streamDetail.sFlvAntiCode);
 			Logger.println(antiCode);
@@ -141,6 +143,26 @@ public class RoomDealerHuyaWup extends RoomDealerHuya {
 		GetLivingInfoRsp rsp = var4x.getByClass("tRsp", new GetLivingInfoRsp());
 		return rsp;
 	}
+	
+//	private GetCdnTokenExRsp getCdnToken(String flvUrl, String streamName) {
+//		UniPacket uniPacket = new UniPacket();
+//		uniPacket.useVersion3();
+//		uniPacket.setFuncName("getCdnTokenInfoEx");
+//		uniPacket.setServantName("liveui");
+//		uniPacket.setEncodeName("UTF-8");
+//		uniPacket.setRequestId(1);
+//		GetCdnTokenExReq tReq = new GetCdnTokenExReq(flvUrl, streamName);
+//		uniPacket.put("tReq", tReq);
+//		HashMap<String, String> h = new HashMap<>();
+//		h.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/109.0");
+//		byte[] result = postContent("http://wup.huya.com", h, uniPacket.encode(), null);
+//		UniPacket var4x = new UniPacket();
+//		var4x.setEncodeName("UTF-8");
+//		var4x.decode(result);
+//		GetCdnTokenExRsp rsp = var4x.getByClass("tRsp", new GetCdnTokenExRsp());
+////		Logger.println(rsp.sFlvToken);
+//		return rsp;
+//	}
 
 	private byte[] postContent(String url, HashMap<String, String> headers, Object param, List<HttpCookie> listCookie) {
 		ByteArrayOutputStream result = new ByteArrayOutputStream();
