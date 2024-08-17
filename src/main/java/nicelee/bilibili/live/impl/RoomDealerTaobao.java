@@ -79,7 +79,7 @@ public class RoomDealerTaobao extends RoomDealer {
 			}
 			// 获取用户直播的在线状态
 			JSONObject rUserData = getUserData(userId).getJSONObject("result").getJSONObject("data");
-			roomInfo.setDescription(rUserData.getString("signature"));
+			roomInfo.setDescription(rUserData.optString("signature", "-"));
 			roomInfo.setUserName(rUserData.getString("userNick"));
 			if ("0".equals(rUserData.optString("livingStatus"))) {
 				roomInfo.setLiveStatus(0);
