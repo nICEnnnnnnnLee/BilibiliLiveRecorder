@@ -17,7 +17,10 @@ public final class GetCdnTokenExReq extends JceStruct implements Cloneable {
 	static UserId cache_tId;
 	public int iAppId = 66;
 
-	public GetCdnTokenExReq() {
+	public GetCdnTokenExReq(String sFlvUrl, String sStreamName) {
+		this.tId = new UserId();
+		this.sFlvUrl =sFlvUrl;
+		this.sStreamName =sStreamName;
 	}
 
 	public String className() {

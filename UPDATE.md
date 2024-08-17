@@ -1,4 +1,8 @@
 ## 更新  
++ V2.28.0
+    * 优化：淘宝：兼容可能的json解析错误。
+    * 优化：虎牙：通过java代码来计算md5，而不是js。
+    * 修复：修改虎牙`ctype`、`t`参数，使之不在2分钟时就断开。 #132
 + V2.27.0
     * 修复：解决JDK15及以上斗鱼不能录制的问题 [#122](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/122)
     * 修复：修复`huya`开始下载后直接停止的问题 [#124](https://github.com/nICEnnnnnnnLee/BilibiliLiveRecorder/issues/124)

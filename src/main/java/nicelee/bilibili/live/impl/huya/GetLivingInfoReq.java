@@ -4,7 +4,7 @@ import com.qq.taf.jce.*;
 
 /**
  * 参考 https://a.msstatic.com/huya/h5player/room/2302151315/vplayerUI.js
- *
+ *		https://a.msstatic.com/huya/h5player/room/2408161057/vplayerUI.js
  */
 public final class GetLivingInfoReq extends JceStruct implements Cloneable {
 	private static final long serialVersionUID = -1354281639529108515L;
@@ -24,8 +24,6 @@ public final class GetLivingInfoReq extends JceStruct implements Cloneable {
 	public GetLivingInfoReq(long roomId) {
 		this.iRoomId = roomId;
 		this.tId = new UserId();
-		this.tId.sDeviceInfo = "firefox";
-		this.tId.sHuYaUA = "webh5&2302151404&websocket"; // webh5&1.0.0&huya
 	}
 
 	public String className() {
