@@ -1,17 +1,11 @@
 package nicelee.bilibili.live.impl;
 
-import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,54 +36,28 @@ public class RoomDealerHuya extends RoomDealer {
 		roomInfo.setShortId(shortId);
 		try {
 			// 获取基础信息
-			String basicInfoUrl = String.format("https://www.huya.com/%s", shortId);
-			String html = util.getContent(basicInfoUrl, headers.getCommonHeaders("www.huya.com"), null);
-
-			Pattern pJson = Pattern.compile("var TT_ROOM_DATA =(.*?); *var +TT");
-			Matcher matcher = pJson.matcher(html);
-			matcher.find();
-			JSONObject room = new JSONObject(matcher.group(1));
+			JSONObject all = getLiveObj(shortId);
+			JSONObject liveData = all.getJSONObject("liveData");
+			JSONObject profileInfo = all.getJSONObject("profileInfo");
 
 			// 直播状态 ON REPLAY
-			if ("ON".equals(room.getString("state"))) {
+			if ("ON".equals(all.getString("liveStatus"))) {
 				roomInfo.setLiveStatus(1);
 			} else {
 				roomInfo.setLiveStatus(0);
 			}
 
-			// 真实房间id
 			roomInfo.setRoomId(shortId);
-
-			roomInfo.setDescription(room.getString("introduction"));
-
-			// 房间主id
-			roomInfo.setUserId(room.optLong("profileRoom"));
-
-			pJson = Pattern.compile("var hyPlayerConfig = (.*?});");
-			matcher = pJson.matcher(html);
-			matcher.find();
-			// System.out.println(matcher.group(1));
-			JSONObject obj = new JSONObject(matcher.group(1));
+			roomInfo.setDescription(liveData.getString("introduction"));
+			roomInfo.setUserId(profileInfo.optLong("profileRoom"));
+			roomInfo.setUserName(profileInfo.getString("nick"));
+			roomInfo.setTitle(liveData.getString("roomName"));
+			
+			
 			if (roomInfo.getLiveStatus() == 1) {
-				JSONObject streamDetail = obj.getJSONObject("stream").getJSONArray("data").getJSONObject(0)
-						.getJSONArray("gameStreamInfoList").getJSONObject(0);
-				String url = getFlvUrlFromStreamDetail(streamDetail, "");
-				boolean urlIsValid = test(url, headers.getHeaders());
-				Logger.println("当前url可用性: " + urlIsValid);
-				if (!urlIsValid)
-					roomInfo.setLiveStatus(0);
-			}
-			if (roomInfo.getLiveStatus() == 1) {
-//				String stream = obj.getString("stream");
-//				stream = new String(Base64.getDecoder().decode(stream), "UTF-8");
-//				obj = new JSONObject(stream);
-				obj = obj.getJSONObject("stream");
-				// 房间主名称
-				JSONObject liveInfo = obj.getJSONArray("data").getJSONObject(0).getJSONObject("gameLiveInfo");
-				roomInfo.setUserName(liveInfo.getString("nick"));
-				roomInfo.setTitle(liveInfo.getString("roomName"));
+				JSONObject obj = all.getJSONObject("stream").getJSONObject("flv");
 				// 清晰度
-				JSONArray jArray = obj.getJSONArray("vMultiStreamInfo");
+				JSONArray jArray = obj.getJSONArray("rateArray");
 				String[] qn = new String[jArray.length()];
 				String[] qnDesc = new String[jArray.length()];
 				for (int i = 0; i < jArray.length(); i++) {
@@ -128,6 +96,14 @@ public class RoomDealerHuya extends RoomDealer {
 		return roomInfo;
 	}
 
+	public JSONObject getLiveObj(String roomId) {
+		String basicInfoUrl = "https://mp.huya.com/cache.php?m=Live&do=profileRoom&roomid=" + roomId;
+		HashMap<String, String> map = headers.getCommonHeaders("www.huya.com");
+		String j = util.getContent(basicInfoUrl, map, null);
+		Logger.println(j);
+		return new JSONObject(j).getJSONObject("data");
+	}
+
 	/**
 	 * 获取直播地址的下载链接
 	 * 
@@ -139,16 +115,8 @@ public class RoomDealerHuya extends RoomDealer {
 	public String getLiveUrl(String roomId, String qn, Object... params) {
 		try {
 			// 获取基础信息
-			String basicInfoUrl = String.format("https://www.huya.com/%s", roomId);
-			HashMap<String, String> map = headers.getCommonHeaders("www.huya.com");
-			String html = util.getContent(basicInfoUrl, map, null);
-
-			Pattern pJson = Pattern.compile("var hyPlayerConfig *= *(.*?});");
-			Matcher matcher = pJson.matcher(html);
-			matcher.find();
-			JSONObject obj = new JSONObject(matcher.group(1)).getJSONObject("stream");
 			JSONObject streamDetail = null;
-			JSONArray cdns = obj.getJSONArray("data").getJSONObject(0).getJSONArray("gameStreamInfoList");
+			JSONArray cdns = getLiveObj(roomId).getJSONObject("stream").getJSONArray("baseSteamInfoList");
 			for (int i = 0; i < cdns.length(); i++) {
 				JSONObject cdn = cdns.getJSONObject(i);
 				// ali CDN 似乎坚持不到5min就会断掉
@@ -180,39 +148,42 @@ public class RoomDealerHuya extends RoomDealer {
 		return url;
 	}
 
-	static String sv, platform, ctype, t, uaSuffix, ua, cdnType;
+//	static String sv, platform, ctype, t, uaSuffix, ua, cdnType;
+	static String sv, ctype, t, cdnType;
 	static {
 		cdnType = System.getProperty("huya.cdn", "TX");
 		sv = System.getProperty("huya.sv", "2408161057");
-		platform = System.getProperty("huya.platform", "adr");
-		uaSuffix = System.getProperty("huya.uaSuffix", "&huya"); // websocket minigame signalsd
-		switch (platform) {
-		case "addr":
-			t = "2";
-			break;
-		case "ios":
-			t = "3";
-			break;
-		case "mini_app":
-			t = "102";
-			break;
-		case "wap":
-			t = "103";
-			sv = "1.0.0";
-			break;
-		case "huya_liveshareh5":
-			platform = "liveshareh5";
-			t = "104";
-			break;
-		case "web":
-			t = "100";
-			break;
-		default:
-			t = System.getProperty("huya.plType", "2");
-			break;
-		}
-		ctype = "huya_" + platform;
-		ua = platform + "&" + sv + uaSuffix;
+//		platform = System.getProperty("huya.platform", "adr");
+//		uaSuffix = System.getProperty("huya.uaSuffix", "&huya"); // websocket minigame signalsd
+//		switch (platform) {
+//		case "adr":
+//			t = "2";
+//			break;
+//		case "ios":
+//			t = "3";
+//			break;
+//		case "mini_app":
+//			t = "102";
+//			break;
+//		case "wap":
+//			t = "103";
+//			sv = "1.0.0";
+//			break;
+//		case "huya_liveshareh5":
+//			platform = "liveshareh5";
+//			t = "104";
+//			break;
+//		case "web":
+//			t = "100";
+//			break;
+//		default:
+//			t = System.getProperty("huya.plType", "2");
+//			break;
+//		}
+//		ctype = "huya_" + platform;
+//		ua = platform + "&" + sv + uaSuffix;
+		ctype = System.getProperty("huya.force_ctype", "tars_mp");;
+		t = System.getProperty("huya.force_t", "102");
 	}
 
 	String genFlvAntiCode(String sStreamName, String sFlvAntiCode, String qn) {
@@ -228,6 +199,7 @@ public class RoomDealerHuya extends RoomDealer {
 			}
 			// 随机生成uid
 			long uid = 1462220000000L + new Random().nextInt(1145142333);
+			long convertUid = (uid << 8 | uid >> (32 - 8)) & 0xFFFFFFFF;
 			long currentTime = System.currentTimeMillis();
 			String wsTime = Long.toHexString(currentTime / 1000);
 			long seqid = uid + currentTime + 216000000L; // 216000000 = 30*1000*60*60 = 30h
@@ -239,16 +211,26 @@ public class RoomDealerHuya extends RoomDealer {
 			Logger.println(ctype);
 			// String oe = JSEngine.huyaTrans(String.join("|", "" + seqid, ctype, t));
 			String oe = md5(String.join("|", "" + seqid, ctype, t));
-			String r = fm.replace("$0", "" + uid).replace("$1", sStreamName).replace("$2", oe).replace("$3", wsTime);
+			String r = fm.replace("$0", "" + convertUid).replace("$1", sStreamName).replace("$2", oe).replace("$3",
+					wsTime);
 			String wsSecret = md5(r);
 			StringBuilder sb = new StringBuilder();
-			sb.append("wsSecret=").append(wsSecret).append("&wsTime=").append(wsTime).append("&seqid=").append(seqid)
-					.append("&ctype=").append(ctype).append("&ver=1&fs=").append(n.getOrDefault("fs", "")).append("&t=")
-					.append(t).append("&sphdcdn=").append(n.getOrDefault("sphdcdn", "")).append("&sphdDC=")
-					.append(n.getOrDefault("sphdDC", "")).append("&sphd=").append(n.getOrDefault("sphd", ""))
-					.append("&exsphd=").append(n.getOrDefault("exsphd", "")).append("&t=").append(t).append("&sv=")
-					.append(sv) // .append("&ratio=").append(qn)
-					.append("&dMod=mseh-32&sdkPcdn=1_1&u=").append(uid).append("&sdk_sid=").append(currentTime);
+			sb.append("wsSecret=").append(wsSecret)
+					.append("&wsTime=").append(wsTime)
+					.append("&seqid=").append(seqid)
+					.append("&ctype=").append(ctype)
+					.append("&t=").append(t)
+					.append("&ver=1&fs=").append(n.getOrDefault("fs", ""))
+//				.append("&sphdcdn=").append(n.getOrDefault("sphdcdn", "")).append("&sphdDC=")
+//					.append(n.getOrDefault("sphdDC", "")).append("&sphd=").append(n.getOrDefault("sphd", ""))
+//					.append("&exsphd=").append(n.getOrDefault("exsphd", ""))
+//					.append("&t=").append(t)
+//					.append("&dMod=mseh-32&sdkPcdn=1_1")
+					.append("&sv=").append(sv) // .append("&ratio=").append(qn)
+					.append("&uuid=").append(uid / 100)  // 随便填的
+					.append("&codec=264")
+					.append("&u=").append(convertUid)
+					.append("&sdk_sid=").append(currentTime);
 			if (!"".equals(qn) && !"0".equals(qn)) {
 				sb.append("&ratio=").append(qn);
 			}
@@ -283,41 +265,4 @@ public class RoomDealerHuya extends RoomDealer {
 		util.download(url, fileName + ".flv", mobile);
 	}
 
-	public boolean test(String url, HashMap<String, String> headers) {
-		InputStream inn = null;
-		try {
-			URL realUrl = new URL(url);
-			HttpURLConnection conn = (HttpURLConnection) realUrl.openConnection();
-			conn.setConnectTimeout(20000);
-			conn.setReadTimeout(120000);
-			for (Map.Entry<String, String> entry : headers.entrySet()) {
-				conn.setRequestProperty(entry.getKey(), entry.getValue());
-				// System.out.println(entry.getKey() + ":" + entry.getValue());
-			}
-			conn.connect();
-			// 获取所有响应头字段
-//			Map<String, List<String>> map = conn.getHeaderFields();
-//			// 遍历所有的响应头字段
-//			for (String key : map.keySet()) {
-//				System.out.println(key + "--->" + map.get(key));
-//			}
-			inn = conn.getInputStream();
-			int rspCode = conn.getResponseCode();
-			if (rspCode >= 200 && rspCode < 300)
-				return true;
-			else
-				return false;
-		} catch (Exception e) {
-			System.out.println("发送GET请求出现异常！" + e);
-			return false;
-		} finally {
-			try {
-				if (inn != null) {
-					inn.close();
-				}
-			} catch (Exception e2) {
-				e2.printStackTrace();
-			}
-		}
-	}
 }
