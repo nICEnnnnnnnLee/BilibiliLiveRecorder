@@ -1,4 +1,6 @@
 ## 更新  
++ V2.29.0
+    * 修复：虎牙：参考[biliup/biliup](https://github.com/biliup/biliup/blob/7c703b936b7a79c134a7af45331d71c32de976a7/biliup/plugins/huya.py#L169)，使用微信小程序的参数。 #134 
 + V2.28.0
     * 优化：淘宝：兼容可能的json解析错误。
     * 优化：虎牙：通过java代码来计算md5，而不是js。
