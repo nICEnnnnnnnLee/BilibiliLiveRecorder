@@ -78,8 +78,8 @@ Go go go, Bilibili Pikachu!
 | kuaishou  | 2024/08/17 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
 | douyin    | 2024/08/17 | `flv`清晰度可多选，可不需要cookie。id为`https://live.douyin.com/1234567`后面的那串数字 |   
 | douyin2   | 2024/08/17 | 抖音的另一种解析方式，前者失败后可以尝试。`flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可)。id为`https://live.douyin.com/1234567`后面的那串数字，也可以直接输入短网址类型`https://v.douyin.com/xxxx` |   
-| huya      | 2024/08/17 | `flv`清晰度可多选，可不需要cookie。开播后要过一阵才能检测到。 | 
-| huya2     | 2024/08/17 | 虎牙的另一种解析方式，只接受数字id，非数字的需要打开网页寻找（热度值左边）。`flv`清晰度可多选，可不需要cookie。 | 
+| huya      | 2024/08/22 | `flv`清晰度可多选，可不需要cookie。只接受数字id，非数字的需要打开网页寻找（热度值左边）。 | 
+| huya2     | 2024/08/22 | 虎牙的另一种解析方式，只接受数字id，非数字的需要打开网页寻找（热度值左边）。`flv`清晰度可多选，可不需要cookie。 | 
 | taobao    | 2023/09/17 | `flv`清晰度可多选，必须要cookie(先试一试不登录)。id建议首次使用类似`https://m.tb.cn/xxxx`的直播或者回访的分享链接，这时会输出回放m3u8链接和可用id，之后建议一直使用该id。当然，建议是使用相关m3u8下载器下载回放，而不是直接录制。  | 
 | acfun     | 2023/02/22 | `flv`清晰度可多选，可不需要cookie | 
 | yy        | 2022/10/09 | `flv`清晰度可多选，必须要cookie(可以不登录，只需要过了拖拽验证即可) | 
@@ -319,6 +319,7 @@ or传入参数： qnPri=蓝光4M>蓝光
 + 使用[JSON.org](https://github.com/stleary/JSON-java)库做简单的Json解析[![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/stleary/JSON-java/blob/master/LICENSE)
 + 使用[Crypto-js](https://github.com/brix/crypto-js)仿浏览器生成斗鱼直播录制token[![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/brix/crypto-js/blob/develop/LICENSE) 
 + 参考[HuyaSender](https://github.com/xyxyxiaoyan/HuyaSender)解析虎牙[TarsTup](https://github.com/TarsCloud/TarsTup)协议[![](https://img.shields.io/badge/license-Tencent%20Binary%20License-green.svg)](https://tencentdingdang.github.io/dmsdk/licenses/android-wup-sdk/LICENSE.txt) 
++ 参考[biliup/biliup](https://github.com/biliup/biliup/blob/7c703b936b7a79c134a7af45331d71c32de976a7/biliup/plugins/huya.py#L169)修改query参数[![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/biliup/biliup/blob/7c703b936b7a79c134a7af45331d71c32de976a7/LICENSE)  
 
 ## :smile:LICENSE 
 ```
