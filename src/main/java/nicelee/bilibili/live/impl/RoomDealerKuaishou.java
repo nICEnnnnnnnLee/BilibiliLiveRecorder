@@ -45,11 +45,12 @@ public class RoomDealerKuaishou extends RoomDealer {
 			try {
 				live = raw.getJSONObject("liveStream");
 				// 直播状态信息
-				if (live != null && live.getJSONArray("playUrls").length() > 0)
+				if (live != null && live.getJSONObject("playUrls").getJSONObject("h264").has("adaptationSet"))
 					roomInfo.setLiveStatus(1);
 				else
 					roomInfo.setLiveStatus(0);
 			} catch (Exception e) {
+				e.printStackTrace();
 				roomInfo.setLiveStatus(0);
 			}
 
@@ -67,7 +68,7 @@ public class RoomDealerKuaishou extends RoomDealer {
 			if (roomInfo.getLiveStatus() == 1) {
 				roomInfo.setTitle(live.optString("caption", roomInfo.getDescription()));
 				// 清晰度
-				JSONArray jArray = live.getJSONArray("playUrls").getJSONObject(0).getJSONObject("adaptationSet")
+				JSONArray jArray = live.getJSONObject("playUrls").getJSONObject("h264").getJSONObject("adaptationSet")
 						.getJSONArray("representation");
 				String[] qn = new String[jArray.length()];
 				String[] qnDesc = new String[jArray.length()];
@@ -100,7 +101,7 @@ public class RoomDealerKuaishou extends RoomDealer {
 	public String getLiveUrl(String roomId, String qn, Object... params) {
 		try {
 			JSONObject obj = getLiveInfoObj(roomId).getJSONObject("liveStream");
-			JSONArray jArray = obj.getJSONArray("playUrls").getJSONObject(0).getJSONObject("adaptationSet")
+			JSONArray jArray = obj.getJSONObject("playUrls").getJSONObject("h264").getJSONObject("adaptationSet")
 					.getJSONArray("representation");
 			for (int i = 0, j = jArray.length() - 1; i < jArray.length(); i++, j--) {
 				JSONObject objTemp = jArray.getJSONObject(j);
