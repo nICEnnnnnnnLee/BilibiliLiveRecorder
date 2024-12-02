@@ -49,6 +49,7 @@ public class RoomDealerBilibili extends RoomDealer{
 				String liverInfoUrl = String.format("https://api.live.bilibili.com/live_user/v1/UserInfo/get_anchor_in_room?roomid=%s",
 						roomInfo.getRoomId());
 				String jsonLiverStr = util.getContent(liverInfoUrl, headers.getBiliLiveJsonAPIHeaders(Long.parseLong(shortId)), null);
+				Logger.println(jsonLiverStr);
 				String uname = new JSONObject(jsonLiverStr).getJSONObject("data").getJSONObject("info").getString("uname");
 				roomInfo.setUserName(uname);
 				

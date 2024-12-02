@@ -1,4 +1,6 @@
 ## 更新  
++ V2.30.0
+    * 修复快手直播
 + V2.29.0
     * 修复：虎牙：参考[biliup/biliup](https://github.com/biliup/biliup/blob/7c703b936b7a79c134a7af45331d71c32de976a7/biliup/plugins/huya.py#L169)，使用微信小程序的参数。 #134 
 + V2.28.0
